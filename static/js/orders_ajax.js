@@ -51,7 +51,7 @@
         const form = sel.closest('form');
         if (!form) return;
         try {
-          await fetch(form.action, {
+          const resp = await fetch(form.action, {
             method: 'POST',
             headers: {
               'X-Requested-With': 'XMLHttpRequest',
@@ -60,14 +60,38 @@
             body: new URLSearchParams(new FormData(form)),
             credentials: 'same-origin',
           });
+          let msg = 'Updated';
+          if (resp && resp.ok){
+            const data = await resp.json().catch(()=>({}));
+            if (data && data.ok){ msg = `Updated to ${data.status_display || data.status || ''}`.trim(); showChip('success', msg); }
+            else { showChip('warning', 'Update may not have applied'); }
+          } else {
+            showChip('error', 'Failed to update status');
+          }
         } catch (e) {}
         refreshList();
       });
     });
   }
 
+  function showChip(kind, text){
+    const container = document.getElementById('chip-messages');
+    if (!container) return;
+    const map = { success: 'chip-success', info: 'chip-info', warning: 'chip-warning', error: 'chip-error', danger: 'chip-danger' };
+    const cls = map[kind] || 'chip-info';
+    const el = document.createElement('div');
+    el.className = `chip-msg ${cls}`;
+    el.setAttribute('role','status');
+    el.setAttribute('aria-live','polite');
+    el.innerHTML = `<span class="chip-dot"></span><span class="chip-text"></span><button class="chip-close" aria-label="Close">&times;</button>`;
+    el.querySelector('.chip-text').textContent = text;
+    const close = () => { el.remove(); };
+    el.querySelector('.chip-close').addEventListener('click', close);
+    container.appendChild(el);
+    setTimeout(close, 3000);
+  }
+
   // initial hooks
   hookFilters();
   hookRowStatus();
 })();
-
