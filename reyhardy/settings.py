@@ -62,6 +62,7 @@ if RENDER_EXTERNAL_HOSTNAME:
         CSRF_TRUSTED_ORIGINS = list(CSRF_TRUSTED_ORIGINS) + [_csrf_origin]
 
 INSTALLED_APPS = [
+    "jazzmin",  # Admin UI theme with modern sidebar
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -198,3 +199,57 @@ SHIPROCKET_DEFAULT_UNIT_WEIGHT_KG = env("SHIPROCKET_DEFAULT_UNIT_WEIGHT_KG")
 SHIPROCKET_DEFAULT_DIM_LCM = env("SHIPROCKET_DEFAULT_DIM_LCM")
 SHIPROCKET_DEFAULT_DIM_BCM = env("SHIPROCKET_DEFAULT_DIM_BCM")
 SHIPROCKET_DEFAULT_DIM_HCM = env("SHIPROCKET_DEFAULT_DIM_HCM")
+
+# Jazzmin admin configuration
+JAZZMIN_SETTINGS = {
+    "site_title": "Rey&Hardy Admin",
+    "site_header": "Rey&Hardy Admin",
+    "site_brand": "Rey&Hardy",
+    "welcome_sign": "Welcome to Rey&Hardy Admin",
+    "search_model": "catalog.Product",
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "order_with_respect_to": [
+        "orders",  # Orders app first
+        "catalog",  # Then Products/Categories
+        "core",     # Banners etc.
+    ],
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "catalog": "fas fa-tags",
+        "catalog.Product": "fas fa-shirt",
+        "catalog.Category": "fas fa-tags",
+        "orders": "fas fa-shopping-cart",
+        "orders.Order": "fas fa-shopping-bag",
+        "orders.OrderItem": "fas fa-list",
+        "orders.ReturnRequest": "fas fa-rotate-left",
+        "core": "fas fa-gem",
+        "core.Banner": "fas fa-photo-video",
+        "reviews": "fas fa-star",
+        "coupons": "fas fa-ticket-alt",
+        "payments": "fas fa-credit-card",
+    },
+    "topmenu_links": [
+        {"name": "Dashboard", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"app": "orders"},
+        {"app": "catalog"},
+    ],
+    "usermenu_links": [
+        {"name": "View site", "url": "/", "new_window": True},
+    ],
+    "hide_apps": [
+        "sites",
+        "socialaccount",
+        "account",
+        # Keep auth visible for managing users
+    ],
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "theme": "darkly",  # default; your theme toggles still work for the site, not admin
+    "dark_mode_theme": None,
+    "navbar": "navbar-dark",
+    "sidebar": "sidebar-dark-primary",
+    "brand_colour": "navbar-primary",
+    "accent": "accent-warning",
+}
