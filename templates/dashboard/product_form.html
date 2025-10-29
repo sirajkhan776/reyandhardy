@@ -1,10 +1,11 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
 <div class="row g-3">
   <div class="col-md-3">{% include "dashboard/_nav.html" %}</div>
   <div class="col-md-9">
     <h3>Create Product</h3>
-    <form method="post" class="card card-body">
+    <form method="post" enctype="multipart/form-data" class="card card-body">
       {% csrf_token %}
       <div class="row g-3">
         <div class="col-md-8">{{ form.name.label_tag }}{{ form.name }}</div>
@@ -12,14 +13,110 @@
         <div class="col-12">{{ form.description.label_tag }}{{ form.description }}</div>
         <div class="col-md-3">{{ form.base_price.label_tag }}{{ form.base_price }}</div>
         <div class="col-md-3">{{ form.sale_price.label_tag }}{{ form.sale_price }}</div>
+        <div class="col-md-2">{{ form.weight_kg.label_tag }}{{ form.weight_kg }}</div>
+        <div class="col-md-2">{{ form.length_cm.label_tag }}{{ form.length_cm }}</div>
+        <div class="col-md-2">{{ form.breadth_cm.label_tag }}{{ form.breadth_cm }}</div>
+        <div class="col-md-2">{{ form.height_cm.label_tag }}{{ form.height_cm }}</div>
         <div class="col-md-3 form-check d-flex align-items-center">{{ form.is_active }} {{ form.is_active.label_tag }}</div>
         <div class="col-md-3 form-check d-flex align-items-center">{{ form.is_best_seller }} {{ form.is_best_seller.label_tag }}</div>
       </div>
+
+      <hr />
+      <div class="d-flex align-items-center justify-content-between">
+        <h6 class="text-muted m-0">Images</h6>
+        <button class="btn btn-outline-primary btn-sm add-formset" data-formset="images" type="button"><i class="bi bi-plus"></i> Add image</button>
+      </div>
+      {{ images_fs.management_form }}
+      <div id="imagesContainer" class="mt-2">
+        {% for f in images_fs %}
+          <div class="row g-2 align-items-end border rounded p-2 mb-2 formset-item" data-prefix="images" data-index="{{ forloop.counter0 }}">
+            <div class="col-md-6">{{ f.image.label_tag }}{{ f.image }}</div>
+            <div class="col-md-4">{{ f.alt_text.label_tag }}{{ f.alt_text }}</div>
+            <div class="col-md-1 form-check">{{ f.is_primary }} {{ f.is_primary.label_tag }}</div>
+            <div class="col-md-1 text-end">{% if images_fs.can_delete %}{{ f.DELETE }}{% endif %}</div>
+          </div>
+        {% endfor %}
+      </div>
+      <template id="template-images">
+        <div class="row g-2 align-items-end border rounded p-2 mb-2 formset-item" data-prefix="images" data-index="__prefix__">
+          <div class="col-md-6">{{ images_fs.empty_form.image.label_tag }}{{ images_fs.empty_form.image }}</div>
+          <div class="col-md-4">{{ images_fs.empty_form.alt_text.label_tag }}{{ images_fs.empty_form.alt_text }}</div>
+          <div class="col-md-1 form-check">{{ images_fs.empty_form.is_primary }} {{ images_fs.empty_form.is_primary.label_tag }}</div>
+          <div class="col-md-1 text-end">{% if images_fs.can_delete %}{{ images_fs.empty_form.DELETE }}{% endif %}</div>
+        </div>
+      </template>
+
+      <hr />
+      <div class="d-flex align-items-center justify-content-between">
+        <h6 class="text-muted m-0">Videos</h6>
+        <button class="btn btn-outline-primary btn-sm add-formset" data-formset="videos" type="button"><i class="bi bi-plus"></i> Add video</button>
+      </div>
+      {{ videos_fs.management_form }}
+      <div id="videosContainer" class="mt-2">
+        {% for f in videos_fs %}
+          <div class="row g-2 align-items-end border rounded p-2 mb-2 formset-item" data-prefix="videos" data-index="{{ forloop.counter0 }}">
+            <div class="col-md-10">{{ f.video.label_tag }}{{ f.video }}</div>
+            <div class="col-md-2 text-end">{% if videos_fs.can_delete %}{{ f.DELETE }}{% endif %}</div>
+          </div>
+        {% endfor %}
+      </div>
+      <template id="template-videos">
+        <div class="row g-2 align-items-end border rounded p-2 mb-2 formset-item" data-prefix="videos" data-index="__prefix__">
+          <div class="col-md-10">{{ videos_fs.empty_form.video.label_tag }}{{ videos_fs.empty_form.video }}</div>
+          <div class="col-md-2 text-end">{% if videos_fs.can_delete %}{{ videos_fs.empty_form.DELETE }}{% endif %}</div>
+        </div>
+      </template>
+
+      <hr />
+      <div class="d-flex align-items-center justify-content-between">
+        <h6 class="text-muted m-0">Variants</h6>
+        <button class="btn btn-outline-primary btn-sm add-formset" data-formset="variants" type="button"><i class="bi bi-plus"></i> Add variant</button>
+      </div>
+      {{ variants_fs.management_form }}
+      <div id="variantsContainer" class="mt-2">
+        {% for f in variants_fs %}
+          <div class="row g-2 align-items-end border rounded p-2 mb-2 formset-item" data-prefix="variants" data-index="{{ forloop.counter0 }}">
+            <div class="col-md-2">{{ f.size.label_tag }}{{ f.size }}</div>
+            <div class="col-md-3">{{ f.color.label_tag }}{{ f.color }}</div>
+            <div class="col-md-3">{{ f.sku.label_tag }}{{ f.sku }}</div>
+            <div class="col-md-2">{{ f.stock.label_tag }}{{ f.stock }}</div>
+            <div class="col-md-2 text-end">{% if variants_fs.can_delete %}{{ f.DELETE }}{% endif %}</div>
+            <div class="col-12">
+              <div class="row g-2">
+                <div class="col-md-2">{{ f.weight_kg.label_tag }}{{ f.weight_kg }}</div>
+                <div class="col-md-2">{{ f.length_cm.label_tag }}{{ f.length_cm }}</div>
+                <div class="col-md-2">{{ f.breadth_cm.label_tag }}{{ f.breadth_cm }}</div>
+                <div class="col-md-2">{{ f.height_cm.label_tag }}{{ f.height_cm }}</div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <template id="template-variants">
+        <div class="row g-2 align-items-end border rounded p-2 mb-2 formset-item" data-prefix="variants" data-index="__prefix__">
+          <div class="col-md-2">{{ variants_fs.empty_form.size.label_tag }}{{ variants_fs.empty_form.size }}</div>
+          <div class="col-md-3">{{ variants_fs.empty_form.color.label_tag }}{{ variants_fs.empty_form.color }}</div>
+          <div class="col-md-3">{{ variants_fs.empty_form.sku.label_tag }}{{ variants_fs.empty_form.sku }}</div>
+          <div class="col-md-2">{{ variants_fs.empty_form.stock.label_tag }}{{ variants_fs.empty_form.stock }}</div>
+          <div class="col-md-2 text-end">{% if variants_fs.can_delete %}{{ variants_fs.empty_form.DELETE }}{% endif %}</div>
+          <div class="col-12">
+            <div class="row g-2">
+              <div class="col-md-2">{{ variants_fs.empty_form.weight_kg.label_tag }}{{ variants_fs.empty_form.weight_kg }}</div>
+              <div class="col-md-2">{{ variants_fs.empty_form.length_cm.label_tag }}{{ variants_fs.empty_form.length_cm }}</div>
+              <div class="col-md-2">{{ variants_fs.empty_form.breadth_cm.label_tag }}{{ variants_fs.empty_form.breadth_cm }}</div>
+              <div class="col-md-2">{{ variants_fs.empty_form.height_cm.label_tag }}{{ variants_fs.empty_form.height_cm }}</div>
+            </div>
+          </div>
+        </div>
+      </template>
+
       <div class="mt-3">
-        <button class="btn btn-primary" type="submit">Create</button>
-        <a class="btn btn-outline-secondary" href="/dashboard/">Cancel</a>
+        <button class="btn btn-primary" type="submit">Create Product</button>
+        <a class="btn btn-outline-secondary" href="/dashboard/products/">Cancel</a>
       </div>
     </form>
   </div>
 </div>
+
+<script src="{% static 'js/product_formsets.js' %}"></script>
 {% endblock %}

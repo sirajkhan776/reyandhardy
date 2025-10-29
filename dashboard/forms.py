@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
 
-from catalog.models import Category, Product
+from catalog.models import Category, Product, ProductImage, ProductVideo, Variant
 from core.models import Banner
 from orders.models import Order, OrderItem
 
@@ -49,6 +49,11 @@ class ProductForm(_BootstrapFormMixin, forms.ModelForm):
             "sale_price",
             "is_active",
             "is_best_seller",
+            # Measurements
+            "weight_kg",
+            "length_cm",
+            "breadth_cm",
+            "height_cm",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -113,3 +118,43 @@ class OrderItemForm(_BootstrapFormMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
         self._apply_bootstrap()
         self.fields["quantity"].widget.attrs.setdefault("min", 1)
+
+
+class ProductImageForm(_BootstrapFormMixin, forms.ModelForm):
+    class Meta:
+        model = ProductImage
+        fields = ["image", "alt_text", "is_primary"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._apply_bootstrap()
+
+
+class ProductVideoForm(_BootstrapFormMixin, forms.ModelForm):
+    class Meta:
+        model = ProductVideo
+        fields = ["video"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._apply_bootstrap()
+
+
+class VariantForm(_BootstrapFormMixin, forms.ModelForm):
+    class Meta:
+        model = Variant
+        fields = [
+            "size",
+            "color",
+            "sku",
+            "stock",
+            # Optional per-variant measurements
+            "weight_kg",
+            "length_cm",
+            "breadth_cm",
+            "height_cm",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._apply_bootstrap()

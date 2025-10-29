@@ -13,7 +13,16 @@ import random
 from orders.models import Order, OrderItem
 from catalog.models import Variant, Product, Category
 from core.models import Banner
-from .forms import CategoryForm, ProductForm, BannerForm, OrderForm, OrderItemForm
+from .forms import (
+    CategoryForm,
+    ProductForm,
+    BannerForm,
+    OrderForm,
+    OrderItemForm,
+    ProductImageForm,
+    ProductVideoForm,
+    VariantForm,
+)
 
 
 @staff_member_required(login_url="/accounts/login/")
@@ -78,15 +87,36 @@ def create_category(request):
 
 @staff_member_required(login_url="/accounts/login/")
 def create_product(request):
+    ImageFormSet = inlineformset_factory(Product, ProductImage, form=ProductImageForm, extra=1, can_delete=True)
+    VideoFormSet = inlineformset_factory(Product, ProductVideo, form=ProductVideoForm, extra=1, can_delete=True)
+    VariantFormSet = inlineformset_factory(Product, Variant, form=VariantForm, extra=1, can_delete=True)
+
     if request.method == "POST":
         form = ProductForm(request.POST)
-        if form.is_valid():
-            form.save()
+        images_fs = ImageFormSet(request.POST, request.FILES, prefix="images")
+        videos_fs = VideoFormSet(request.POST, request.FILES, prefix="videos")
+        variants_fs = VariantFormSet(request.POST, prefix="variants")
+        if form.is_valid() and images_fs.is_valid() and videos_fs.is_valid() and variants_fs.is_valid():
+            product = form.save()
+            images_fs.instance = product
+            videos_fs.instance = product
+            variants_fs.instance = product
+            images_fs.save()
+            videos_fs.save()
+            variants_fs.save()
             messages.success(request, "Product created")
-            return redirect("dashboard")
+            return redirect("dashboard_products")
     else:
         form = ProductForm()
-    return render(request, "dashboard/product_form.html", {"form": form})
+        images_fs = ImageFormSet(prefix="images")
+        videos_fs = VideoFormSet(prefix="videos")
+        variants_fs = VariantFormSet(prefix="variants")
+    return render(request, "dashboard/product_form.html", {
+        "form": form,
+        "images_fs": images_fs,
+        "videos_fs": videos_fs,
+        "variants_fs": variants_fs,
+    })
 
 
 @staff_member_required(login_url="/accounts/login/")
