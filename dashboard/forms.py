@@ -122,6 +122,18 @@ class OrderItemForm(_BootstrapFormMixin, forms.ModelForm):
 
 
 class CouponForm(_BootstrapFormMixin, forms.ModelForm):
+    # Use HTML5 datetime-local and accept ISO-like input with 'T'
+    valid_from = forms.DateTimeField(
+        required=False,
+        widget=forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M"),
+        input_formats=["%Y-%m-%dT%H:%M", "%Y-%m-%dT%H:%M:%S"],
+    )
+    valid_to = forms.DateTimeField(
+        required=False,
+        widget=forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M"),
+        input_formats=["%Y-%m-%dT%H:%M", "%Y-%m-%dT%H:%M:%S"],
+    )
+
     class Meta:
         model = Coupon
         fields = [
@@ -136,8 +148,14 @@ class CouponForm(_BootstrapFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._apply_bootstrap()
-        self.fields["valid_from"].widget.attrs.setdefault("type", "datetime-local")
-        self.fields["valid_to"].widget.attrs.setdefault("type", "datetime-local")
+
+    def clean(self):
+        cleaned = super().clean()
+        vf = cleaned.get("valid_from")
+        vt = cleaned.get("valid_to")
+        if vf and vt and vt < vf:
+            self.add_error("valid_to", "Valid to must be after valid from")
+        return cleaned
 
 
 class ProductImageForm(_BootstrapFormMixin, forms.ModelForm):
