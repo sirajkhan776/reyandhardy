@@ -87,6 +87,8 @@ html[data-theme='light'] .navbar #navbarsExample > ul.navbar-nav .nav-link {
 html[data-theme='light'] .navbar .nav-link { font-size: 1rem; line-height: 1.25; }
 /* Ensure search form has no extra vertical margins */
 .amz-search { margin-top: 0 !important; margin-bottom: 0 !important; }
+/* Make a light-on-dark logo (white PNG/SVG) visible in dark mode by default,
+   and auto-invert to dark-on-light in light mode for contrast. */
 .logo-img { filter: brightness(0) invert(1); }
 html[data-theme='light'] .logo-img { filter: none; }
 .navbar.navbar-scrolled { box-shadow: 0 6px 20px rgba(0,0,0,.12); }
