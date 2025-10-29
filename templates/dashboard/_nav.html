@@ -1,9 +1,15 @@
-<aside class="list-group mb-3">
-  <a class="list-group-item list-group-item-action" href="/dashboard/">Dashboard</a>
+{% with path=request.path %}
+<aside class="dash-sidebar list-group mb-3">
+  <a class="list-group-item list-group-item-action{% if path == '/dashboard/' %} active{% endif %}" href="/dashboard/"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+  <div class="list-group-item disabled">Manage</div>
+  <a class="list-group-item list-group-item-action{% if path|slice:':18' == '/dashboard/orders/' %} active{% endif %}" href="/dashboard/orders/"><i class="bi bi-bag-check me-2"></i>Orders</a>
+  <a class="list-group-item list-group-item-action{% if path|slice:':20' == '/dashboard/products/' %} active{% endif %}" href="/dashboard/products/"><i class="bi bi-box-seam me-2"></i>Products</a>
+  <a class="list-group-item list-group-item-action{% if path|slice:':22' == '/dashboard/categories/' %} active{% endif %}" href="/dashboard/categories/"><i class="bi bi-collection me-2"></i>Categories</a>
+  <a class="list-group-item list-group-item-action{% if path|slice:':20' == '/dashboard/banners/' %} active{% endif %}" href="/dashboard/banners/"><i class="bi bi-image me-2"></i>Banners</a>
   <div class="list-group-item disabled">Create</div>
-  <a class="list-group-item list-group-item-action" href="/dashboard/orders/new/">New Order</a>
-  <a class="list-group-item list-group-item-action" href="/dashboard/products/new/">New Product</a>
-  <a class="list-group-item list-group-item-action" href="/dashboard/categories/new/">New Category</a>
-  <a class="list-group-item list-group-item-action" href="/dashboard/banners/new/">New Banner</a>
+  <a class="list-group-item list-group-item-action" href="/dashboard/orders/new/"><i class="bi bi-plus-circle me-2"></i>New Order</a>
+  <a class="list-group-item list-group-item-action" href="/dashboard/products/new/"><i class="bi bi-plus-circle me-2"></i>New Product</a>
+  <a class="list-group-item list-group-item-action" href="/dashboard/categories/new/"><i class="bi bi-plus-circle me-2"></i>New Category</a>
+  <a class="list-group-item list-group-item-action" href="/dashboard/banners/new/"><i class="bi bi-plus-circle me-2"></i>New Banner</a>
 </aside>
-
+{% endwith %}

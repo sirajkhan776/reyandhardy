@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-md-3">{% include "dashboard/_nav.html" %}</div>
+  <div class="col-md-9">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+      <h3 class="m-0">Categories</h3>
+      <a href="/dashboard/categories/new/" class="btn btn-primary"><i class="bi bi-plus"></i> New Category</a>
+    </div>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 dash-table">
+          <thead class="table-light"><tr><th>Name</th><th>Slug</th><th>Display</th></tr></thead>
+          <tbody>
+            {% for c in categories %}
+              <tr>
+                <td>{{ c.name }}</td>
+                <td class="text-muted small">{{ c.slug }}</td>
+                <td>{% if c.is_display %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="3" class="text-muted">No categories yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

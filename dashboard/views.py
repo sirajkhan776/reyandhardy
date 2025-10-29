@@ -8,7 +8,8 @@ from decimal import Decimal
 import random
 
 from orders.models import Order, OrderItem
-from catalog.models import Variant
+from catalog.models import Variant, Product, Category
+from core.models import Banner
 from .forms import CategoryForm, ProductForm, BannerForm, OrderForm, OrderItemForm
 
 
@@ -33,6 +34,30 @@ def index(request):
         "stock_total": stock_summary["total_qty"] or 0,
         "orders_count": Order.objects.count(),
     })
+
+
+@staff_member_required(login_url="/accounts/login/")
+def orders_list(request):
+    orders = Order.objects.order_by("-created_at")[:50]
+    return render(request, "dashboard/orders_list.html", {"orders": orders})
+
+
+@staff_member_required(login_url="/accounts/login/")
+def products_list(request):
+    products = Product.objects.select_related("category").order_by("-created_at")[:50]
+    return render(request, "dashboard/products_list.html", {"products": products})
+
+
+@staff_member_required(login_url="/accounts/login/")
+def categories_list(request):
+    categories = Category.objects.order_by("name")
+    return render(request, "dashboard/categories_list.html", {"categories": categories})
+
+
+@staff_member_required(login_url="/accounts/login/")
+def banners_list(request):
+    banners = Banner.objects.order_by("sort_order", "-created_at")
+    return render(request, "dashboard/banners_list.html", {"banners": banners})
 
 
 @staff_member_required(login_url="/accounts/login/")
