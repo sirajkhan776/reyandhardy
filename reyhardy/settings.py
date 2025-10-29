@@ -39,6 +39,28 @@ DEBUG = env("DEBUG")
 SECRET_KEY = env("SECRET_KEY")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 
+# Ensure Render deployment hostname is allowed and trusted for CSRF
+RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+if RENDER_EXTERNAL_HOSTNAME:
+    # Add host (no scheme) to ALLOWED_HOSTS
+    if isinstance(ALLOWED_HOSTS, (list, tuple)):
+        if RENDER_EXTERNAL_HOSTNAME not in ALLOWED_HOSTS:
+            ALLOWED_HOSTS = list(ALLOWED_HOSTS) + [RENDER_EXTERNAL_HOSTNAME]
+    elif isinstance(ALLOWED_HOSTS, str):
+        # In case misconfigured as a string, convert to list
+        ALLOWED_HOSTS = [ALLOWED_HOSTS, RENDER_EXTERNAL_HOSTNAME]
+    else:
+        ALLOWED_HOSTS = [RENDER_EXTERNAL_HOSTNAME]
+
+    # CSRF trusted origins require scheme + host
+    _csrf_origin = f"https://{RENDER_EXTERNAL_HOSTNAME}"
+    try:
+        CSRF_TRUSTED_ORIGINS  # may or may not exist yet
+    except NameError:
+        CSRF_TRUSTED_ORIGINS = []
+    if _csrf_origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS = list(CSRF_TRUSTED_ORIGINS) + [_csrf_origin]
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
