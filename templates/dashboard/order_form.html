@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-md-3">{% include "dashboard/_nav.html" %}</div>
+  <div class="col-md-9">
+    <h3>Create Order</h3>
+    <form method="post" class="card card-body">
+      {% csrf_token %}
+      <h6 class="text-muted">Order Details</h6>
+      {{ form.as_p }}
+
+      <hr />
+      <h6 class="text-muted">Items</h6>
+      {{ formset.management_form }}
+      {% for f in formset %}
+        <div class="border rounded p-2 mb-2">
+          {{ f.as_p }}
+        </div>
+      {% endfor %}
+
+      <div class="mt-2">
+        <button class="btn btn-primary" type="submit">Create Order</button>
+        <a class="btn btn-outline-secondary" href="/dashboard/">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+

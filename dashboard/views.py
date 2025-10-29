@@ -1,8 +1,15 @@
+from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Sum, F
-from django.shortcuts import render
+from django.forms import inlineformset_factory
+from django.shortcuts import render, redirect
+from django.utils import timezone
+from decimal import Decimal
+import random
+
 from orders.models import Order, OrderItem
 from catalog.models import Variant
+from .forms import CategoryForm, ProductForm, BannerForm, OrderForm, OrderItemForm
 
 
 @staff_member_required(login_url="/accounts/login/")
@@ -26,3 +33,88 @@ def index(request):
         "stock_total": stock_summary["total_qty"] or 0,
         "orders_count": Order.objects.count(),
     })
+
+
+@staff_member_required(login_url="/accounts/login/")
+def create_category(request):
+    if request.method == "POST":
+        form = CategoryForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Category created")
+            return redirect("dashboard")
+    else:
+        form = CategoryForm()
+    return render(request, "dashboard/category_form.html", {"form": form})
+
+
+@staff_member_required(login_url="/accounts/login/")
+def create_product(request):
+    if request.method == "POST":
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Product created")
+            return redirect("dashboard")
+    else:
+        form = ProductForm()
+    return render(request, "dashboard/product_form.html", {"form": form})
+
+
+@staff_member_required(login_url="/accounts/login/")
+def create_banner(request):
+    if request.method == "POST":
+        form = BannerForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Banner created")
+            return redirect("dashboard")
+    else:
+        form = BannerForm()
+    return render(request, "dashboard/banner_form.html", {"form": form})
+
+
+@staff_member_required(login_url="/accounts/login/")
+def create_order(request):
+    OrderItemFormSet = inlineformset_factory(Order, OrderItem, form=OrderItemForm, extra=3, can_delete=False)
+    if request.method == "POST":
+        form = OrderForm(request.POST)
+        formset = OrderItemFormSet(request.POST)
+        if form.is_valid() and formset.is_valid():
+            # Prepare an order number
+            order_number = timezone.now().strftime("ORD%Y%m%d%H%M%S") + f"{random.randint(1000,9999)}"
+            order = form.save(commit=False)
+            order.order_number = order_number
+            # Compute amounts from items
+            subtotal = Decimal("0.00")
+            # Temporarily set to zero; update after items
+            order.subtotal = Decimal("0.00")
+            order.gst_amount = Decimal("0.00")
+            order.shipping_amount = Decimal("0.00")
+            order.total_amount = Decimal("0.00")
+            order.save()
+            formset.instance = order
+            items = formset.save()
+            for it in items:
+                it.line_total = Decimal(it.unit_price) * it.quantity
+                it.save()
+                subtotal += it.line_total
+            # Simple totals: GST 18% of subtotal; flat shipping if subtotal < threshold
+            from django.conf import settings
+            gst_rate = Decimal(str(getattr(settings, "GST_RATE", "0.18")))
+            free_threshold = Decimal(str(getattr(settings, "FREE_SHIPPING_THRESHOLD", 399)))
+            flat_ship = Decimal(str(getattr(settings, "FLAT_SHIPPING_RATE", 49)))
+            gst_amount = (subtotal * gst_rate).quantize(Decimal("0.01"))
+            shipping_amount = Decimal("0.00") if subtotal >= free_threshold else Decimal(flat_ship)
+            total_amount = subtotal + gst_amount + shipping_amount
+            order.subtotal = subtotal
+            order.gst_amount = gst_amount
+            order.shipping_amount = shipping_amount
+            order.total_amount = total_amount
+            order.save()
+            messages.success(request, f"Order {order.order_number} created")
+            return redirect("dashboard")
+    else:
+        form = OrderForm()
+        formset = OrderItemFormSet()
+    return render(request, "dashboard/order_form.html", {"form": form, "formset": formset})
