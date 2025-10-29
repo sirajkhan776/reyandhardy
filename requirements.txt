@@ -7,4 +7,3 @@ PyJWT>=2.8
 cryptography>=42.0
 django-widget-tweaks>=1.5.0
 requests>=2.31
-django-jazzmin>=2.6.0
