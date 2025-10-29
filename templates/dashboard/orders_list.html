@@ -7,10 +7,25 @@
       <h3 class="m-0">Orders</h3>
       <a href="/dashboard/orders/new/" class="btn btn-primary"><i class="bi bi-plus"></i> New Order</a>
     </div>
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+      <div class="btn-group" role="group" aria-label="Status filters">
+        {% for f in status_filters %}
+          <a href="?status={{ f.key }}{% if q %}&q={{ q }}{% endif %}" class="btn btn-sm {% if selected_status == f.key %}btn-primary{% else %}btn-outline-primary{% endif %}">{{ f.label }} <span class="badge bg-light text-dark ms-1">{{ f.count }}</span></a>
+        {% endfor %}
+      </div>
+      <form class="ms-auto d-flex" method="get" action="">
+        {% if selected_status and selected_status != 'all' %}
+          <input type="hidden" name="status" value="{{ selected_status }}" />
+        {% endif %}
+        <input type="search" name="q" value="{{ q }}" placeholder="Search order # or user" class="form-control form-control-sm" />
+        <button class="btn btn-sm btn-outline-secondary ms-2" type="submit">Search</button>
+      </form>
+    </div>
+    <div class="mb-2 text-muted small">Showing {{ summary_total_orders }} orders • Total {{ CURRENCY_SYMBOL }}{{ summary_total_amount|floatformat:2 }}</div>
     <div class="card">
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0 dash-table">
-          <thead class="table-light"><tr><th>#</th><th>User</th><th>Status</th><th>Total</th><th>Placed</th><th class="text-end">Actions</th></tr></thead>
+          <thead class="table-light"><tr><th>#</th><th>User</th><th>Status</th><th>Payment</th><th>Total</th><th>Placed</th></tr></thead>
           <tbody>
             {% for o in orders %}
               <tr>
@@ -27,12 +42,9 @@
                     <button class="btn btn-sm btn-outline-primary d-none" type="submit">Update</button>
                   </form>
                 </td>
+                <td class="text-muted small text-uppercase">{{ o.payment_method }}</td>
                 <td>{{ CURRENCY_SYMBOL }}{{ o.total_amount }}</td>
                 <td>{{ o.created_at|date:"Y-m-d H:i" }}</td>
-                <td class="text-end">
-                  <a href="/dashboard/orders/{{ o.id }}/edit/" class="btn btn-sm btn-outline-primary">Edit</a>
-                  <a href="/dashboard/orders/{{ o.id }}/delete/" class="btn btn-sm btn-outline-danger">Delete</a>
-                </td>
               </tr>
             {% empty %}
               <tr><td colspan="6" class="text-muted">No orders yet.</td></tr>
@@ -56,6 +68,6 @@
       });
     });
   })();
-</script>
+  </script>
 {% endblock %}
 {% endblock %}

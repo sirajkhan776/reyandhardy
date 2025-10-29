@@ -51,8 +51,42 @@ def index(request):
 
 @staff_member_required(login_url="/accounts/login/")
 def orders_list(request):
-    orders = Order.objects.order_by("-created_at")[:50]
-    return render(request, "dashboard/orders_list.html", {"orders": orders, "status_choices": Order.STATUS_CHOICES})
+    q = request.GET.get("q", "").strip()
+    selected_status = request.GET.get("status", "all")
+
+    qs = Order.objects.all()
+    if q:
+        qs = qs.filter(order_number__icontains=q) | qs.filter(user__username__icontains=q)
+    if selected_status and selected_status != "all":
+        qs = qs.filter(status=selected_status)
+
+    orders = qs.order_by("-created_at")[:50]
+
+    # Build status filter data with counts
+    status_filters = []
+    total_all = Order.objects.count()
+    status_filters.append({"key": "all", "label": "All", "count": total_all})
+    for key, label in Order.STATUS_CHOICES:
+        cnt = Order.objects.filter(status=key).count()
+        status_filters.append({"key": key, "label": label, "count": cnt})
+
+    summary = qs.aggregate(total_amount=Sum("total_amount"), total_orders=Sum(1))
+    total_amount = summary.get("total_amount") or 0
+    total_orders = qs.count()
+
+    return render(
+        request,
+        "dashboard/orders_list.html",
+        {
+            "orders": orders,
+            "status_choices": Order.STATUS_CHOICES,
+            "status_filters": status_filters,
+            "selected_status": selected_status,
+            "q": q,
+            "summary_total_amount": total_amount,
+            "summary_total_orders": total_orders,
+        },
+    )
 
 
 @staff_member_required(login_url="/accounts/login/")
