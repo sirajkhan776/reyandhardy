@@ -1,11 +1,11 @@
 {% for p in products %}
   <tr>
-    <td>{{ p.name }}</td>
-    <td>{{ p.category.name }}</td>
-    <td>{{ CURRENCY_SYMBOL }}{{ p.base_price }}</td>
-    <td>{% if p.sale_price %}{{ CURRENCY_SYMBOL }}{{ p.sale_price }}{% else %}-{% endif %}</td>
-    <td>{% if p.is_active %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
-    <td class="text-end">
+    <td data-label="Name">{{ p.name }}</td>
+    <td data-label="Category">{{ p.category.name }}</td>
+    <td class="d-none d-sm-table-cell" data-label="Base">{{ CURRENCY_SYMBOL }}{{ p.base_price }}</td>
+    <td class="d-none d-sm-table-cell" data-label="Sale">{% if p.sale_price %}{{ CURRENCY_SYMBOL }}{{ p.sale_price }}{% else %}-{% endif %}</td>
+    <td data-label="Active">{% if p.is_active %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+    <td class="text-end" data-label="Actions">
       <a href="/dashboard/products/{{ p.id }}/edit/" class="btn btn-sm btn-outline-primary">Edit</a>
       <a href="/dashboard/products/{{ p.id }}/delete/" class="btn btn-sm btn-outline-danger">Delete</a>
     </td>
@@ -13,4 +13,3 @@
 {% empty %}
   <tr><td colspan="6" class="text-muted">No products yet.</td></tr>
 {% endfor %}
-

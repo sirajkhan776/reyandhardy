@@ -31,6 +31,8 @@ env = environ.Env(
     SHIPROCKET_DEFAULT_DIM_LCM=(int, 20),
     SHIPROCKET_DEFAULT_DIM_BCM=(int, 15),
     SHIPROCKET_DEFAULT_DIM_HCM=(int, 2),
+    # Analytics: estimated cost of goods as a fraction of net sales (0.0-1.0)
+    COGS_RATE=(float, 0.0),
 )
 
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
@@ -198,3 +200,6 @@ SHIPROCKET_DEFAULT_UNIT_WEIGHT_KG = env("SHIPROCKET_DEFAULT_UNIT_WEIGHT_KG")
 SHIPROCKET_DEFAULT_DIM_LCM = env("SHIPROCKET_DEFAULT_DIM_LCM")
 SHIPROCKET_DEFAULT_DIM_BCM = env("SHIPROCKET_DEFAULT_DIM_BCM")
 SHIPROCKET_DEFAULT_DIM_HCM = env("SHIPROCKET_DEFAULT_DIM_HCM")
+
+# Analytics / profit estimation
+COGS_RATE = env("COGS_RATE")

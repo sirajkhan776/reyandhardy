@@ -203,6 +203,14 @@ def checkout(request):
         )
 
         for item in cart.items.select_related("product", "variant"):
+            # Resolve unit cost from variant/product cost_price if available
+            unit_cost_val = Decimal("0.00")
+            if item.variant and getattr(item.variant, "cost_price", None) is not None:
+                try:
+                    unit_cost_val = Decimal(str(item.variant.cost_price))
+                except Exception:
+                    unit_cost_val = Decimal("0.00")
+            # Fallback: product doesn't yet have cost_price field; leave 0
             OrderItem.objects.create(
                 order=order,
                 product=item.product,
@@ -210,6 +218,8 @@ def checkout(request):
                 quantity=item.quantity,
                 unit_price=item.unit_price(),
                 line_total=item.line_total(),
+                unit_cost=unit_cost_val,
+                line_cost=(unit_cost_val * Decimal(item.quantity)).quantize(Decimal("0.01")),
             )
 
         if payment_method == "razorpay":

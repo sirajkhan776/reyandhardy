@@ -4,8 +4,11 @@ from . import views
 
 urlpatterns = [
     path("dashboard/", views.index, name="dashboard"),
+    path("dashboard/analytics.json", views.analytics_data, name="dashboard_analytics_data"),
+    path("dashboard/analytics.csv", views.analytics_csv, name="dashboard_analytics_csv"),
     path("dashboard/orders/", views.orders_list, name="dashboard_orders"),
     path("dashboard/orders/partial/", views.orders_partial, name="dashboard_orders_partial"),
+    path("dashboard/orders/<int:pk>/", views.order_detail_admin, name="dashboard_order_detail"),
     path("dashboard/products/", views.products_list, name="dashboard_products"),
     path("dashboard/products/partial/", views.products_partial, name="dashboard_products_partial"),
     path("dashboard/categories/", views.categories_list, name="dashboard_categories"),

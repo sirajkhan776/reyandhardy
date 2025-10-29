@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Sum, F
+from django.db.models.functions import TruncDate, TruncMonth
 from django.forms import inlineformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.safestring import mark_safe
@@ -35,21 +36,149 @@ def index(request):
         .aggregate(total=Sum("total_amount"))
     revenue = orders_paid["total"] or 0
 
-    top_products = (
-        OrderItem.objects
-        .values(name=F("product__name"))
-        .annotate(qty=Sum("quantity"), sales=Sum("line_total"))
-        .order_by("-qty")[:10]
-    )
+    latest_orders = Order.objects.select_related("user").order_by("-created_at")[:10]
 
     stock_summary = Variant.objects.aggregate(total_qty=Sum("stock"))
 
     return render(request, "dashboard/index.html", {
         "revenue": revenue,
-        "top_products": top_products,
+        "latest_orders": latest_orders,
         "stock_total": stock_summary["total_qty"] or 0,
         "orders_count": Order.objects.count(),
     })
+
+
+@staff_member_required(login_url="/accounts/login/")
+def analytics_data(request):
+    from django.conf import settings
+    try:
+        days = int(request.GET.get("days", "30"))
+    except Exception:
+        days = 30
+    days = max(1, min(days, 365))
+    group = request.GET.get("group", "day")
+    from django.utils import timezone
+    start = timezone.now() - timezone.timedelta(days=days-1)
+
+    revenue_statuses = ["paid", "shipped", "delivered"]
+
+    trunc = TruncDate
+    if group == "month":
+        trunc = TruncMonth
+
+    qs = (
+        Order.objects.filter(created_at__date__gte=start.date(), status__in=revenue_statuses)
+        .annotate(d=trunc("created_at"))
+        .values("d")
+        .annotate(
+            revenue=Sum("total_amount"),
+            subtotal=Sum("subtotal"),
+            tax=Sum("gst_amount"),
+            shipping=Sum("shipping_amount"),
+            discount=Sum("discount_amount"),
+            # Real cost from items (if captured), else 0
+            real_cost=Sum("items__line_cost"),
+        )
+        .order_by("d")
+    )
+
+    # Build complete timeline with zeros for missing days/months so chart always renders
+    from django.utils import timezone as dj_tz
+    cogs_rate = float(getattr(settings, "COGS_RATE", 0.0) or 0.0)
+    agg = {}
+    for row in qs:
+        key = row["d"].strftime("%Y-%m" if group == "month" else "%Y-%m-%d")
+        agg[key] = row
+
+    labels, revenue, net_sales, profit = [], [], [], []
+    cursor = start
+    today = dj_tz.now()
+    while (cursor.year, cursor.month, cursor.day) <= (today.year, today.month, today.day):
+        key = cursor.strftime("%Y-%m" if group == "month" else "%Y-%m-%d")
+        row = agg.get(key, {})
+        rev = float(row.get("revenue") or 0)
+        sub = float(row.get("subtotal") or 0)
+        disc = float(row.get("discount") or 0)
+        ship = float(row.get("shipping") or 0)
+        real_cost = float(row.get("real_cost") or 0)
+        net = max(sub - disc, 0.0)
+        est_profit = (net - real_cost - ship) if real_cost > 0 else (net * (1.0 - cogs_rate) - ship)
+        labels.append(key)
+        revenue.append(round(rev, 2))
+        net_sales.append(round(net, 2))
+        profit.append(round(est_profit, 2))
+        if group == "month":
+            # advance to first day of next month
+            y = cursor.year + (1 if cursor.month == 12 else 0)
+            m = 1 if cursor.month == 12 else cursor.month + 1
+            cursor = cursor.replace(year=y, month=m, day=1)
+        else:
+            cursor += dj_tz.timedelta(days=1)
+
+    return JsonResponse({
+        "labels": labels,
+        "datasets": {
+            "revenue": revenue,
+            "net_sales": net_sales,
+            "profit": profit,
+        },
+        "meta": {"cogs_rate": cogs_rate, "group": group, "days": days},
+    })
+
+
+@staff_member_required(login_url="/accounts/login/")
+def analytics_csv(request):
+    from django.conf import settings
+    import csv
+    from django.http import HttpResponse
+    try:
+        days = int(request.GET.get("days", "30"))
+    except Exception:
+        days = 30
+    days = max(1, min(days, 365))
+    group = request.GET.get("group", "day")
+
+    # Build same data as JSON
+    from django.utils import timezone
+    start = timezone.now() - timezone.timedelta(days=days-1)
+    revenue_statuses = ["paid", "shipped", "delivered"]
+    trunc = TruncMonth if group == "month" else TruncDate
+    qs = (
+        Order.objects.filter(created_at__date__gte=start.date(), status__in=revenue_statuses)
+        .annotate(d=trunc("created_at"))
+        .values("d")
+        .annotate(
+            revenue=Sum("total_amount"),
+            subtotal=Sum("subtotal"),
+            tax=Sum("gst_amount"),
+            shipping=Sum("shipping_amount"),
+            discount=Sum("discount_amount"),
+        )
+        .order_by("d")
+    )
+    cogs_rate = float(getattr(settings, "COGS_RATE", 0.0) or 0.0)
+
+    resp = HttpResponse(content_type='text/csv')
+    resp['Content-Disposition'] = 'attachment; filename="analytics.csv"'
+    w = csv.writer(resp)
+    w.writerow(["date", "revenue", "net_sales", "estimated_profit"]) 
+    for row in qs:
+        if group == "month":
+            d = row["d"].strftime("%Y-%m")
+        else:
+            d = row["d"].strftime("%Y-%m-%d")
+        sub = float(row.get("subtotal") or 0)
+        disc = float(row.get("discount") or 0)
+        ship = float(row.get("shipping") or 0)
+        net = max(sub - disc, 0.0)
+        est_profit = net * (1.0 - cogs_rate) - ship
+        w.writerow([
+            d,
+            round(float(row.get("revenue") or 0), 2),
+            round(net, 2),
+            round(est_profit, 2),
+        ])
+    return resp
 
 
 @staff_member_required(login_url="/accounts/login/")
@@ -121,6 +250,12 @@ def orders_partial(request):
         request=request,
     )
     return JsonResponse({"rows_html": rows_html, "summary_html": summary_html})
+
+
+@staff_member_required(login_url="/accounts/login/")
+def order_detail_admin(request, pk: int):
+    order = get_object_or_404(Order.objects.select_related("user").prefetch_related("items__product", "items__variant"), pk=pk)
+    return render(request, "dashboard/order_detail.html", {"order": order})
 
 
 @staff_member_required(login_url="/accounts/login/")
@@ -246,6 +381,13 @@ def create_order(request):
             items = formset.save()
             for it in items:
                 it.line_total = Decimal(it.unit_price) * it.quantity
+                # derive unit_cost from variant.cost_price if available
+                try:
+                    unit_cost_val = Decimal(str(getattr(it.variant, 'cost_price', 0) or 0))
+                except Exception:
+                    unit_cost_val = Decimal('0')
+                it.unit_cost = unit_cost_val
+                it.line_cost = (unit_cost_val * Decimal(it.quantity)).quantize(Decimal('0.01'))
                 it.save()
                 subtotal += it.line_total
             # Simple totals: GST 18% of subtotal; flat shipping if subtotal < threshold
@@ -365,6 +507,12 @@ def edit_order(request, pk: int):
                 subtotal = Decimal("0.00")
                 for it in order.items.all():
                     it.line_total = Decimal(it.unit_price) * it.quantity
+                    try:
+                        unit_cost_val = Decimal(str(getattr(it.variant, 'cost_price', 0) or 0))
+                    except Exception:
+                        unit_cost_val = Decimal('0')
+                    it.unit_cost = unit_cost_val
+                    it.line_cost = (unit_cost_val * Decimal(it.quantity)).quantize(Decimal('0.01'))
                     it.save()
                     subtotal += it.line_total
                 gst_rate = Decimal(str(getattr(settings, "GST_RATE", "0.18")))

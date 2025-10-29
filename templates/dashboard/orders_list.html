@@ -30,7 +30,7 @@
     <div class="card">
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0 dash-table">
-          <thead class="table-light"><tr><th>#</th><th>User</th><th>Status</th><th>Payment</th><th>Total</th><th>Placed</th></tr></thead>
+          <thead class="table-light"><tr><th>#</th><th>User</th><th>Status</th><th class="d-none d-sm-table-cell">Payment</th><th>Total</th><th class="d-none d-md-table-cell">Placed</th></tr></thead>
           <tbody id="ordersTbody">
             {% include "dashboard/_orders_rows.html" with orders=orders status_choices=status_choices %}
           </tbody>

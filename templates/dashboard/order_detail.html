@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-md-3">{% include "dashboard/_nav.html" %}</div>
+  <div class="col-md-9">
+    <div class="card mb-3">
+      <div class="card-body d-flex align-items-center justify-content-between">
+        <div>
+          <h4 class="m-0">Order {{ order.order_number }}</h4>
+          <div class="text-muted small">Placed {{ order.created_at|date:"Y-m-d H:i" }} • {{ order.user.username }}</div>
+        </div>
+        <span class="badge bg-secondary">{{ order.get_status_display }}</span>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="card h-100"><div class="card-body">
+          <div class="text-muted fw-bold mb-2">Shipping</div>
+          <div>{{ order.shipping_name }}</div>
+          <div>{{ order.shipping_phone }}</div>
+          <div>{{ order.address_line1 }}</div>
+          {% if order.address_line2 %}<div>{{ order.address_line2 }}</div>{% endif %}
+          <div>{{ order.city }}, {{ order.state }} {{ order.postal_code }}</div>
+          <div>{{ order.country }}</div>
+          <hr/>
+          <div class="text-muted small">Provider: {{ order.shipping_provider }}{% if order.tracking_number %} • Tracking: {{ order.tracking_number }}{% endif %}</div>
+        </div></div>
+      </div>
+      <div class="col-md-6">
+        <div class="card h-100"><div class="card-body">
+          <div class="text-muted fw-bold mb-2">Totals</div>
+          <div class="d-flex justify-content-between"><span>Subtotal</span><span>{{ CURRENCY_SYMBOL }}{{ order.subtotal|floatformat:2 }}</span></div>
+          <div class="d-flex justify-content-between"><span>Discount</span><span>- {{ CURRENCY_SYMBOL }}{{ order.discount_amount|floatformat:2 }}</span></div>
+          <div class="d-flex justify-content-between"><span>GST</span><span>{{ CURRENCY_SYMBOL }}{{ order.gst_amount|floatformat:2 }}</span></div>
+          <div class="d-flex justify-content-between"><span>Shipping</span><span>{{ CURRENCY_SYMBOL }}{{ order.shipping_amount|floatformat:2 }}</span></div>
+          <hr/>
+          <div class="d-flex justify-content-between fw-bold"><span>Total</span><span>{{ CURRENCY_SYMBOL }}{{ order.total_amount|floatformat:2 }}</span></div>
+          <div class="text-muted small mt-2">Payment: {{ order.payment_method|upper }}</div>
+        </div></div>
+      </div>
+    </div>
+
+    <h5 class="mt-4">Items</h5>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead class="table-light"><tr><th>Product</th><th>Variant</th><th>Qty</th><th>Unit</th><th>Line</th></tr></thead>
+          <tbody>
+            {% for it in order.items.all %}
+              <tr>
+                <td>{{ it.product.name }}</td>
+                <td>{% if it.variant %}{{ it.variant.size }} / {{ it.variant.color }}{% else %}-{% endif %}</td>
+                <td>{{ it.quantity }}</td>
+                <td>{{ CURRENCY_SYMBOL }}{{ it.unit_price|floatformat:2 }}</td>
+                <td>{{ CURRENCY_SYMBOL }}{{ it.line_total|floatformat:2 }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

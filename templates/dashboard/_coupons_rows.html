@@ -1,11 +1,11 @@
 {% for c in coupons %}
   <tr>
-    <td>{{ c.code }}</td>
-    <td>{{ c.discount_percent }}%</td>
-    <td>{% if c.active %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
-    <td class="text-muted small">{% if c.valid_from %}{{ c.valid_from|date:"Y-m-d H:i" }}{% else %}-{% endif %}</td>
-    <td class="text-muted small">{% if c.valid_to %}{{ c.valid_to|date:"Y-m-d H:i" }}{% else %}-{% endif %}</td>
-    <td class="text-end">
+    <td data-label="Code">{{ c.code }}</td>
+    <td data-label="Discount">{{ c.discount_percent }}%</td>
+    <td data-label="Active">{% if c.active %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+    <td class="text-muted small d-none d-sm-table-cell" data-label="Valid From">{% if c.valid_from %}{{ c.valid_from|date:"Y-m-d H:i" }}{% else %}-{% endif %}</td>
+    <td class="text-muted small d-none d-sm-table-cell" data-label="Valid To">{% if c.valid_to %}{{ c.valid_to|date:"Y-m-d H:i" }}{% else %}-{% endif %}</td>
+    <td class="text-end" data-label="Actions">
       <a href="/dashboard/coupons/{{ c.id }}/edit/" class="btn btn-sm btn-outline-primary">Edit</a>
       <a href="/dashboard/coupons/{{ c.id }}/delete/" class="btn btn-sm btn-outline-danger">Delete</a>
     </td>
@@ -13,4 +13,3 @@
 {% empty %}
   <tr><td colspan="6" class="text-muted">No coupons found.</td></tr>
 {% endfor %}
-

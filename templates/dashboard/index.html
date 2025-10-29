@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
   <div class="row g-3">
     <div class="col-md-3">
@@ -29,17 +30,46 @@
           </div></div>
         </div>
       </div>
-      <h5 class="mt-4">Top Products</h5>
+      <h5 class="mt-4">Recent Orders</h5>
       <table class="table table-sm dash-table">
-        <thead><tr><th>Product</th><th>Qty</th><th>Sales</th></tr></thead>
+        <thead><tr><th>#</th><th>User</th><th>Status</th><th>Total</th><th>Placed</th></tr></thead>
         <tbody>
-          {% for p in top_products %}
-            <tr><td>{{ p.name }}</td><td>{{ p.qty }}</td><td>{{ CURRENCY_SYMBOL }}{{ p.sales|floatformat:2 }}</td></tr>
+          {% for o in latest_orders %}
+            <tr>
+              <td>{{ o.order_number }}</td>
+              <td>{{ o.user.username }}</td>
+              <td>{{ o.get_status_display }}</td>
+              <td>{{ CURRENCY_SYMBOL }}{{ o.total_amount|floatformat:2 }}</td>
+              <td>{{ o.created_at|date:"Y-m-d H:i" }}</td>
+            </tr>
           {% empty %}
-            <tr><td colspan="3">No data yet.</td></tr>
+            <tr><td colspan="5">No recent orders.</td></tr>
           {% endfor %}
         </tbody>
       </table>
+      <h5 class="mt-4">Revenue & Profit</h5>
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <label class="text-muted small mb-0" for="analyticsRange">Range</label>
+        <select id="analyticsRange" class="form-select form-select-sm" style="width:auto">
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option>
+        </select>
+        <label class="text-muted small mb-0" for="analyticsGroup">Group</label>
+        <select id="analyticsGroup" class="form-select form-select-sm" style="width:auto">
+          <option value="day" selected>Day</option>
+          <option value="month">Month</option>
+        </select>
+        <a id="analyticsCsv" href="#" class="btn btn-sm btn-outline-secondary">Download CSV</a>
+        <small class="text-muted">Profit is estimated. Set COGS_RATE in env to improve accuracy.</small>
+      </div>
+      <div style="height: 260px;">
+        <canvas id="revProfitChart" data-currency="{{ CURRENCY_SYMBOL }}" height="240"></canvas>
+      </div>
     </div>
   </div>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="{% static 'js/dashboard_charts.js' %}"></script>
 {% endblock %}

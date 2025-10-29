@@ -81,6 +81,8 @@ class Variant(models.Model):
     color = models.CharField(max_length=20, choices=COLOR_CHOICES)
     sku = models.CharField(max_length=50, unique=True)
     stock = models.PositiveIntegerField(default=0)
+    # Cost of goods per unit (for profit analytics). Optional; defaults to 0.
+    cost_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     # Optional per-variant shipping attributes
     weight_kg = models.DecimalField(max_digits=6, decimal_places=3, null=True, blank=True, help_text="Weight per unit in kg")
     length_cm = models.PositiveIntegerField(null=True, blank=True, help_text="Package length in cm")

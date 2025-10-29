@@ -187,6 +187,7 @@ class VariantForm(_BootstrapFormMixin, forms.ModelForm):
             "sku",
             "stock",
             # Optional per-variant measurements
+            "cost_price",
             "weight_kg",
             "length_cm",
             "breadth_cm",

@@ -1,10 +1,10 @@
 {% for b in banners %}
   <tr>
-    <td>{{ b.title|default:"(untitled)" }}</td>
-    <td>{% if b.is_active %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
-    <td>{{ b.sort_order }}</td>
-    <td>{{ b.created_at|date:"Y-m-d H:i" }}</td>
-    <td class="text-end">
+    <td data-label="Title">{{ b.title|default:"(untitled)" }}</td>
+    <td data-label="Active">{% if b.is_active %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+    <td data-label="Sort">{{ b.sort_order }}</td>
+    <td class="d-none d-sm-table-cell" data-label="Created">{{ b.created_at|date:"Y-m-d H:i" }}</td>
+    <td class="text-end" data-label="Actions">
       <a href="/dashboard/banners/{{ b.id }}/edit/" class="btn btn-sm btn-outline-primary">Edit</a>
       <a href="/dashboard/banners/{{ b.id }}/delete/" class="btn btn-sm btn-outline-danger">Delete</a>
     </td>
@@ -12,4 +12,3 @@
 {% empty %}
   <tr><td colspan="5" class="text-muted">No banners yet.</td></tr>
 {% endfor %}
-

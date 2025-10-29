@@ -472,3 +472,23 @@ html[data-theme='light'] .home-carousel .carousel-caption { color: #111; backgro
 .dash-kpi .kpi { font-size: 1.75rem; font-weight: 800; letter-spacing: .2px; }
 .dash-kpi .label { color: var(--rh-muted); font-weight: 700; }
 html[data-theme='light'] .dash-kpi { box-shadow: 0 10px 24px rgba(0,0,0,.08); }
+
+/* Mobile responsive admin tweaks */
+@media (max-width: 767.98px){
+  .dash-sidebar { position: relative; top: auto; border-radius: 10px; }
+  .dash-table { font-size: .9rem; }
+  .dash-kpi .kpi { font-size: 1.35rem; }
+  .dash-kpi .label { font-size: .85rem; }
+  .order-status-form select.form-select-sm { min-width: 140px; }
+}
+
+/* Extra-small screens: stack table rows as cards */
+@media (max-width: 575.98px){
+  .dash-table thead { display: none; }
+  .dash-table, .dash-table tbody, .dash-table tr, .dash-table td { display: block; width: 100%; }
+  .dash-table tr { background: var(--rh-bg-elev); border: 1px solid var(--rh-border); border-radius: 12px; padding: 8px 12px; margin-bottom: 12px; box-shadow: 0 6px 18px rgba(0,0,0,.12); }
+  .dash-table td { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--rh-border); }
+  .dash-table td:last-child { border-bottom: 0; }
+  .dash-table td::before { content: attr(data-label); color: var(--rh-muted); font-weight: 700; margin-right: 12px; }
+  .dash-table .text-end { justify-content: flex-end; }
+}

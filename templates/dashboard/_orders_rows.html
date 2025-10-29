@@ -1,8 +1,8 @@
 {% for o in orders %}
-  <tr>
-    <td>{{ o.order_number }}</td>
-    <td>{{ o.user.username }}</td>
-    <td>
+  <tr class="order-row" onclick="location.href='/dashboard/orders/{{ o.id }}/'" style="cursor:pointer;">
+    <td data-label="#"><a href="/dashboard/orders/{{ o.id }}/" class="text-decoration-none">{{ o.order_number }}</a></td>
+    <td data-label="User">{{ o.user.username }}</td>
+    <td data-label="Status">
       <form method="post" action="/dashboard/orders/{{ o.id }}/status/" class="d-flex align-items-center gap-2 order-status-form" data-order-id="{{ o.id }}">
         {% csrf_token %}
         <select name="status" class="form-select form-select-sm" style="width:auto">
@@ -13,11 +13,10 @@
         <button class="btn btn-sm btn-outline-primary d-none" type="submit">Update</button>
       </form>
     </td>
-    <td class="text-muted small text-uppercase">{{ o.payment_method }}</td>
-    <td>{{ CURRENCY_SYMBOL }}{{ o.total_amount }}</td>
-    <td>{{ o.created_at|date:"Y-m-d H:i" }}</td>
+    <td class="text-muted small text-uppercase d-none d-sm-table-cell" data-label="Payment">{{ o.payment_method }}</td>
+    <td data-label="Total">{{ CURRENCY_SYMBOL }}{{ o.total_amount }}</td>
+    <td class="d-none d-md-table-cell" data-label="Placed">{{ o.created_at|date:"Y-m-d H:i" }}</td>
   </tr>
 {% empty %}
   <tr><td colspan="6" class="text-muted">No orders yet.</td></tr>
 {% endfor %}
-

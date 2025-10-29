@@ -1,4 +1,8 @@
 {% with path=request.path %}
+<button class="btn btn-outline-primary w-100 d-md-none mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#adminSidebar" aria-controls="adminSidebar" aria-expanded="false" aria-label="Toggle admin menu">
+  <i class="bi bi-sliders"></i> Admin Menu
+</button>
+<div id="adminSidebar" class="collapse d-md-block">
 <aside class="dash-sidebar list-group mb-3">
   <a class="list-group-item list-group-item-action{% if path == '/dashboard/' %} active{% endif %}" href="/dashboard/"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
   <div class="list-group-item disabled">Manage</div>
@@ -7,11 +11,7 @@
   <a class="list-group-item list-group-item-action{% if path|slice:':22' == '/dashboard/categories/' %} active{% endif %}" href="/dashboard/categories/"><i class="bi bi-collection me-2"></i>Categories</a>
   <a class="list-group-item list-group-item-action{% if path|slice:':20' == '/dashboard/banners/' %} active{% endif %}" href="/dashboard/banners/"><i class="bi bi-image me-2"></i>Banners</a>
   <a class="list-group-item list-group-item-action{% if path|slice:':20' == '/dashboard/coupons/' %} active{% endif %}" href="/dashboard/coupons/"><i class="bi bi-ticket-perforated me-2"></i>Coupons</a>
-  <div class="list-group-item disabled">Create</div>
-  <a class="list-group-item list-group-item-action" href="/dashboard/orders/new/"><i class="bi bi-plus-circle me-2"></i>New Order</a>
-  <a class="list-group-item list-group-item-action" href="/dashboard/products/new/"><i class="bi bi-plus-circle me-2"></i>New Product</a>
-  <a class="list-group-item list-group-item-action" href="/dashboard/categories/new/"><i class="bi bi-plus-circle me-2"></i>New Category</a>
-  <a class="list-group-item list-group-item-action" href="/dashboard/banners/new/"><i class="bi bi-plus-circle me-2"></i>New Banner</a>
-  <a class="list-group-item list-group-item-action" href="/dashboard/coupons/new/"><i class="bi bi-plus-circle me-2"></i>New Coupon</a>
+  
 </aside>
+</div>
 {% endwith %}
