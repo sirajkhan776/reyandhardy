@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from catalog.models import Category, Product, ProductImage, ProductVideo, Variant
 from core.models import Banner
 from orders.models import Order, OrderItem
+from coupons.models import Coupon
 
 
 class _BootstrapFormMixin:
@@ -118,6 +119,25 @@ class OrderItemForm(_BootstrapFormMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
         self._apply_bootstrap()
         self.fields["quantity"].widget.attrs.setdefault("min", 1)
+
+
+class CouponForm(_BootstrapFormMixin, forms.ModelForm):
+    class Meta:
+        model = Coupon
+        fields = [
+            "code",
+            "description",
+            "discount_percent",
+            "active",
+            "valid_from",
+            "valid_to",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._apply_bootstrap()
+        self.fields["valid_from"].widget.attrs.setdefault("type", "datetime-local")
+        self.fields["valid_to"].widget.attrs.setdefault("type", "datetime-local")
 
 
 class ProductImageForm(_BootstrapFormMixin, forms.ModelForm):

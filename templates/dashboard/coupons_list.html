@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-md-3">{% include "dashboard/_nav.html" %}</div>
+  <div class="col-md-9">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+      <h3 class="m-0">Coupons</h3>
+      <a href="/dashboard/coupons/new/" class="btn btn-primary"><i class="bi bi-plus"></i> New Coupon</a>
+    </div>
+    <div class="d-flex align-items-center mb-2">
+      <form class="ms-auto d-flex align-items-center gap-2" method="get" action="">
+        <input type="search" name="q" value="{{ q }}" placeholder="Search code" class="form-control form-control-sm" />
+        <button class="btn btn-sm btn-outline-secondary" type="submit">Search</button>
+      </form>
+    </div>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 dash-table">
+          <thead class="table-light"><tr><th>Code</th><th>Discount</th><th>Active</th><th>Valid From</th><th>Valid To</th><th class="text-end">Actions</th></tr></thead>
+          <tbody>
+            {% for c in coupons %}
+              <tr>
+                <td>{{ c.code }}</td>
+                <td>{{ c.discount_percent }}%</td>
+                <td>{% if c.active %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+                <td class="text-muted small">{% if c.valid_from %}{{ c.valid_from|date:"Y-m-d H:i" }}{% else %}-{% endif %}</td>
+                <td class="text-muted small">{% if c.valid_to %}{{ c.valid_to|date:"Y-m-d H:i" }}{% else %}-{% endif %}</td>
+                <td class="text-end">
+                  <a href="/dashboard/coupons/{{ c.id }}/edit/" class="btn btn-sm btn-outline-primary">Edit</a>
+                  <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-delete-url="/dashboard/coupons/{{ c.id }}/delete/" data-object-name="{{ c.code }}">Delete</button>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="6" class="text-muted">No coupons found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Delete confirmation modal -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="confirmDeleteLabel">Delete Coupon</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form method="post" id="deleteForm" action="">
+            <div class="modal-body">
+              {% csrf_token %}
+              Are you sure you want to delete <strong id="deleteObjectName"></strong>?
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-danger">Delete</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% block scripts %}
+<script>
+  (function(){
+    var modal = document.getElementById('confirmDeleteModal');
+    if (!modal) return;
+    modal.addEventListener('show.bs.modal', function (event) {
+      var button = event.relatedTarget;
+      var url = button.getAttribute('data-delete-url');
+      var name = button.getAttribute('data-object-name');
+      var form = document.getElementById('deleteForm');
+      var nameEl = document.getElementById('deleteObjectName');
+      if (form) form.setAttribute('action', url);
+      if (nameEl) nameEl.textContent = name || '';
+    });
+  })();
+</script>
+{% endblock %}
+{% endblock %}
+

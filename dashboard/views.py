@@ -16,6 +16,7 @@ import random
 from orders.models import Order, OrderItem
 from catalog.models import Variant, Product, Category, ProductImage, ProductVideo
 from core.models import Banner
+from coupons.models import Coupon
 from .forms import (
     CategoryForm,
     ProductForm,
@@ -385,6 +386,55 @@ def edit_order(request, pk: int):
         "form_title": "Edit Order",
         "submit_label": "Save Changes",
     })
+
+
+@staff_member_required(login_url="/accounts/login/")
+def coupons_list(request):
+    q = request.GET.get("q", "").strip()
+    qs = Coupon.objects.all()
+    if q:
+        qs = qs.filter(code__icontains=q)
+    coupons = qs.order_by("-id")[:100]
+    return render(request, "dashboard/coupons_list.html", {"coupons": coupons, "q": q})
+
+
+@staff_member_required(login_url="/accounts/login/")
+def create_coupon(request):
+    from .forms import CouponForm
+    if request.method == "POST":
+        form = CouponForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Coupon created")
+            return redirect("dashboard_coupons")
+    else:
+        form = CouponForm()
+    return render(request, "dashboard/coupon_form.html", {"form": form, "form_title": "Create Coupon", "submit_label": "Create Coupon"})
+
+
+@staff_member_required(login_url="/accounts/login/")
+def edit_coupon(request, pk: int):
+    from .forms import CouponForm
+    obj = get_object_or_404(Coupon, pk=pk)
+    if request.method == "POST":
+        form = CouponForm(request.POST, instance=obj)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Coupon updated")
+            return redirect("dashboard_coupons")
+    else:
+        form = CouponForm(instance=obj)
+    return render(request, "dashboard/coupon_form.html", {"form": form, "form_title": "Edit Coupon", "submit_label": "Save Changes"})
+
+
+@staff_member_required(login_url="/accounts/login/")
+def delete_coupon(request, pk: int):
+    obj = get_object_or_404(Coupon, pk=pk)
+    if request.method == "POST":
+        obj.delete()
+        messages.success(request, "Coupon deleted")
+        return redirect("dashboard_coupons")
+    return render(request, "dashboard/confirm_delete.html", {"object": obj, "object_type": "Coupon", "cancel_url": "/dashboard/coupons/"})
 
 
 @staff_member_required(login_url="/accounts/login/")
