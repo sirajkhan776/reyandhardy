@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
 <div class="row g-3">
   <div class="col-md-3">{% include "dashboard/_nav.html" %}</div>
@@ -7,24 +8,18 @@
       <h3 class="m-0">Categories</h3>
       <a href="/dashboard/categories/new/" class="btn btn-primary"><i class="bi bi-plus"></i> New Category</a>
     </div>
+    <div class="d-flex align-items-center mb-2" id="listContainer" data-endpoint="/dashboard/categories/partial/">
+      <form class="ms-auto d-flex align-items-center gap-2" method="get" action="">
+        <input type="search" name="q" value="{{ q }}" placeholder="Search category" class="form-control form-control-sm" />
+        <button class="btn btn-sm btn-outline-secondary" type="submit">Search</button>
+      </form>
+    </div>
     <div class="card">
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0 dash-table">
           <thead class="table-light"><tr><th>Name</th><th>Slug</th><th>Display</th><th class="text-end">Actions</th></tr></thead>
-          <tbody>
-            {% for c in categories %}
-              <tr>
-                <td>{{ c.name }}</td>
-                <td class="text-muted small">{{ c.slug }}</td>
-                <td>{% if c.is_display %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
-                <td class="text-end">
-                  <a href="/dashboard/categories/{{ c.id }}/edit/" class="btn btn-sm btn-outline-primary">Edit</a>
-                  <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-delete-url="/dashboard/categories/{{ c.id }}/delete/" data-object-name="{{ c.name }}">Delete</button>
-                </td>
-              </tr>
-            {% empty %}
-              <tr><td colspan="4" class="text-muted">No categories yet.</td></tr>
-            {% endfor %}
+          <tbody id="listTbody">
+            {% include 'dashboard/_categories_rows.html' with categories=categories %}
           </tbody>
         </table>
       </div>
@@ -51,6 +46,9 @@
       </div>
     </div>
   </div>
+{% block scripts %}
+<script src="{% static 'js/list_ajax.js' %}"></script>
+{% endblock %}
 </div>
 {% block scripts %}
 <script>

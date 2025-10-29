@@ -1,0 +1,14 @@
+{% for c in categories %}
+  <tr>
+    <td>{{ c.name }}</td>
+    <td class="text-muted small">{{ c.slug }}</td>
+    <td>{% if c.is_display %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+    <td class="text-end">
+      <a href="/dashboard/categories/{{ c.id }}/edit/" class="btn btn-sm btn-outline-primary">Edit</a>
+      <a href="/dashboard/categories/{{ c.id }}/delete/" class="btn btn-sm btn-outline-danger">Delete</a>
+    </td>
+  </tr>
+{% empty %}
+  <tr><td colspan="4" class="text-muted">No categories yet.</td></tr>
+{% endfor %}
+

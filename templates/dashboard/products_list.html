@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
 <div class="row g-3">
   <div class="col-md-3">{% include "dashboard/_nav.html" %}</div>
@@ -7,30 +8,63 @@
       <h3 class="m-0">Products</h3>
       <a href="/dashboard/products/new/" class="btn btn-primary"><i class="bi bi-plus"></i> New Product</a>
     </div>
+    <div class="d-flex align-items-center mb-2" id="listContainer" data-endpoint="/dashboard/products/partial/">
+      <form class="ms-auto d-flex align-items-center gap-2" method="get" action="">
+        <input type="search" name="q" value="{{ q }}" placeholder="Search name or category" class="form-control form-control-sm" />
+        <button class="btn btn-sm btn-outline-secondary" type="submit">Search</button>
+      </form>
+    </div>
     <div class="card">
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0 dash-table">
           <thead class="table-light"><tr><th>Name</th><th>Category</th><th>Base</th><th>Sale</th><th>Active</th><th class="text-end">Actions</th></tr></thead>
-          <tbody>
-            {% for p in products %}
-              <tr>
-                <td>{{ p.name }}</td>
-                <td>{{ p.category.name }}</td>
-                <td>{{ CURRENCY_SYMBOL }}{{ p.base_price }}</td>
-                <td>{% if p.sale_price %}{{ CURRENCY_SYMBOL }}{{ p.sale_price }}{% else %}-{% endif %}</td>
-                <td>{% if p.is_active %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
-                <td class="text-end">
-                  <a href="/dashboard/products/{{ p.id }}/edit/" class="btn btn-sm btn-outline-primary">Edit</a>
-                  <a href="/dashboard/products/{{ p.id }}/delete/" class="btn btn-sm btn-outline-danger">Delete</a>
-                </td>
-              </tr>
-            {% empty %}
-              <tr><td colspan="5" class="text-muted">No products yet.</td></tr>
-            {% endfor %}
+          <tbody id="listTbody">
+            {% include 'dashboard/_products_rows.html' with products=products %}
           </tbody>
         </table>
       </div>
     </div>
+    <!-- Delete confirmation modal -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="confirmDeleteLabel">Delete Product</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form method="post" id="deleteForm" action="">
+            <div class="modal-body">
+              {% csrf_token %}
+              Are you sure you want to delete <strong id="deleteObjectName"></strong>?
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-danger">Delete</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
+{% block scripts %}
+<script src="{% static 'js/list_ajax.js' %}"></script>
+{% endblock %}
 </div>
+{% block scripts %}
+<script>
+  (function(){
+    var modal = document.getElementById('confirmDeleteModal');
+    if (!modal) return;
+    modal.addEventListener('show.bs.modal', function (event) {
+      var button = event.relatedTarget;
+      var url = button.getAttribute('data-delete-url');
+      var name = button.getAttribute('data-object-name');
+      var form = document.getElementById('deleteForm');
+      var nameEl = document.getElementById('deleteObjectName');
+      if (form) form.setAttribute('action', url);
+      if (nameEl) nameEl.textContent = name || '';
+    });
+  })();
+  </script>
+{% endblock %}
 {% endblock %}

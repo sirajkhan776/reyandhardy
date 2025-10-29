@@ -1,0 +1,16 @@
+{% for c in coupons %}
+  <tr>
+    <td>{{ c.code }}</td>
+    <td>{{ c.discount_percent }}%</td>
+    <td>{% if c.active %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+    <td class="text-muted small">{% if c.valid_from %}{{ c.valid_from|date:"Y-m-d H:i" }}{% else %}-{% endif %}</td>
+    <td class="text-muted small">{% if c.valid_to %}{{ c.valid_to|date:"Y-m-d H:i" }}{% else %}-{% endif %}</td>
+    <td class="text-end">
+      <a href="/dashboard/coupons/{{ c.id }}/edit/" class="btn btn-sm btn-outline-primary">Edit</a>
+      <a href="/dashboard/coupons/{{ c.id }}/delete/" class="btn btn-sm btn-outline-danger">Delete</a>
+    </td>
+  </tr>
+{% empty %}
+  <tr><td colspan="6" class="text-muted">No coupons found.</td></tr>
+{% endfor %}
+

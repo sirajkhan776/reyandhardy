@@ -125,20 +125,32 @@ def orders_partial(request):
 
 @staff_member_required(login_url="/accounts/login/")
 def products_list(request):
-    products = Product.objects.select_related("category").order_by("-created_at")[:50]
-    return render(request, "dashboard/products_list.html", {"products": products})
+    q = request.GET.get("q", "").strip()
+    qs = Product.objects.select_related("category").all()
+    if q:
+        qs = qs.filter(name__icontains=q) | qs.filter(category__name__icontains=q)
+    products = qs.order_by("-created_at")[:100]
+    return render(request, "dashboard/products_list.html", {"products": products, "q": q})
 
 
 @staff_member_required(login_url="/accounts/login/")
 def categories_list(request):
-    categories = Category.objects.order_by("name")
-    return render(request, "dashboard/categories_list.html", {"categories": categories})
+    q = request.GET.get("q", "").strip()
+    qs = Category.objects.all()
+    if q:
+        qs = qs.filter(name__icontains=q)
+    categories = qs.order_by("name")
+    return render(request, "dashboard/categories_list.html", {"categories": categories, "q": q})
 
 
 @staff_member_required(login_url="/accounts/login/")
 def banners_list(request):
-    banners = Banner.objects.order_by("sort_order", "-created_at")
-    return render(request, "dashboard/banners_list.html", {"banners": banners})
+    q = request.GET.get("q", "").strip()
+    qs = Banner.objects.all()
+    if q:
+        qs = qs.filter(title__icontains=q)
+    banners = qs.order_by("sort_order", "-created_at")
+    return render(request, "dashboard/banners_list.html", {"banners": banners, "q": q})
 
 
 @staff_member_required(login_url="/accounts/login/")
@@ -396,6 +408,50 @@ def coupons_list(request):
         qs = qs.filter(code__icontains=q)
     coupons = qs.order_by("-id")[:100]
     return render(request, "dashboard/coupons_list.html", {"coupons": coupons, "q": q})
+
+
+@staff_member_required(login_url="/accounts/login/")
+def products_partial(request):
+    q = request.GET.get("q", "").strip()
+    qs = Product.objects.select_related("category").all()
+    if q:
+        qs = qs.filter(name__icontains=q) | qs.filter(category__name__icontains=q)
+    products = qs.order_by("-created_at")[:100]
+    rows_html = render_to_string("dashboard/_products_rows.html", {"products": products}, request=request)
+    return JsonResponse({"rows_html": rows_html})
+
+
+@staff_member_required(login_url="/accounts/login/")
+def categories_partial(request):
+    q = request.GET.get("q", "").strip()
+    qs = Category.objects.all()
+    if q:
+        qs = qs.filter(name__icontains=q)
+    categories = qs.order_by("name")
+    rows_html = render_to_string("dashboard/_categories_rows.html", {"categories": categories}, request=request)
+    return JsonResponse({"rows_html": rows_html})
+
+
+@staff_member_required(login_url="/accounts/login/")
+def banners_partial(request):
+    q = request.GET.get("q", "").strip()
+    qs = Banner.objects.all()
+    if q:
+        qs = qs.filter(title__icontains=q)
+    banners = qs.order_by("sort_order", "-created_at")
+    rows_html = render_to_string("dashboard/_banners_rows.html", {"banners": banners}, request=request)
+    return JsonResponse({"rows_html": rows_html})
+
+
+@staff_member_required(login_url="/accounts/login/")
+def coupons_partial(request):
+    q = request.GET.get("q", "").strip()
+    qs = Coupon.objects.all()
+    if q:
+        qs = qs.filter(code__icontains=q)
+    coupons = qs.order_by("-id")[:100]
+    rows_html = render_to_string("dashboard/_coupons_rows.html", {"coupons": coupons}, request=request)
+    return JsonResponse({"rows_html": rows_html})
 
 
 @staff_member_required(login_url="/accounts/login/")

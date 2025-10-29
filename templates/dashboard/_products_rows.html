@@ -1,0 +1,16 @@
+{% for p in products %}
+  <tr>
+    <td>{{ p.name }}</td>
+    <td>{{ p.category.name }}</td>
+    <td>{{ CURRENCY_SYMBOL }}{{ p.base_price }}</td>
+    <td>{% if p.sale_price %}{{ CURRENCY_SYMBOL }}{{ p.sale_price }}{% else %}-{% endif %}</td>
+    <td>{% if p.is_active %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+    <td class="text-end">
+      <a href="/dashboard/products/{{ p.id }}/edit/" class="btn btn-sm btn-outline-primary">Edit</a>
+      <a href="/dashboard/products/{{ p.id }}/delete/" class="btn btn-sm btn-outline-danger">Delete</a>
+    </td>
+  </tr>
+{% empty %}
+  <tr><td colspan="6" class="text-muted">No products yet.</td></tr>
+{% endfor %}
+

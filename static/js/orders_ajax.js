@@ -2,6 +2,7 @@
 (function(){
   const $ = (sel, ctx=document) => ctx.querySelector(sel);
   const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
+  const debounce = (fn, ms=300) => { let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), ms); }; };
 
   function getCookie(name) {
     const value = `; ${document.cookie}`;
@@ -41,6 +42,8 @@
       if (statusFilter){ statusFilter.addEventListener('change', function(){ refreshList(); }); }
       const sortSelect = $('#sortSelect', filterForm);
       if (sortSelect){ sortSelect.addEventListener('change', function(){ refreshList(); }); }
+      const qInput = filterForm.elements['q'];
+      if (qInput){ qInput.addEventListener('input', debounce(()=>refreshList(), 250)); }
     }
   }
 
