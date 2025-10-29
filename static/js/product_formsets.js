@@ -9,7 +9,13 @@
     const html = template.innerHTML.replace(/__prefix__/g, String(idx));
     const tmp = document.createElement('div');
     tmp.innerHTML = html.trim();
-    container.appendChild(tmp.firstElementChild);
+    const row = tmp.firstElementChild;
+    // Ensure mobile file pickers have accept attributes
+    row.querySelectorAll('input[type="file"]').forEach(inp => {
+      if (prefix === 'images' && !inp.accept) inp.accept = 'image/*';
+      if (prefix === 'videos' && !inp.accept) inp.accept = 'video/*';
+    });
+    container.appendChild(row);
     totalEl.value = String(idx + 1);
   }
 

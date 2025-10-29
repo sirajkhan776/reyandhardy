@@ -166,6 +166,11 @@ class ProductImageForm(_BootstrapFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._apply_bootstrap()
+        # Hint mobile to show image picker/camera
+        try:
+            self.fields["image"].widget.attrs.setdefault("accept", "image/*")
+        except Exception:
+            pass
 
 
 class ProductVideoForm(_BootstrapFormMixin, forms.ModelForm):
@@ -176,6 +181,12 @@ class ProductVideoForm(_BootstrapFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._apply_bootstrap()
+        try:
+            self.fields["video"].widget.attrs.setdefault("accept", "video/*")
+            # Some mobile browsers honor capture for video
+            self.fields["video"].widget.attrs.setdefault("capture", "environment")
+        except Exception:
+            pass
 
 
 class VariantForm(_BootstrapFormMixin, forms.ModelForm):

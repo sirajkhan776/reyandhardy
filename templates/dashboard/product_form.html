@@ -47,6 +47,7 @@
       <div id="imagesContainer" class="mt-2">
         {% for f in images_fs %}
           <div class="row g-2 align-items-end border rounded p-2 mb-2 formset-item" data-prefix="images" data-index="{{ forloop.counter0 }}">
+            {{ f.id }}
             <div class="col-md-6">{{ f.image.label_tag }}{{ f.image }}{% if f.image.errors %}<div class="invalid-feedback d-block">{{ f.image.errors|join:", " }}</div>{% endif %}</div>
             <div class="col-md-4">{{ f.alt_text.label_tag }}{{ f.alt_text }}{% if f.alt_text.errors %}<div class="invalid-feedback d-block">{{ f.alt_text.errors|join:", " }}</div>{% endif %}</div>
             <div class="col-md-1 form-check">{{ f.is_primary }} {{ f.is_primary.label_tag }}</div>
@@ -78,6 +79,7 @@
       <div id="videosContainer" class="mt-2">
         {% for f in videos_fs %}
           <div class="row g-2 align-items-end border rounded p-2 mb-2 formset-item" data-prefix="videos" data-index="{{ forloop.counter0 }}">
+            {{ f.id }}
             <div class="col-md-10">{{ f.video.label_tag }}{{ f.video }}{% if f.video.errors %}<div class="invalid-feedback d-block">{{ f.video.errors|join:", " }}</div>{% endif %}</div>
             <div class="col-md-2 text-end">
               {% if videos_fs.can_delete %}<span class="d-none">{{ f.DELETE }}</span>{% endif %}
@@ -105,6 +107,7 @@
       <div id="variantsContainer" class="mt-2">
         {% for f in variants_fs %}
           <div class="row g-2 align-items-end border rounded p-2 mb-2 formset-item" data-prefix="variants" data-index="{{ forloop.counter0 }}">
+            {{ f.id }}
             <div class="col-md-2">{{ f.size.label_tag }}{{ f.size }}{% if f.size.errors %}<div class="invalid-feedback d-block">{{ f.size.errors|join:", " }}</div>{% endif %}</div>
             <div class="col-md-3">{{ f.color.label_tag }}{{ f.color }}{% if f.color.errors %}<div class="invalid-feedback d-block">{{ f.color.errors|join:", " }}</div>{% endif %}</div>
             <div class="col-md-3">{{ f.sku.label_tag }}{{ f.sku }}{% if f.sku.errors %}<div class="invalid-feedback d-block">{{ f.sku.errors|join:", " }}</div>{% endif %}</div>
