@@ -33,7 +33,10 @@
             <div class="col-md-6">{{ f.image.label_tag }}{{ f.image }}</div>
             <div class="col-md-4">{{ f.alt_text.label_tag }}{{ f.alt_text }}</div>
             <div class="col-md-1 form-check">{{ f.is_primary }} {{ f.is_primary.label_tag }}</div>
-            <div class="col-md-1 text-end">{% if images_fs.can_delete %}{{ f.DELETE }}{% endif %}</div>
+            <div class="col-md-1 text-end">
+              {% if images_fs.can_delete %}<span class="d-none">{{ f.DELETE }}</span>{% endif %}
+              <button type="button" class="btn btn-outline-danger btn-sm remove-formset" title="Remove image"><i class="bi bi-trash"></i></button>
+            </div>
           </div>
         {% endfor %}
       </div>
@@ -42,7 +45,10 @@
           <div class="col-md-6">{{ images_fs.empty_form.image.label_tag }}{{ images_fs.empty_form.image }}</div>
           <div class="col-md-4">{{ images_fs.empty_form.alt_text.label_tag }}{{ images_fs.empty_form.alt_text }}</div>
           <div class="col-md-1 form-check">{{ images_fs.empty_form.is_primary }} {{ images_fs.empty_form.is_primary.label_tag }}</div>
-          <div class="col-md-1 text-end">{% if images_fs.can_delete %}{{ images_fs.empty_form.DELETE }}{% endif %}</div>
+          <div class="col-md-1 text-end">
+            {% if images_fs.can_delete %}<span class="d-none">{{ images_fs.empty_form.DELETE }}</span>{% endif %}
+            <button type="button" class="btn btn-outline-danger btn-sm remove-formset" title="Remove image"><i class="bi bi-trash"></i></button>
+          </div>
         </div>
       </template>
 
@@ -56,14 +62,20 @@
         {% for f in videos_fs %}
           <div class="row g-2 align-items-end border rounded p-2 mb-2 formset-item" data-prefix="videos" data-index="{{ forloop.counter0 }}">
             <div class="col-md-10">{{ f.video.label_tag }}{{ f.video }}</div>
-            <div class="col-md-2 text-end">{% if videos_fs.can_delete %}{{ f.DELETE }}{% endif %}</div>
+            <div class="col-md-2 text-end">
+              {% if videos_fs.can_delete %}<span class="d-none">{{ f.DELETE }}</span>{% endif %}
+              <button type="button" class="btn btn-outline-danger btn-sm remove-formset" title="Remove video"><i class="bi bi-trash"></i></button>
+            </div>
           </div>
         {% endfor %}
       </div>
       <template id="template-videos">
         <div class="row g-2 align-items-end border rounded p-2 mb-2 formset-item" data-prefix="videos" data-index="__prefix__">
           <div class="col-md-10">{{ videos_fs.empty_form.video.label_tag }}{{ videos_fs.empty_form.video }}</div>
-          <div class="col-md-2 text-end">{% if videos_fs.can_delete %}{{ videos_fs.empty_form.DELETE }}{% endif %}</div>
+          <div class="col-md-2 text-end">
+            {% if videos_fs.can_delete %}<span class="d-none">{{ videos_fs.empty_form.DELETE }}</span>{% endif %}
+            <button type="button" class="btn btn-outline-danger btn-sm remove-formset" title="Remove video"><i class="bi bi-trash"></i></button>
+          </div>
         </div>
       </template>
 
@@ -80,7 +92,10 @@
             <div class="col-md-3">{{ f.color.label_tag }}{{ f.color }}</div>
             <div class="col-md-3">{{ f.sku.label_tag }}{{ f.sku }}</div>
             <div class="col-md-2">{{ f.stock.label_tag }}{{ f.stock }}</div>
-            <div class="col-md-2 text-end">{% if variants_fs.can_delete %}{{ f.DELETE }}{% endif %}</div>
+            <div class="col-md-2 text-end">
+              {% if variants_fs.can_delete %}<span class="d-none">{{ f.DELETE }}</span>{% endif %}
+              <button type="button" class="btn btn-outline-danger btn-sm remove-formset" title="Remove variant"><i class="bi bi-trash"></i></button>
+            </div>
             <div class="col-12">
               <div class="row g-2">
                 <div class="col-md-2">{{ f.weight_kg.label_tag }}{{ f.weight_kg }}</div>
@@ -98,7 +113,10 @@
           <div class="col-md-3">{{ variants_fs.empty_form.color.label_tag }}{{ variants_fs.empty_form.color }}</div>
           <div class="col-md-3">{{ variants_fs.empty_form.sku.label_tag }}{{ variants_fs.empty_form.sku }}</div>
           <div class="col-md-2">{{ variants_fs.empty_form.stock.label_tag }}{{ variants_fs.empty_form.stock }}</div>
-          <div class="col-md-2 text-end">{% if variants_fs.can_delete %}{{ variants_fs.empty_form.DELETE }}{% endif %}</div>
+          <div class="col-md-2 text-end">
+            {% if variants_fs.can_delete %}<span class="d-none">{{ variants_fs.empty_form.DELETE }}</span>{% endif %}
+            <button type="button" class="btn btn-outline-danger btn-sm remove-formset" title="Remove variant"><i class="bi bi-trash"></i></button>
+          </div>
           <div class="col-12">
             <div class="row g-2">
               <div class="col-md-2">{{ variants_fs.empty_form.weight_kg.label_tag }}{{ variants_fs.empty_form.weight_kg }}</div>

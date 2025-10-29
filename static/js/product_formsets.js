@@ -19,5 +19,35 @@
     const prefix = btn.getAttribute('data-formset');
     if (prefix) addRow(prefix);
   });
-})();
 
+  // Remove row: check DELETE if present; otherwise clear inputs and hide row
+  document.addEventListener('click', function(e){
+    const rm = e.target.closest('.remove-formset');
+    if (!rm) return;
+    const row = rm.closest('.formset-item');
+    if (!row) return;
+    const prefix = row.getAttribute('data-prefix');
+    const index = row.getAttribute('data-index');
+    const delName = `${prefix}-${index}-DELETE`;
+    const delInput = row.querySelector(`input[name="${delName}"]`);
+    if (delInput){
+      delInput.checked = true;
+    } else {
+      // Clear inputs so Django treats it as empty
+      row.querySelectorAll('input, select, textarea').forEach(inp => {
+        if (inp.type === 'file'){
+          try { inp.value = ''; } catch(_) {
+            const clone = inp.cloneNode(true); inp.parentNode.replaceChild(clone, inp);
+          }
+        } else if (inp.tagName === 'SELECT') {
+          inp.selectedIndex = 0;
+        } else if (inp.type === 'checkbox' || inp.type === 'radio') {
+          inp.checked = false;
+        } else {
+          inp.value = '';
+        }
+      });
+    }
+    row.classList.add('d-none');
+  });
+})();
