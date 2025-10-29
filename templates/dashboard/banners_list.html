@@ -10,7 +10,7 @@
     <div class="card">
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0 dash-table">
-          <thead class="table-light"><tr><th>Title</th><th>Active</th><th>Sort</th><th>Created</th></tr></thead>
+          <thead class="table-light"><tr><th>Title</th><th>Active</th><th>Sort</th><th>Created</th><th class="text-end">Actions</th></tr></thead>
           <tbody>
             {% for b in banners %}
               <tr>
@@ -18,9 +18,13 @@
                 <td>{% if b.is_active %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
                 <td>{{ b.sort_order }}</td>
                 <td>{{ b.created_at|date:"Y-m-d H:i" }}</td>
+                <td class="text-end">
+                  <a href="/dashboard/banners/{{ b.id }}/edit/" class="btn btn-sm btn-outline-primary">Edit</a>
+                  <a href="/dashboard/banners/{{ b.id }}/delete/" class="btn btn-sm btn-outline-danger">Delete</a>
+                </td>
               </tr>
             {% empty %}
-              <tr><td colspan="4" class="text-muted">No banners yet.</td></tr>
+              <tr><td colspan="5" class="text-muted">No banners yet.</td></tr>
             {% endfor %}
           </tbody>
         </table>
@@ -29,4 +33,3 @@
   </div>
 </div>
 {% endblock %}
-

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-md-3">{% include "dashboard/_nav.html" %}</div>
+  <div class="col-md-9">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Delete {{ object_type }}</h4>
+        <p>Are you sure you want to delete <strong>{{ object }}</strong>? This action cannot be undone.</p>
+        <form method="post">
+          {% csrf_token %}
+          <a href="{{ cancel_url }}" class="btn btn-outline-secondary">Cancel</a>
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
