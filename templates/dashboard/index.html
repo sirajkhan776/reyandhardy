@@ -8,9 +8,10 @@
       <h2>Analytics Dashboard</h2>
       <div class="row g-3">
         <div class="col-md-4">
-          <div class="dash-kpi card"><div class="card-body d-flex align-items-center gap-3">
+          <div class="dash-kpi card position-relative"><div class="card-body d-flex align-items-center gap-3">
             <i class="bi bi-currency-rupee fs-1 text-warning"></i>
             <div><div class="label">Total Revenue</div><div class="kpi">{{ CURRENCY_SYMBOL }}{{ revenue|floatformat:2 }}</div></div>
+            <a href="/dashboard/orders/" class="stretched-link" aria-label="View Orders"></a>
           </div></div>
         </div>
         <div class="col-md-4">
@@ -21,9 +22,10 @@
           </div></div>
         </div>
         <div class="col-md-4">
-          <div class="dash-kpi card"><div class="card-body d-flex align-items-center gap-3">
+          <div class="dash-kpi card position-relative"><div class="card-body d-flex align-items-center gap-3">
             <i class="bi bi-box-seam fs-1 text-info"></i>
             <div><div class="label">Stock (units)</div><div class="kpi">{{ stock_total }}</div></div>
+            <a href="/dashboard/products/" class="stretched-link" aria-label="View Products"></a>
           </div></div>
         </div>
       </div>
