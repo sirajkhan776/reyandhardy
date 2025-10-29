@@ -16,7 +16,17 @@
               <tr>
                 <td>{{ o.order_number }}</td>
                 <td>{{ o.user.username }}</td>
-                <td><span class="badge bg-secondary">{{ o.get_status_display }}</span></td>
+                <td>
+                  <form method="post" action="/dashboard/orders/{{ o.id }}/status/" class="d-flex align-items-center gap-2">
+                    {% csrf_token %}
+                    <select name="status" class="form-select form-select-sm" style="width:auto">
+                      {% for key,label in o.STATUS_CHOICES %}
+                        <option value="{{ key }}" {% if o.status == key %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                    <button class="btn btn-sm btn-outline-primary" type="submit">Update</button>
+                  </form>
+                </td>
                 <td>{{ CURRENCY_SYMBOL }}{{ o.total_amount }}</td>
                 <td>{{ o.created_at|date:"Y-m-d H:i" }}</td>
                 <td class="text-end">

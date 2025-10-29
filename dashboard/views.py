@@ -5,6 +5,7 @@ from django.forms import inlineformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.safestring import mark_safe
 from django.core.serializers.json import DjangoJSONEncoder
+from django.views.decorators.http import require_POST
 import json
 from django.utils import timezone
 from decimal import Decimal
@@ -317,6 +318,22 @@ def edit_order(request, pk: int):
         "form_title": "Edit Order",
         "submit_label": "Save Changes",
     })
+
+
+@staff_member_required(login_url="/accounts/login/")
+@require_POST
+def update_order_status(request, pk: int):
+    order = get_object_or_404(Order, pk=pk)
+    new_status = request.POST.get("status")
+    valid_statuses = {key for key, _ in Order.STATUS_CHOICES}
+    if new_status not in valid_statuses:
+        messages.error(request, "Invalid status selected")
+        return redirect("dashboard_orders")
+    order.status = new_status
+    order.save(update_fields=["status", "updated_at"])
+    messages.success(request, f"Order {order.order_number} status updated to {order.get_status_display()}")
+    # Redirect back to referring page if available
+    return redirect(request.META.get("HTTP_REFERER", "dashboard_orders"))
 
 
 @staff_member_required(login_url="/accounts/login/")

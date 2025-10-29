@@ -12,6 +12,7 @@ urlpatterns = [
     path("dashboard/products/new/", views.create_product, name="dashboard_product_new"),
     path("dashboard/banners/new/", views.create_banner, name="dashboard_banner_new"),
     path("dashboard/orders/new/", views.create_order, name="dashboard_order_new"),
+    path("dashboard/orders/<int:pk>/status/", views.update_order_status, name="dashboard_order_status"),
     # Edit
     path("dashboard/products/<int:pk>/edit/", views.edit_product, name="dashboard_product_edit"),
     path("dashboard/categories/<int:pk>/edit/", views.edit_category, name="dashboard_category_edit"),
