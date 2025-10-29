@@ -4,7 +4,7 @@
     {% if banners and banners.0 %}
       {% if banners.0.video %}
         <video class="rh-hero-media" autoplay muted loop playsinline preload="auto"{% if banners.0.image %} poster="{{ banners.0.image.url }}"{% endif %}>
-          <source src="{{ banners.0.video.url }}" type="video/mp4" />
+          <source src="{{ banners.0.video.url }}" />
         </video>
       {% elif banners.0.image %}
         <img class="rh-hero-media" src="{{ banners.0.image.url }}" alt="{{ banners.0.title }}" />

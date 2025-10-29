@@ -53,7 +53,7 @@
                 {% for v in vids %}
             <div class="carousel-item {% if not imgs and forloop.first %}active{% endif %}">
                     <video muted playsinline loop preload="metadata" autoplay>
-                      <source src="{{ v.video.url }}" type="video/mp4" />
+                      <source src="{{ v.video.url }}" />
                     </video>
                   </div>
                 {% endfor %}
