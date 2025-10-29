@@ -11,7 +11,7 @@ from decimal import Decimal
 import random
 
 from orders.models import Order, OrderItem
-from catalog.models import Variant, Product, Category
+from catalog.models import Variant, Product, Category, ProductImage, ProductVideo
 from core.models import Banner
 from .forms import (
     CategoryForm,
