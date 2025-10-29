@@ -16,13 +16,7 @@ build/
 db.sqlite3
 *.sqlite3
 
-# User uploads / generated media (avoid committing videos)
-media/**/*.mp4
-media/**/*.mov
-media/**/*.mkv
-media/**/*.avi
-media/**/*.webm
-media/**/*.m4v
+
 
 # Collected static output (if used)
 staticfiles/
