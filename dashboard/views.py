@@ -6,6 +6,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.safestring import mark_safe
 from django.core.serializers.json import DjangoJSONEncoder
 from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+from django.template.loader import render_to_string
 import json
 from django.utils import timezone
 from decimal import Decimal
@@ -52,12 +54,20 @@ def index(request):
 @staff_member_required(login_url="/accounts/login/")
 def orders_list(request):
     q = request.GET.get("q", "").strip()
+    selected_status = request.GET.get("status", "all")
+    selected_sort = request.GET.get("sort", "newest")
 
     qs = Order.objects.all()
     if q:
         qs = qs.filter(order_number__icontains=q) | qs.filter(user__username__icontains=q)
+    if selected_status and selected_status != "all":
+        qs = qs.filter(status=selected_status)
 
-    orders = qs.order_by("-created_at")[:50]
+    if selected_sort == "oldest":
+        qs = qs.order_by("created_at")
+    else:
+        qs = qs.order_by("-created_at")
+    orders = qs[:50]
 
     summary = qs.aggregate(total_amount=Sum("total_amount"))
     total_amount = summary.get("total_amount") or 0
@@ -69,11 +79,47 @@ def orders_list(request):
         {
             "orders": orders,
             "status_choices": Order.STATUS_CHOICES,
+            "selected_status": selected_status,
+            "selected_sort": selected_sort,
             "q": q,
             "summary_total_amount": total_amount,
             "summary_total_orders": total_orders,
         },
     )
+
+
+@staff_member_required(login_url="/accounts/login/")
+def orders_partial(request):
+    q = request.GET.get("q", "").strip()
+    selected_status = request.GET.get("status", "all")
+    selected_sort = request.GET.get("sort", "newest")
+
+    qs = Order.objects.all()
+    if q:
+        qs = qs.filter(order_number__icontains=q) | qs.filter(user__username__icontains=q)
+    if selected_status and selected_status != "all":
+        qs = qs.filter(status=selected_status)
+    if selected_sort == "oldest":
+        qs = qs.order_by("created_at")
+    else:
+        qs = qs.order_by("-created_at")
+
+    orders = qs[:50]
+    summary = qs.aggregate(total_amount=Sum("total_amount"))
+    total_amount = summary.get("total_amount") or 0
+    total_orders = qs.count()
+
+    rows_html = render_to_string(
+        "dashboard/_orders_rows.html",
+        {"orders": orders, "status_choices": Order.STATUS_CHOICES},
+        request=request,
+    )
+    summary_html = render_to_string(
+        "dashboard/_orders_summary.html",
+        {"summary_total_orders": total_orders, "summary_total_amount": total_amount},
+        request=request,
+    )
+    return JsonResponse({"rows_html": rows_html, "summary_html": summary_html})
 
 
 @staff_member_required(login_url="/accounts/login/")
@@ -348,12 +394,15 @@ def update_order_status(request, pk: int):
     new_status = request.POST.get("status")
     valid_statuses = {key for key, _ in Order.STATUS_CHOICES}
     if new_status not in valid_statuses:
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({"ok": False, "error": "invalid_status"}, status=400)
         messages.error(request, "Invalid status selected")
         return redirect("dashboard_orders")
     order.status = new_status
     order.save(update_fields=["status", "updated_at"])
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        return JsonResponse({"ok": True, "status": order.status, "status_display": order.get_status_display()})
     messages.success(request, f"Order {order.order_number} status updated to {order.get_status_display()}")
-    # Redirect back to referring page if available
     return redirect(request.META.get("HTTP_REFERER", "dashboard_orders"))
 
 

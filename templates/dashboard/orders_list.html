@@ -8,39 +8,30 @@
       <a href="/dashboard/orders/new/" class="btn btn-primary"><i class="bi bi-plus"></i> New Order</a>
     </div>
     <div class="d-flex align-items-center mb-2">
-      <form class="ms-auto d-flex" method="get" action="">
+      <form class="ms-auto d-flex align-items-center gap-2" method="get" action="">
+        <label class="text-muted small mb-0" for="statusFilter">Status</label>
+        <select id="statusFilter" name="status" class="form-select form-select-sm" style="width:auto">
+          <option value="all" {% if selected_status == 'all' %}selected{% endif %}>All</option>
+          {% for key,label in status_choices %}
+            <option value="{{ key }}" {% if selected_status == key %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <label class="text-muted small mb-0" for="sortSelect">Sort</label>
+        <select id="sortSelect" name="sort" class="form-select form-select-sm" style="width:auto">
+          <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Newest</option>
+          <option value="oldest" {% if selected_sort == 'oldest' %}selected{% endif %}>Oldest</option>
+        </select>
         <input type="search" name="q" value="{{ q }}" placeholder="Search order # or user" class="form-control form-control-sm" />
-        <button class="btn btn-sm btn-outline-secondary ms-2" type="submit">Search</button>
+        <button class="btn btn-sm btn-outline-secondary" type="submit">Apply</button>
       </form>
     </div>
-    <div class="mb-2 text-muted small">Showing {{ summary_total_orders }} orders • Total {{ CURRENCY_SYMBOL }}{{ summary_total_amount|floatformat:2 }}</div>
+    <div class="mb-2 text-muted small" id="ordersSummary">Showing {{ summary_total_orders }} orders • Total {{ CURRENCY_SYMBOL }}{{ summary_total_amount|floatformat:2 }}</div>
     <div class="card">
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0 dash-table">
           <thead class="table-light"><tr><th>#</th><th>User</th><th>Status</th><th>Payment</th><th>Total</th><th>Placed</th></tr></thead>
-          <tbody>
-            {% for o in orders %}
-              <tr>
-                <td>{{ o.order_number }}</td>
-                <td>{{ o.user.username }}</td>
-                <td>
-                  <form method="post" action="/dashboard/orders/{{ o.id }}/status/" class="d-flex align-items-center gap-2 order-status-form">
-                    {% csrf_token %}
-                    <select name="status" class="form-select form-select-sm" style="width:auto">
-                      {% for key,label in status_choices %}
-                        <option value="{{ key }}" {% if o.status == key %}selected{% endif %}>{{ label }}</option>
-                      {% endfor %}
-                    </select>
-                    <button class="btn btn-sm btn-outline-primary d-none" type="submit">Update</button>
-                  </form>
-                </td>
-                <td class="text-muted small text-uppercase">{{ o.payment_method }}</td>
-                <td>{{ CURRENCY_SYMBOL }}{{ o.total_amount }}</td>
-                <td>{{ o.created_at|date:"Y-m-d H:i" }}</td>
-              </tr>
-            {% empty %}
-              <tr><td colspan="6" class="text-muted">No orders yet.</td></tr>
-            {% endfor %}
+          <tbody id="ordersTbody">
+            {% include "dashboard/_orders_rows.html" with orders=orders status_choices=status_choices %}
           </tbody>
         </table>
       </div>
@@ -48,18 +39,8 @@
   </div>
 </div>
 {% block scripts %}
-<script>
-  (function(){
-    // Auto-submit order status change without clicking Update
-    document.querySelectorAll('form.order-status-form select[name="status"]').forEach(function(sel){
-      sel.addEventListener('change', function(){
-        const form = sel.closest('form');
-        if (!form) return;
-        // Do NOT disable the select before submit; disabled fields are not posted
-        form.submit();
-      });
-    });
-  })();
-  </script>
+{% block scripts %}
+<script src="{% static 'js/orders_ajax.js' %}"></script>
+{% endblock %}
 {% endblock %}
 {% endblock %}
