@@ -51,6 +51,7 @@ htmlcov/
 
 # Windows ADS artifacts created accidentally in WSL/transfers
 *.Zone.Identifier
+*:Zone.Identifier
 
 # Archives (usually not needed in Git)
 *.zip
