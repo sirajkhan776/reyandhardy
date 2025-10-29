@@ -130,12 +130,16 @@ AUTHENTICATION_BACKENDS = [
 # Dev email backend
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
+# Database: use DATABASE_URL if provided (e.g., Render Postgres), fallback to SQLite
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": env.db(
+        "DATABASE_URL",
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+    )
 }
+
+# Persistent connections (no-op for SQLite)
+DATABASES["default"]["CONN_MAX_AGE"] = env.int("CONN_MAX_AGE", default=60)
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
