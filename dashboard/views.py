@@ -5,7 +5,7 @@ from orders.models import Order, OrderItem
 from catalog.models import Variant
 
 
-@staff_member_required
+@staff_member_required(login_url="/accounts/login/")
 def index(request):
     orders_paid = Order.objects.filter(status__in=["paid", "shipped", "delivered"]) \
         .aggregate(total=Sum("total_amount"))
@@ -26,4 +26,3 @@ def index(request):
         "stock_total": stock_summary["total_qty"] or 0,
         "orders_count": Order.objects.count(),
     })
-
