@@ -16,12 +16,19 @@ PORT="${PORT:-8000}"
 
 # Ensure Git LFS media are present (no-op if LFS unavailable)
 if command -v git >/dev/null 2>&1; then
-  if git lfs env >/dev/null 2>&1; then
+  if ! command -v git-lfs >/dev/null 2>&1; then
+    echo "[start.sh] git-lfs not found; attempting install..."
+    if command -v apt-get >/dev/null 2>&1; then
+      apt-get update -y >/dev/null 2>&1 || true
+      apt-get install -y git-lfs >/dev/null 2>&1 || true
+    fi
+  fi
+  if command -v git-lfs >/dev/null 2>&1; then
     echo "[start.sh] Fetching Git LFS media..."
     git lfs install >/dev/null 2>&1 || true
     git lfs pull || true
   else
-    echo "[start.sh] Git LFS not available; skipping LFS pull"
+    echo "[start.sh] Git LFS still unavailable; videos may not load (pointer files)."
   fi
 fi
 

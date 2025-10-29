@@ -16,12 +16,18 @@
   <div class="container rh-hero-content">
     <div class="row align-items-center">
       <div class="col-lg-7">
-        <div class="rh-hero-kicker text-gradient">New Season · Best Fit</div>
-        <h1 class="rh-hero-title">{{ STORE_NAME }}<span class="rh-hero-accent"> Premium</span> Tees</h1>
-        <p class="rh-hero-sub">{{ BRAND_TAGLINE }}</p>
+        <div class="rh-hero-kicker text-gradient">{{ hero_kicker|default:"New Season · Best Fit" }}</div>
+        <h1 class="rh-hero-title">
+          {% if hero_title %}
+            {{ hero_title }}
+          {% else %}
+            {{ STORE_NAME }}<span class="rh-hero-accent"> Premium</span> Tees
+          {% endif %}
+        </h1>
+        <p class="rh-hero-sub">{{ hero_sub|default:BRAND_TAGLINE }}</p>
         <div class="rh-hero-ctas">
-          <a href="/" class="btn btn-gradient btn-lg me-2">Shop Now</a>
-          <a href="#top-deals" class="btn btn-ghost btn-lg">View Deals</a>
+          <a href="{{ hero_cta_link|default:"/" }}" class="btn btn-gradient btn-lg me-2">{{ hero_cta_text|default:"Shop Now" }}</a>
+          <a href="{{ hero_cta2_link|default:"#top-deals" }}" class="btn btn-ghost btn-lg">{{ hero_cta2_text|default:"View Deals" }}</a>
         </div>
         <div class="rh-hero-badges">
           <span><i class="bi bi-truck"></i> Free Shipping over {{ CURRENCY_SYMBOL }}{{ FREE_SHIPPING_THRESHOLD }}</span>
