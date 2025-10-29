@@ -51,7 +51,7 @@
       sel.addEventListener('change', function(){
         const form = sel.closest('form');
         if (!form) return;
-        sel.disabled = true;
+        // Do NOT disable the select before submit; disabled fields are not posted
         form.submit();
       });
     });
