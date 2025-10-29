@@ -1,0 +1,11 @@
+# Track large/binary media with Git LFS
+media/**/*.mp4 filter=lfs diff=lfs merge=lfs -text
+media/**/*.mov filter=lfs diff=lfs merge=lfs -text
+media/**/*.mkv filter=lfs diff=lfs merge=lfs -text
+media/**/*.webm filter=lfs diff=lfs merge=lfs -text
+media/**/*.m4v filter=lfs diff=lfs merge=lfs -text
+
+# Optional: other common binary formats
+static/**/*.mp4 filter=lfs diff=lfs merge=lfs -text
+static/**/*.mov filter=lfs diff=lfs merge=lfs -text
+static/**/*.webm filter=lfs diff=lfs merge=lfs -text
