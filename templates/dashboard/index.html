@@ -10,7 +10,7 @@
         <div class="col-md-4">
           <div class="dash-kpi card"><div class="card-body d-flex align-items-center gap-3">
             <i class="bi bi-currency-rupee fs-1 text-warning"></i>
-            <div><div class="label">Total Revenue</div><div class="kpi">{{ CURRENCY_SYMBOL }}{{ revenue }}</div></div>
+            <div><div class="label">Total Revenue</div><div class="kpi">{{ CURRENCY_SYMBOL }}{{ revenue|floatformat:2 }}</div></div>
           </div></div>
         </div>
         <div class="col-md-4">
@@ -31,7 +31,7 @@
         <thead><tr><th>Product</th><th>Qty</th><th>Sales</th></tr></thead>
         <tbody>
           {% for p in top_products %}
-            <tr><td>{{ p.name }}</td><td>{{ p.qty }}</td><td>{{ CURRENCY_SYMBOL }}{{ p.sales }}</td></tr>
+            <tr><td>{{ p.name }}</td><td>{{ p.qty }}</td><td>{{ CURRENCY_SYMBOL }}{{ p.sales|floatformat:2 }}</td></tr>
           {% empty %}
             <tr><td colspan="3">No data yet.</td></tr>
           {% endfor %}
