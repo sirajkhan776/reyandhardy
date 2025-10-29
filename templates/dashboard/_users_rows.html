@@ -1,17 +1,28 @@
 {% for u in users %}
   <tr class="clickable-user-row" onclick="location.href='/dashboard/users/{{ u.id }}/'" style="cursor:pointer;">
-    <td data-label="Username">
-      {% if u.profile and u.profile.avatar %}
-        <img src="{{ u.profile.avatar.url }}" alt="avatar" width="28" height="28" style="object-fit:cover;border-radius:999px;" class="me-2 d-inline-block align-middle" />
-      {% else %}
-        <span class="avatar-circle me-2 d-inline-flex align-items-center justify-content-center">{{ u.username|slice:":1"|upper }}</span>
-      {% endif %}
-      <span class="align-middle">{{ u.username }}</span>
-      <i class="bi bi-chevron-right ms-2 text-muted d-none d-sm-inline"></i>
+    <td data-label="Username" class="cell-username">
+      <div class="user-head d-flex align-items-center">
+        {% if u.profile and u.profile.avatar %}
+          <img src="{{ u.profile.avatar.url }}" alt="avatar" width="36" height="36" style="object-fit:cover;border-radius:999px;" class="me-2 d-inline-block align-middle d-sm-none" />
+          <img src="{{ u.profile.avatar.url }}" alt="avatar" width="28" height="28" style="object-fit:cover;border-radius:999px;" class="me-2 d-none d-sm-inline-block align-middle" />
+        {% else %}
+          <span class="avatar-circle me-2 d-inline-flex align-items-center justify-content-center d-sm-none" style="width:36px;height:36px;font-size:.95rem;">{{ u.username|slice:":1"|upper }}</span>
+          <span class="avatar-circle me-2 d-none d-sm-inline-flex align-items-center justify-content-center">{{ u.username|slice:":1"|upper }}</span>
+        {% endif %}
+        <div class="flex-grow-1">
+          <div class="fw-semibold">{{ u.username }}</div>
+          <div class="text-muted small d-sm-none">{{ u.email|default:'-' }}</div>
+          <div class="d-sm-none mt-1">
+            {% if u.is_staff %}<span class="badge bg-warning text-dark me-1">Staff</span>{% endif %}
+            {% if u.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}
+          </div>
+        </div>
+        <i class="bi bi-chevron-right ms-2 text-muted d-none d-sm-inline"></i>
+      </div>
     </td>
     <td class="d-none d-sm-table-cell" data-label="Email">{{ u.email|default:'-' }}</td>
     <td data-label="Staff">{% if u.is_staff %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
-    <td data-label="Active">{% if u.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
+    <td data-label="Active" class="cell-active">{% if u.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
     <td class="d-none d-sm-table-cell" data-label="Joined">{{ u.date_joined|date:"Y-m-d H:i" }}</td>
     <td class="text-end" data-label="Actions">
       <form method="post" action="/dashboard/users/{{ u.id }}/staff/" class="d-inline user-toggle-form" data-kind="staff">

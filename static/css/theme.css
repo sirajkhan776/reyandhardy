@@ -494,13 +494,17 @@ html[data-theme='light'] .dash-kpi { box-shadow: 0 10px 24px rgba(0,0,0,.08); }
   .dash-table thead { display: none; }
   .dash-table, .dash-table tbody, .dash-table tr, .dash-table td { display: block; width: 100%; }
   .dash-table tr { background: var(--rh-bg-elev); border: 1px solid var(--rh-border); border-radius: 12px; padding: 8px 12px; margin-bottom: 12px; box-shadow: 0 6px 18px rgba(0,0,0,.12); }
-  .dash-table td { display: grid; grid-template-columns: 120px 1fr; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--rh-border); }
+  .dash-table td { display: grid; grid-template-columns: 96px 1fr; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--rh-border); }
   .dash-table td:last-child { border-bottom: 0; }
   .dash-table td::before { content: attr(data-label); color: var(--rh-muted); font-weight: 700; }
   .dash-table .text-end { display: block; }
   /* Stack action buttons full-width on xs */
   .dash-table td[data-label="Actions"] .btn { width: 100%; margin-bottom: 6px; }
   .dash-table td[data-label="Actions"] .btn:last-child { margin-bottom: 0; }
+  /* Make first cell a header-like block */
+  .dash-table td.cell-username { display: block; padding-top: 8px; padding-bottom: 8px; }
+  .dash-table td.cell-username::before { content: ""; }
+  .dash-table td.cell-active::before, .dash-table td.cell-staff::before { width: auto; }
 }
 
 /* AJAX list loading overlay */
