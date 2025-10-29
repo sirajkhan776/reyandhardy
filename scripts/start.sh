@@ -20,6 +20,23 @@ echo "[start.sh] Applying model changes (makemigrations)..."
 echo "[start.sh] Migrating database..."
 "$PYTHON_BIN" manage.py migrate --noinput
 
+echo "[start.sh] Ensuring an admin superuser exists (one-time)..."
+SUPERUSER_USERNAME="${SUPERUSER_USERNAME:-admin}"
+SUPERUSER_PASSWORD="${SUPERUSER_PASSWORD:-admin}"
+SUPERUSER_EMAIL="${SUPERUSER_EMAIL:-admin@example.com}"
+"$PYTHON_BIN" manage.py shell -c "\
+from django.contrib.auth import get_user_model;\
+import os;\
+username=os.environ.get('SUPERUSER_USERNAME','admin');\
+password=os.environ.get('SUPERUSER_PASSWORD','admin');\
+email=os.environ.get('SUPERUSER_EMAIL','admin@example.com');\
+User=get_user_model();\
+if not User.objects.filter(username=username).exists():\
+    User.objects.create_superuser(username=username, email=email, password=password);\
+    print(f'[start.sh] Created superuser {username}');\
+else:\
+    print(f'[start.sh] Superuser {username} already exists');\
+"
+
 echo "[start.sh] Starting development server on ${HOST}:${PORT}..."
 exec "$PYTHON_BIN" manage.py runserver "${HOST}:${PORT}"
-
