@@ -93,24 +93,32 @@ def create_product(request):
 
     if request.method == "POST":
         form = ProductForm(request.POST)
-        images_fs = ImageFormSet(request.POST, request.FILES, prefix="images")
-        videos_fs = VideoFormSet(request.POST, request.FILES, prefix="videos")
-        variants_fs = VariantFormSet(request.POST, prefix="variants")
+        # Bind inline formsets to an unsaved instance for validation
+        product_candidate = form.instance  # unsaved Product from ModelForm
+        images_fs = ImageFormSet(request.POST, request.FILES, instance=product_candidate, prefix="images")
+        videos_fs = VideoFormSet(request.POST, request.FILES, instance=product_candidate, prefix="videos")
+        variants_fs = VariantFormSet(request.POST, instance=product_candidate, prefix="variants")
         if form.is_valid() and images_fs.is_valid() and videos_fs.is_valid() and variants_fs.is_valid():
-            product = form.save()
-            images_fs.instance = product
-            videos_fs.instance = product
-            variants_fs.instance = product
-            images_fs.save()
-            videos_fs.save()
-            variants_fs.save()
-            messages.success(request, "Product created")
-            return redirect("dashboard_products")
+            from django.db import transaction, IntegrityError
+            try:
+                with transaction.atomic():
+                    product = form.save()
+                    images_fs.instance = product
+                    videos_fs.instance = product
+                    variants_fs.instance = product
+                    images_fs.save()
+                    videos_fs.save()
+                    variants_fs.save()
+                messages.success(request, "Product created")
+                return redirect("dashboard_products")
+            except IntegrityError:
+                form.add_error(None, "Could not save product due to a conflict (duplicate slug/SKU). Please adjust name or SKUs.")
     else:
         form = ProductForm()
-        images_fs = ImageFormSet(prefix="images")
-        videos_fs = VideoFormSet(prefix="videos")
-        variants_fs = VariantFormSet(prefix="variants")
+        blank_product = Product()
+        images_fs = ImageFormSet(instance=blank_product, prefix="images")
+        videos_fs = VideoFormSet(instance=blank_product, prefix="videos")
+        variants_fs = VariantFormSet(instance=blank_product, prefix="variants")
     return render(request, "dashboard/product_form.html", {
         "form": form,
         "images_fs": images_fs,
