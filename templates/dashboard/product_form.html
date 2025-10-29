@@ -7,16 +7,33 @@
     <h3>Create Product</h3>
     <form method="post" enctype="multipart/form-data" class="card card-body">
       {% csrf_token %}
+      {% if form.errors or images_fs.non_form_errors or videos_fs.non_form_errors or variants_fs.non_form_errors %}
+      <div class="alert alert-danger">
+        <strong>Please fix the errors below.</strong>
+        {% if form.non_field_errors %}
+          <div class="small">{{ form.non_field_errors }}</div>
+        {% endif %}
+        {% if images_fs.non_form_errors %}
+          <div class="small">Images: {{ images_fs.non_form_errors }}</div>
+        {% endif %}
+        {% if videos_fs.non_form_errors %}
+          <div class="small">Videos: {{ videos_fs.non_form_errors }}</div>
+        {% endif %}
+        {% if variants_fs.non_form_errors %}
+          <div class="small">Variants: {{ variants_fs.non_form_errors }}</div>
+        {% endif %}
+      </div>
+      {% endif %}
       <div class="row g-3">
-        <div class="col-md-8">{{ form.name.label_tag }}{{ form.name }}</div>
-        <div class="col-md-4">{{ form.category.label_tag }}{{ form.category }}</div>
-        <div class="col-12">{{ form.description.label_tag }}{{ form.description }}</div>
-        <div class="col-md-3">{{ form.base_price.label_tag }}{{ form.base_price }}</div>
-        <div class="col-md-3">{{ form.sale_price.label_tag }}{{ form.sale_price }}</div>
-        <div class="col-md-2">{{ form.weight_kg.label_tag }}{{ form.weight_kg }}</div>
-        <div class="col-md-2">{{ form.length_cm.label_tag }}{{ form.length_cm }}</div>
-        <div class="col-md-2">{{ form.breadth_cm.label_tag }}{{ form.breadth_cm }}</div>
-        <div class="col-md-2">{{ form.height_cm.label_tag }}{{ form.height_cm }}</div>
+        <div class="col-md-8">{{ form.name.label_tag }}{{ form.name }}{% if form.name.errors %}<div class="invalid-feedback d-block">{{ form.name.errors|join:", " }}</div>{% endif %}</div>
+        <div class="col-md-4">{{ form.category.label_tag }}{{ form.category }}{% if form.category.errors %}<div class="invalid-feedback d-block">{{ form.category.errors|join:", " }}</div>{% endif %}</div>
+        <div class="col-12">{{ form.description.label_tag }}{{ form.description }}{% if form.description.errors %}<div class="invalid-feedback d-block">{{ form.description.errors|join:", " }}</div>{% endif %}</div>
+        <div class="col-md-3">{{ form.base_price.label_tag }}{{ form.base_price }}{% if form.base_price.errors %}<div class="invalid-feedback d-block">{{ form.base_price.errors|join:", " }}</div>{% endif %}</div>
+        <div class="col-md-3">{{ form.sale_price.label_tag }}{{ form.sale_price }}{% if form.sale_price.errors %}<div class="invalid-feedback d-block">{{ form.sale_price.errors|join:", " }}</div>{% endif %}</div>
+        <div class="col-md-2">{{ form.weight_kg.label_tag }}{{ form.weight_kg }}{% if form.weight_kg.errors %}<div class="invalid-feedback d-block">{{ form.weight_kg.errors|join:", " }}</div>{% endif %}</div>
+        <div class="col-md-2">{{ form.length_cm.label_tag }}{{ form.length_cm }}{% if form.length_cm.errors %}<div class="invalid-feedback d-block">{{ form.length_cm.errors|join:", " }}</div>{% endif %}</div>
+        <div class="col-md-2">{{ form.breadth_cm.label_tag }}{{ form.breadth_cm }}{% if form.breadth_cm.errors %}<div class="invalid-feedback d-block">{{ form.breadth_cm.errors|join:", " }}</div>{% endif %}</div>
+        <div class="col-md-2">{{ form.height_cm.label_tag }}{{ form.height_cm }}{% if form.height_cm.errors %}<div class="invalid-feedback d-block">{{ form.height_cm.errors|join:", " }}</div>{% endif %}</div>
         <div class="col-md-3 form-check d-flex align-items-center">{{ form.is_active }} {{ form.is_active.label_tag }}</div>
         <div class="col-md-3 form-check d-flex align-items-center">{{ form.is_best_seller }} {{ form.is_best_seller.label_tag }}</div>
       </div>
@@ -30,8 +47,8 @@
       <div id="imagesContainer" class="mt-2">
         {% for f in images_fs %}
           <div class="row g-2 align-items-end border rounded p-2 mb-2 formset-item" data-prefix="images" data-index="{{ forloop.counter0 }}">
-            <div class="col-md-6">{{ f.image.label_tag }}{{ f.image }}</div>
-            <div class="col-md-4">{{ f.alt_text.label_tag }}{{ f.alt_text }}</div>
+            <div class="col-md-6">{{ f.image.label_tag }}{{ f.image }}{% if f.image.errors %}<div class="invalid-feedback d-block">{{ f.image.errors|join:", " }}</div>{% endif %}</div>
+            <div class="col-md-4">{{ f.alt_text.label_tag }}{{ f.alt_text }}{% if f.alt_text.errors %}<div class="invalid-feedback d-block">{{ f.alt_text.errors|join:", " }}</div>{% endif %}</div>
             <div class="col-md-1 form-check">{{ f.is_primary }} {{ f.is_primary.label_tag }}</div>
             <div class="col-md-1 text-end">
               {% if images_fs.can_delete %}<span class="d-none">{{ f.DELETE }}</span>{% endif %}
@@ -61,7 +78,7 @@
       <div id="videosContainer" class="mt-2">
         {% for f in videos_fs %}
           <div class="row g-2 align-items-end border rounded p-2 mb-2 formset-item" data-prefix="videos" data-index="{{ forloop.counter0 }}">
-            <div class="col-md-10">{{ f.video.label_tag }}{{ f.video }}</div>
+            <div class="col-md-10">{{ f.video.label_tag }}{{ f.video }}{% if f.video.errors %}<div class="invalid-feedback d-block">{{ f.video.errors|join:", " }}</div>{% endif %}</div>
             <div class="col-md-2 text-end">
               {% if videos_fs.can_delete %}<span class="d-none">{{ f.DELETE }}</span>{% endif %}
               <button type="button" class="btn btn-outline-danger btn-sm remove-formset" title="Remove video"><i class="bi bi-trash"></i></button>
@@ -88,10 +105,10 @@
       <div id="variantsContainer" class="mt-2">
         {% for f in variants_fs %}
           <div class="row g-2 align-items-end border rounded p-2 mb-2 formset-item" data-prefix="variants" data-index="{{ forloop.counter0 }}">
-            <div class="col-md-2">{{ f.size.label_tag }}{{ f.size }}</div>
-            <div class="col-md-3">{{ f.color.label_tag }}{{ f.color }}</div>
-            <div class="col-md-3">{{ f.sku.label_tag }}{{ f.sku }}</div>
-            <div class="col-md-2">{{ f.stock.label_tag }}{{ f.stock }}</div>
+            <div class="col-md-2">{{ f.size.label_tag }}{{ f.size }}{% if f.size.errors %}<div class="invalid-feedback d-block">{{ f.size.errors|join:", " }}</div>{% endif %}</div>
+            <div class="col-md-3">{{ f.color.label_tag }}{{ f.color }}{% if f.color.errors %}<div class="invalid-feedback d-block">{{ f.color.errors|join:", " }}</div>{% endif %}</div>
+            <div class="col-md-3">{{ f.sku.label_tag }}{{ f.sku }}{% if f.sku.errors %}<div class="invalid-feedback d-block">{{ f.sku.errors|join:", " }}</div>{% endif %}</div>
+            <div class="col-md-2">{{ f.stock.label_tag }}{{ f.stock }}{% if f.stock.errors %}<div class="invalid-feedback d-block">{{ f.stock.errors|join:", " }}</div>{% endif %}</div>
             <div class="col-md-2 text-end">
               {% if variants_fs.can_delete %}<span class="d-none">{{ f.DELETE }}</span>{% endif %}
               <button type="button" class="btn btn-outline-danger btn-sm remove-formset" title="Remove variant"><i class="bi bi-trash"></i></button>
