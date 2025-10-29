@@ -6,13 +6,39 @@ from core.models import Banner
 from orders.models import Order, OrderItem
 
 
-class CategoryForm(forms.ModelForm):
+class _BootstrapFormMixin:
+    def _apply_bootstrap(self):
+        for name, field in self.fields.items():
+            widget = field.widget
+            base = widget.attrs.get("class", "")
+            if isinstance(widget, (forms.Select, forms.SelectMultiple)):
+                widget.attrs["class"] = (base + " form-select").strip()
+            elif isinstance(widget, (forms.CheckboxInput,)):
+                widget.attrs["class"] = (base + " form-check-input").strip()
+            else:
+                widget.attrs["class"] = (base + " form-control").strip()
+            # Placeholders for common fields
+            if name in {"name", "title"}:
+                widget.attrs.setdefault("placeholder", field.label)
+            if name in {"base_price", "sale_price", "unit_price"}:
+                widget.attrs.setdefault("step", "0.01")
+            if name in {"shipping_phone"}:
+                widget.attrs.setdefault("inputmode", "tel")
+
+
+class CategoryForm(_BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Category
         fields = ["name", "is_display", "thumbnail", "thumbnail_url"]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._apply_bootstrap()
+        self.fields["thumbnail"].required = False
+        self.fields["thumbnail_url"].required = False
 
-class ProductForm(forms.ModelForm):
+
+class ProductForm(_BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Product
         fields = [
@@ -25,8 +51,13 @@ class ProductForm(forms.ModelForm):
             "is_best_seller",
         ]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._apply_bootstrap()
+        self.fields["description"].widget.attrs.setdefault("rows", 4)
 
-class BannerForm(forms.ModelForm):
+
+class BannerForm(_BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Banner
         fields = [
@@ -40,8 +71,16 @@ class BannerForm(forms.ModelForm):
             "sort_order",
         ]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._apply_bootstrap()
+        self.fields["image"].required = False
+        self.fields["video"].required = False
+        self.fields["subtitle"].widget.attrs.setdefault("placeholder", "Optional subtitle")
+        self.fields["link_url"].widget.attrs.setdefault("placeholder", "https://…")
 
-class OrderForm(forms.ModelForm):
+
+class OrderForm(_BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Order
         fields = [
@@ -60,9 +99,17 @@ class OrderForm(forms.ModelForm):
             "tracking_number",
         ]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._apply_bootstrap()
 
-class OrderItemForm(forms.ModelForm):
+
+class OrderItemForm(_BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = OrderItem
         fields = ["product", "variant", "quantity", "unit_price"]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._apply_bootstrap()
+        self.fields["quantity"].widget.attrs.setdefault("min", 1)

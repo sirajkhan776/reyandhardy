@@ -6,8 +6,16 @@
     <h3>Create Product</h3>
     <form method="post" class="card card-body">
       {% csrf_token %}
-      {{ form.as_p }}
-      <div class="mt-2">
+      <div class="row g-3">
+        <div class="col-md-8">{{ form.name.label_tag }}{{ form.name }}</div>
+        <div class="col-md-4">{{ form.category.label_tag }}{{ form.category }}</div>
+        <div class="col-12">{{ form.description.label_tag }}{{ form.description }}</div>
+        <div class="col-md-3">{{ form.base_price.label_tag }}{{ form.base_price }}</div>
+        <div class="col-md-3">{{ form.sale_price.label_tag }}{{ form.sale_price }}</div>
+        <div class="col-md-3 form-check d-flex align-items-center">{{ form.is_active }} {{ form.is_active.label_tag }}</div>
+        <div class="col-md-3 form-check d-flex align-items-center">{{ form.is_best_seller }} {{ form.is_best_seller.label_tag }}</div>
+      </div>
+      <div class="mt-3">
         <button class="btn btn-primary" type="submit">Create</button>
         <a class="btn btn-outline-secondary" href="/dashboard/">Cancel</a>
       </div>
@@ -15,4 +23,3 @@
   </div>
 </div>
 {% endblock %}
-

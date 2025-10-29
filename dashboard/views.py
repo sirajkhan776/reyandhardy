@@ -3,6 +3,9 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Sum, F
 from django.forms import inlineformset_factory
 from django.shortcuts import render, redirect
+from django.utils.safestring import mark_safe
+from django.core.serializers.json import DjangoJSONEncoder
+import json
 from django.utils import timezone
 from decimal import Decimal
 import random
@@ -101,7 +104,7 @@ def create_banner(request):
 
 @staff_member_required(login_url="/accounts/login/")
 def create_order(request):
-    OrderItemFormSet = inlineformset_factory(Order, OrderItem, form=OrderItemForm, extra=3, can_delete=False)
+    OrderItemFormSet = inlineformset_factory(Order, OrderItem, form=OrderItemForm, extra=1, can_delete=True)
     if request.method == "POST":
         form = OrderForm(request.POST)
         formset = OrderItemFormSet(request.POST)
@@ -142,4 +145,17 @@ def create_order(request):
     else:
         form = OrderForm()
         formset = OrderItemFormSet()
-    return render(request, "dashboard/order_form.html", {"form": form, "formset": formset})
+
+    # Build product->variants mapping for client-side filtering
+    variant_map = {}
+    for v in Variant.objects.select_related("product").all():
+        variant_map.setdefault(v.product_id, []).append({
+            "id": v.id,
+            "text": f"{v.size} / {v.color}",
+        })
+    variant_map_json = mark_safe(json.dumps(variant_map, cls=DjangoJSONEncoder))
+    return render(request, "dashboard/order_form.html", {
+        "form": form,
+        "formset": formset,
+        "variant_map_json": variant_map_json,
+    })
