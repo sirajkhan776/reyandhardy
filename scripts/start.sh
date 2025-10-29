@@ -61,5 +61,17 @@ else:
     print(f"[start.sh] Superuser {username} already exists")
 PY
 
+# Seed initial data (idempotent)
+SEED_DEMO="${SEED_DEMO:-true}"
+echo "[start.sh] Seeding base store data (seed_store)..."
+"$PYTHON_BIN" manage.py seed_store || echo "[start.sh] seed_store failed or not available"
+
+if [ "$SEED_DEMO" = "true" ] || [ "$SEED_DEMO" = "1" ]; then
+  echo "[start.sh] Seeding demo data (seed_demo)..."
+  "$PYTHON_BIN" manage.py seed_demo || echo "[start.sh] seed_demo failed or not available"
+else
+  echo "[start.sh] Skipping demo data seeding (SEED_DEMO=$SEED_DEMO)"
+fi
+
 echo "[start.sh] Starting development server on ${HOST}:${PORT}..."
 exec "$PYTHON_BIN" manage.py runserver "${HOST}:${PORT}"
