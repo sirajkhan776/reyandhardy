@@ -7,20 +7,31 @@
     <h3>{{ form_title|default:"Create Order" }}</h3>
     <form method="post" class="card card-body">
       {% csrf_token %}
+      {% if form.errors or form.non_field_errors or formset.non_form_errors %}
+      <div class="alert alert-danger">
+        <strong>Please fix the errors below.</strong>
+        {% if form.non_field_errors %}
+          <div class="small">{{ form.non_field_errors }}</div>
+        {% endif %}
+        {% if formset.non_form_errors %}
+          <div class="small">Items: {{ formset.non_form_errors }}</div>
+        {% endif %}
+      </div>
+      {% endif %}
       <div class="row g-3">
-        <div class="col-md-6">{{ form.user.label_tag }}{{ form.user }}</div>
-        <div class="col-md-3">{{ form.status.label_tag }}{{ form.status }}</div>
-        <div class="col-md-3">{{ form.payment_method.label_tag }}{{ form.payment_method }}</div>
-        <div class="col-md-6">{{ form.shipping_name.label_tag }}{{ form.shipping_name }}</div>
-        <div class="col-md-6">{{ form.shipping_phone.label_tag }}{{ form.shipping_phone }}</div>
-        <div class="col-md-8">{{ form.address_line1.label_tag }}{{ form.address_line1 }}</div>
-        <div class="col-md-4">{{ form.address_line2.label_tag }}{{ form.address_line2 }}</div>
-        <div class="col-md-4">{{ form.city.label_tag }}{{ form.city }}</div>
-        <div class="col-md-4">{{ form.state.label_tag }}{{ form.state }}</div>
-        <div class="col-md-4">{{ form.postal_code.label_tag }}{{ form.postal_code }}</div>
-        <div class="col-md-4">{{ form.country.label_tag }}{{ form.country }}</div>
-        <div class="col-md-4">{{ form.shipping_provider.label_tag }}{{ form.shipping_provider }}</div>
-        <div class="col-md-4">{{ form.tracking_number.label_tag }}{{ form.tracking_number }}</div>
+        <div class="col-md-6">{{ form.user.label_tag }}{{ form.user }}{% if form.user.errors %}<div class="invalid-feedback d-block">{{ form.user.errors|join:", " }}</div>{% endif %}</div>
+        <div class="col-md-3">{{ form.status.label_tag }}{{ form.status }}{% if form.status.errors %}<div class="invalid-feedback d-block">{{ form.status.errors|join:", " }}</div>{% endif %}</div>
+        <div class="col-md-3">{{ form.payment_method.label_tag }}{{ form.payment_method }}{% if form.payment_method.errors %}<div class="invalid-feedback d-block">{{ form.payment_method.errors|join:", " }}</div>{% endif %}</div>
+        <div class="col-md-6">{{ form.shipping_name.label_tag }}{{ form.shipping_name }}{% if form.shipping_name.errors %}<div class="invalid-feedback d-block">{{ form.shipping_name.errors|join:", " }}</div>{% endif %}</div>
+        <div class="col-md-6">{{ form.shipping_phone.label_tag }}{{ form.shipping_phone }}{% if form.shipping_phone.errors %}<div class="invalid-feedback d-block">{{ form.shipping_phone.errors|join:", " }}</div>{% endif %}</div>
+        <div class="col-md-8">{{ form.address_line1.label_tag }}{{ form.address_line1 }}{% if form.address_line1.errors %}<div class="invalid-feedback d-block">{{ form.address_line1.errors|join:", " }}</div>{% endif %}</div>
+        <div class="col-md-4">{{ form.address_line2.label_tag }}{{ form.address_line2 }}{% if form.address_line2.errors %}<div class="invalid-feedback d-block">{{ form.address_line2.errors|join:", " }}</div>{% endif %}</div>
+        <div class="col-md-4">{{ form.city.label_tag }}{{ form.city }}{% if form.city.errors %}<div class="invalid-feedback d-block">{{ form.city.errors|join:", " }}</div>{% endif %}</div>
+        <div class="col-md-4">{{ form.state.label_tag }}{{ form.state }}{% if form.state.errors %}<div class="invalid-feedback d-block">{{ form.state.errors|join:", " }}</div>{% endif %}</div>
+        <div class="col-md-4">{{ form.postal_code.label_tag }}{{ form.postal_code }}{% if form.postal_code.errors %}<div class="invalid-feedback d-block">{{ form.postal_code.errors|join:", " }}</div>{% endif %}</div>
+        <div class="col-md-4">{{ form.country.label_tag }}{{ form.country }}{% if form.country.errors %}<div class="invalid-feedback d-block">{{ form.country.errors|join:", " }}</div>{% endif %}</div>
+        <div class="col-md-4">{{ form.shipping_provider.label_tag }}{{ form.shipping_provider }}{% if form.shipping_provider.errors %}<div class="invalid-feedback d-block">{{ form.shipping_provider.errors|join:", " }}</div>{% endif %}</div>
+        <div class="col-md-4">{{ form.tracking_number.label_tag }}{{ form.tracking_number }}{% if form.tracking_number.errors %}<div class="invalid-feedback d-block">{{ form.tracking_number.errors|join:", " }}</div>{% endif %}</div>
       </div>
       <hr />
       <div class="d-flex align-items-center justify-content-between">
@@ -31,10 +42,10 @@
       <div id="itemsContainer" class="mt-2">
         {% for f in formset %}
         <div class="row g-2 align-items-end border rounded p-2 mb-2 formset-item" data-index="{{ forloop.counter0 }}">
-          <div class="col-md-4">{{ f.product.label_tag }}{{ f.product }}</div>
-          <div class="col-md-3">{{ f.variant.label_tag }}{{ f.variant }}</div>
-          <div class="col-md-2">{{ f.quantity.label_tag }}{{ f.quantity }}</div>
-          <div class="col-md-2">{{ f.unit_price.label_tag }}{{ f.unit_price }}</div>
+          <div class="col-md-4">{{ f.product.label_tag }}{{ f.product }}{% if f.product.errors %}<div class="invalid-feedback d-block">{{ f.product.errors|join:", " }}</div>{% endif %}</div>
+          <div class="col-md-3">{{ f.variant.label_tag }}{{ f.variant }}{% if f.variant.errors %}<div class="invalid-feedback d-block">{{ f.variant.errors|join:", " }}</div>{% endif %}</div>
+          <div class="col-md-2">{{ f.quantity.label_tag }}{{ f.quantity }}{% if f.quantity.errors %}<div class="invalid-feedback d-block">{{ f.quantity.errors|join:", " }}</div>{% endif %}</div>
+          <div class="col-md-2">{{ f.unit_price.label_tag }}{{ f.unit_price }}{% if f.unit_price.errors %}<div class="invalid-feedback d-block">{{ f.unit_price.errors|join:", " }}</div>{% endif %}</div>
           <div class="col-md-1 text-end">{% if formset.can_delete %}{{ f.DELETE }}{% endif %}</div>
         </div>
         {% endfor %}
