@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Django
+*.log
+db.sqlite3
+*.sqlite3
+
+# User uploads / generated media (avoid committing videos)
+media/**/*.mp4
+media/**/*.mov
+media/**/*.mkv
+media/**/*.avi
+media/**/*.webm
+media/**/*.m4v
+
+# Collected static output (if used)
+staticfiles/
+static_root/
+
+# Environments
+.env
+.env.*
+.venv/
+venv/
+ENV/
+
+# Editors & OS
+.vscode/
+.idea/
+*.code-workspace
+.DS_Store
+Thumbs.db
+
+# Tests & tooling
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.pyre/
+
+# Windows ADS artifacts created accidentally in WSL/transfers
+*.Zone.Identifier
+
+# Archives (usually not needed in Git)
+*.zip
+*.tar
+*.gz
+*.7z
+*.rar
