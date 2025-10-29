@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-md-3">{% include "dashboard/_nav.html" %}</div>
+  <div class="col-md-9">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+      <h3 class="m-0">Users</h3>
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-secondary">Total {{ users_count }}</span>
+        <span class="badge bg-warning text-dark">Staff {{ staff_count }}</span>
+        <span class="badge bg-success">Active {{ active_count }}</span>
+        <a href="/dashboard/users.csv{% if q %}?q={{ q|urlencode }}{% endif %}" class="btn btn-outline-secondary btn-sm">Download CSV</a>
+      </div>
+    </div>
+    <div class="d-flex align-items-center mb-2" id="listContainer" data-endpoint="/dashboard/users/partial/">
+      <form class="ms-auto d-flex align-items-center gap-2 flex-wrap" method="get" action="">
+        <label class="text-muted small mb-0" for="filterStaff">Staff</label>
+        <select id="filterStaff" name="staff" class="form-select form-select-sm" style="width:auto">
+          <option value="all" {% if selected_staff == 'all' %}selected{% endif %}>All</option>
+          <option value="yes" {% if selected_staff == 'yes' %}selected{% endif %}>Staff</option>
+          <option value="no" {% if selected_staff == 'no' %}selected{% endif %}>Non‑staff</option>
+        </select>
+        <label class="text-muted small mb-0" for="filterActive">Active</label>
+        <select id="filterActive" name="active" class="form-select form-select-sm" style="width:auto">
+          <option value="all" {% if selected_active == 'all' %}selected{% endif %}>All</option>
+          <option value="yes" {% if selected_active == 'yes' %}selected{% endif %}>Active</option>
+          <option value="no" {% if selected_active == 'no' %}selected{% endif %}>Inactive</option>
+        </select>
+        <div class="position-relative" style="min-width:240px;">
+          <i class="bi bi-search position-absolute" style="left:10px;top:50%;transform:translateY(-50%);opacity:.6;"></i>
+          <input type="search" name="q" value="{{ q }}" placeholder="Search username or email" class="form-control form-control-sm ps-4" />
+        </div>
+        <button class="btn btn-sm btn-outline-secondary" type="submit">Apply</button>
+      </form>
+    </div>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 dash-table">
+          <thead class="table-light"><tr><th>Username</th><th class="d-none d-sm-table-cell">Email</th><th>Staff</th><th>Active</th><th class="d-none d-sm-table-cell">Joined</th><th class="text-end">Actions</th></tr></thead>
+          <tbody id="listTbody">
+            {% include 'dashboard/_users_rows.html' with users=users %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% block scripts %}
+<script src="{% static 'js/list_ajax.js' %}"></script>
+<script src="{% static 'js/users_ajax.js' %}"></script>
+{% endblock %}
+{% endblock %}

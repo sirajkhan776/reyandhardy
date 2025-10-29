@@ -13,11 +13,14 @@ import json
 from django.utils import timezone
 from decimal import Decimal
 import random
+from django.views.decorators.http import require_POST
+from django.http import HttpResponse
 
 from orders.models import Order, OrderItem
 from catalog.models import Variant, Product, Category, ProductImage, ProductVideo
 from core.models import Banner
 from coupons.models import Coupon
+from django.contrib.auth import get_user_model
 from .forms import (
     CategoryForm,
     ProductForm,
@@ -600,6 +603,124 @@ def coupons_partial(request):
     coupons = qs.order_by("-id")[:100]
     rows_html = render_to_string("dashboard/_coupons_rows.html", {"coupons": coupons}, request=request)
     return JsonResponse({"rows_html": rows_html})
+
+
+@staff_member_required(login_url="/accounts/login/")
+def users_list(request):
+    User = get_user_model()
+    q = request.GET.get("q", "").strip()
+    staff = request.GET.get("staff", "all")
+    active = request.GET.get("active", "all")
+    qs = User.objects.all()
+    if q:
+        qs = qs.filter(username__icontains=q) | qs.filter(email__icontains=q)
+    if staff in ("yes", "no"):
+        qs = qs.filter(is_staff=(staff == "yes"))
+    if active in ("yes", "no"):
+        qs = qs.filter(is_active=(active == "yes"))
+    users = qs.order_by("-date_joined")[:100]
+    ctx = {
+        "users": users,
+        "q": q,
+        "selected_staff": staff,
+        "selected_active": active,
+        "users_count": User.objects.count(),
+        "staff_count": User.objects.filter(is_staff=True).count(),
+        "active_count": User.objects.filter(is_active=True).count(),
+    }
+    return render(request, "dashboard/users_list.html", ctx)
+
+
+@staff_member_required(login_url="/accounts/login/")
+def users_partial(request):
+    User = get_user_model()
+    q = request.GET.get("q", "").strip()
+    staff = request.GET.get("staff", "all")
+    active = request.GET.get("active", "all")
+    qs = User.objects.all()
+    if q:
+        qs = qs.filter(username__icontains=q) | qs.filter(email__icontains=q)
+    if staff in ("yes", "no"):
+        qs = qs.filter(is_staff=(staff == "yes"))
+    if active in ("yes", "no"):
+        qs = qs.filter(is_active=(active == "yes"))
+    users = qs.order_by("-date_joined")[:100]
+    rows_html = render_to_string("dashboard/_users_rows.html", {"users": users}, request=request)
+    return JsonResponse({"rows_html": rows_html})
+
+
+@staff_member_required(login_url="/accounts/login/")
+def user_detail_admin(request, pk: int):
+    User = get_user_model()
+    user = get_object_or_404(User, pk=pk)
+    recent_orders = Order.objects.filter(user=user).order_by('-created_at')[:10]
+    total_orders = Order.objects.filter(user=user).count()
+    total_spent = Order.objects.filter(user=user, status__in=["paid","shipped","delivered"]).aggregate(s=Sum('total_amount')).get('s') or 0
+    addrs = user.addresses.all() if hasattr(user, 'addresses') else []
+    profile = getattr(user, 'profile', None)
+    from reviews.models import Review
+    recent_reviews = Review.objects.filter(user=user).select_related('product').order_by('-created_at')[:5]
+    return render(request, 'dashboard/user_detail.html', {
+        'u': user,
+        'recent_orders': recent_orders,
+        'total_orders': total_orders,
+        'total_spent': total_spent,
+        'addresses': addrs,
+        'profile': profile,
+        'recent_reviews': recent_reviews,
+    })
+
+
+@staff_member_required(login_url="/accounts/login/")
+@require_POST
+def toggle_user_staff(request, pk: int):
+    User = get_user_model()
+    user = get_object_or_404(User, pk=pk)
+    if user.pk == request.user.pk and user.is_staff:
+        # prevent locking yourself out
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'ok': False, 'error': 'cannot_change_self'}, status=400)
+        messages.error(request, "You cannot change your own staff status.")
+        return redirect('dashboard_users')
+    user.is_staff = not user.is_staff
+    user.save(update_fields=['is_staff'])
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'ok': True, 'is_staff': user.is_staff})
+    return redirect('dashboard_users')
+
+
+@staff_member_required(login_url="/accounts/login/")
+@require_POST
+def toggle_user_active(request, pk: int):
+    User = get_user_model()
+    user = get_object_or_404(User, pk=pk)
+    if user.pk == request.user.pk and user.is_active:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'ok': False, 'error': 'cannot_change_self'}, status=400)
+        messages.error(request, "You cannot deactivate your own account.")
+        return redirect('dashboard_users')
+    user.is_active = not user.is_active
+    user.save(update_fields=['is_active'])
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'ok': True, 'is_active': user.is_active})
+    return redirect('dashboard_users')
+
+
+@staff_member_required(login_url="/accounts/login/")
+def users_csv(request):
+    User = get_user_model()
+    q = request.GET.get('q', '').strip()
+    qs = User.objects.all()
+    if q:
+        qs = qs.filter(username__icontains=q) | qs.filter(email__icontains=q)
+    resp = HttpResponse(content_type='text/csv')
+    resp['Content-Disposition'] = 'attachment; filename="users.csv"'
+    import csv
+    w = csv.writer(resp)
+    w.writerow(['id','username','email','is_staff','is_active','date_joined','last_login'])
+    for u in qs.order_by('-date_joined'):
+        w.writerow([u.id, u.username, u.email or '', u.is_staff, u.is_active, u.date_joined, u.last_login or ''])
+    return resp
 
 
 @staff_member_required(login_url="/accounts/login/")
