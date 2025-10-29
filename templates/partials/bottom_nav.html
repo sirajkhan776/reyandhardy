@@ -47,7 +47,10 @@
       {% endfor %}
     </div>
     <hr />
-    <div class="d-grid gap-2">
+  <div class="d-grid gap-2">
+      {% if user.is_staff %}
+        <a href="/dashboard/" class="btn btn-outline-primary">Admin Dashboard</a>
+      {% endif %}
       <a href="/orders/" class="btn btn-outline-primary">My Orders</a>
       <a href="/wishlist/" class="btn btn-outline-primary">My Wishlist</a>
       {% if user.is_authenticated %}
