@@ -216,6 +216,10 @@ html[data-theme='light'] .btn-gradient { color: #111; }
   background: linear-gradient(90deg, var(--rh-grad-start), var(--rh-grad-end));
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
+html[data-theme='light'] .text-gradient {
+  background: linear-gradient(90deg, #111827, #334155);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
 
 /* Hover lift utility */
 .hover-lift { transition: transform .25s ease, box-shadow .25s ease; }
@@ -355,10 +359,15 @@ html[data-theme='light'] .amz-input { background: #fff; color: #111827; border-c
 /* Category rail (Flipkart-like) */
 .cat-rail .cat-rail-thumbs { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px; }
 .cat-rail .cat-rail-thumbs::-webkit-scrollbar { height: 6px; }
+html[data-theme='light'] .cat-rail .cat-rail-thumbs::-webkit-scrollbar-thumb { background: #cbd5e1; }
 .cat-rail .cat-rail-thumbs::-webkit-scrollbar-thumb { background: #2f2f2f; border-radius: 999px; }
 .cat-thumb { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #e5e5e5; flex: 0 0 auto; width: 72px; }
 .cat-thumb img, .cat-thumb-ph { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; display: block; background: radial-gradient(circle at top, #2a2a2a, #0f0f0f); border: 1px solid var(--rh-border); box-shadow: 0 4px 12px rgba(0,0,0,.22); }
 .cat-thumb-label { font-size: .75rem; text-align: center; color: #e5e5e5; margin-top: 2px; letter-spacing: .05px; }
+/* Light-mode readability for category rail */
+html[data-theme='light'] .cat-thumb { color: #111827; }
+html[data-theme='light'] .cat-thumb-label { color: #111827; }
+html[data-theme='light'] .cat-thumb img, html[data-theme='light'] .cat-thumb-ph { background: #f1f5f9; border-color: #e5e7eb; box-shadow: 0 4px 12px rgba(0,0,0,.08); }
 .cat-thumb.disabled { pointer-events: none; opacity: .55; }
 
 /* Chip (toast) messages */
@@ -430,6 +439,7 @@ html[data-theme='light'] .rh-premium-hero .rh-hero-overlay { background:
 .rh-hero-sub { color: #e5e7eb; max-width: 700px; font-size: 1.05rem; opacity: .95; margin-bottom: 16px; text-shadow: 0 2px 10px rgba(0,0,0,.2); }
 html[data-theme='light'] .rh-hero-title { text-shadow: 0 2px 8px rgba(0,0,0,.08); }
 html[data-theme='light'] .rh-hero-sub { color: #1f2937; opacity: .95; text-shadow: none; }
+html[data-theme='light'] .rh-hero-title { color: #0f172a; }
 .rh-hero-ctas .btn { padding: .7rem 1.2rem; }
 .btn-ghost { background: transparent; border: 1px solid rgba(255,255,255,.6); color: #fff; }
 .btn-ghost:hover { background: rgba(255,255,255,.1); color: #fff; }
