@@ -1,0 +1,9 @@
+Django>=4.2,<5.0
+django-allauth>=0.62
+django-environ>=0.11
+Pillow>=10.0
+razorpay>=1.4
+PyJWT>=2.8
+cryptography>=42.0
+django-widget-tweaks>=1.5.0
+requests>=2.31

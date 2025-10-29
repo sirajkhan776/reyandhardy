@@ -1,0 +1,18 @@
+{% comment %} Amazon-like shipping steps visualizer (no custom tags). {% endcomment %}
+{% with s=current_status|default:order.status %}
+  <ol class="rh-steps 
+    {% if s == 'created' %}state-1
+    {% elif s == 'paid' or s == 'processing' or s == 'confirmed' %}state-2
+    {% elif s == 'packed' %}state-3
+    {% elif s == 'shipped' or s == 'dispatched' %}state-4
+    {% elif s == 'out_for_delivery' %}state-5
+    {% elif s == 'delivered' %}state-6
+    {% else %}state-1{% endif %}">
+    <li class="rh-step"><span class="rh-step-dot"></span><span class="rh-step-label">Placed</span></li>
+    <li class="rh-step"><span class="rh-step-dot"></span><span class="rh-step-label">Confirmed</span></li>
+    <li class="rh-step"><span class="rh-step-dot"></span><span class="rh-step-label">Packed</span></li>
+    <li class="rh-step"><span class="rh-step-dot"></span><span class="rh-step-label">Dispatched</span></li>
+    <li class="rh-step"><span class="rh-step-dot"></span><span class="rh-step-label">Out for delivery</span></li>
+    <li class="rh-step"><span class="rh-step-dot"></span><span class="rh-step-label">Delivered</span></li>
+  </ol>
+{% endwith %}

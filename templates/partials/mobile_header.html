@@ -1,0 +1,26 @@
+{% load static %}
+<div class="mobile-search-bar d-md-none bg-gradient-primary text-white shadow-sm">
+  <div class="container py-2">
+    <div class="d-flex align-items-center mb-2">
+      <img src="{% static BRAND_LOGO %}" alt="{{ STORE_NAME }}" height="32" class="logo-img me-2" onerror="this.style.display='none'" />
+      <div class="fw-semibold">{{ STORE_NAME }}</div>
+      <a href="#" class="ms-auto" id="themeToggleMobile" title="Toggle dark/light"><i class="bi bi-brightness-high"></i></a>
+    </div>
+    <form class="amz-search amz-search-mobile amz--no-cat" role="search" method="get" action="/search/">
+      <div class="amz-wrap w-100">
+        <input id="mobileSearchInput" class="amz-input" type="search" name="q" placeholder="Search your product" aria-label="Search" value="{{ request.GET.q|default:'' }}" />
+        <div class="amz-tools">
+          <button class="amz-tool" type="button" id="voiceSearchBtnMobile" title="Voice search"><i class="bi bi-mic"></i></button>
+          <button class="amz-tool" type="button" id="imageSearchBtnMobileTop" title="Search with image"><i class="bi bi-camera"></i></button>
+        </div>
+        <button class="amz-submit" type="submit"><i class="bi bi-search"></i></button>
+      </div>
+    </form>
+    <form id="imageSearchFormMobileTop" method="post" action="/search/" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input id="imageSearchInputMobileTop" type="file" name="image" accept="image/*" class="d-none" />
+      <input id="imageSearchInputMobileTopCam" type="file" name="image" accept="image/*" capture="environment" class="d-none" />
+    </form>
+    
+  </div>
+</div>

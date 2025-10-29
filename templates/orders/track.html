@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h2 class="mb-0">Track Order #{{ order.order_number }}</h2>
+    <div>
+      {% if order.tracking_number %}<span class="badge bg-info">AWB: {{ order.tracking_number }}</span>{% endif %}
+    </div>
+  </div>
+  {% if not order.tracking_number %}
+    <div class="alert alert-warning">Tracking number not available yet. Please check back later.</div>
+  {% else %}
+    {% if tracking %}
+      <div class="card">
+        <div class="card-body">
+          <div class="mb-2">Current Status: <strong>{{ tracking.status|default:"—" }}</strong></div>
+          <ul class="list-group">
+          {% for ev in tracking.events %}
+            <li class="list-group-item">
+              <div class="small text-muted">{{ ev.date|default:ev.datetime|default:"" }}</div>
+              <div>{{ ev.activity|default:ev.location|default:ev.status|default:"" }}</div>
+            </li>
+          {% empty %}
+            <li class="list-group-item">No scans available yet.</li>
+          {% endfor %}
+          </ul>
+        </div>
+      </div>
+    {% else %}
+      <div class="alert alert-info">Live tracking information is currently unavailable. Try again later.</div>
+    {% endif %}
+  {% endif %}
+{% endblock %}
+

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h2 class="mb-0">Return / Exchange</h2>
+    <div class="text-muted small">Order #{{ order.order_number }}</div>
+  </div>
+  <div class="alert alert-info mb-3">Pickup is scheduled via Shiprocket. Returns/exchanges are accepted within 7 days of delivery.</div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <label class="form-label">Request type</label>
+        <select name="type" id="retType" class="form-select" required>
+          <option value="return">Return</option>
+          <option value="exchange">Exchange</option>
+        </select>
+      </div>
+      <div class="col-md-8">
+        <label class="form-label">Reason</label>
+        <select name="reason" class="form-select">
+          <option value="">Select reason (optional)</option>
+          <option>Wrong size</option>
+          <option>Damaged / Defective</option>
+          <option>Wrong item received</option>
+          <option>Not as described</option>
+          <option>Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Select Items</span>
+        <small class="text-muted">Set quantity to return / exchange</small>
+      </div>
+      <div class="card-body">
+        {% for it in order.items.all %}
+          <div class="list-group-item p-2 mb-2 border rounded">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+              <div class="d-flex align-items-center gap-2">
+                {% with img=it.product.images.all.0 %}
+                  {% if img %}<img src="{{ img.image.url }}" alt="{{ it.product.name }}" class="rounded" style="width:56px; height:56px; object-fit:cover;" />{% endif %}
+                {% endwith %}
+                <div>
+                  <div class="fw-semibold">{{ it.product.name }}</div>
+                  <div class="small text-muted">{% if it.variant %}{{ it.variant.size }} / {{ it.variant.color }}{% else %}—{% endif %} · Ordered: {{ it.quantity }}</div>
+                </div>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <label class="small text-muted mb-0">Qty</label>
+                <input type="number" name="qty_{{ it.id }}" class="form-control" style="width:90px" min="0" max="{{ it.quantity }}" value="0" />
+              </div>
+            </div>
+            <div class="row mt-2 ex-row" style="display:none;">
+              <div class="col-12 col-md-6">
+                {% if it.product.variants.all %}
+                  <label class="form-label small mb-1">Exchange to variant</label>
+                  <select name="ex_{{ it.id }}_variant" class="form-select form-select-sm">
+                    <option value="">Select size / color</option>
+                    {% for v in it.product.variants.all %}
+                      <option value="{{ v.id }}">{{ v.size }} / {{ v.color }}</option>
+                    {% endfor %}
+                  </select>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button class="btn btn-gradient">Submit Request</button>
+      <a href="{% url 'order_detail' order.order_number %}" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+  </form>
+
+  {% block scripts %}
+  <script>
+    (function(){
+      const typeSel = document.getElementById('retType');
+      function updateExchangeRows(){
+        const show = typeSel && typeSel.value === 'exchange';
+        document.querySelectorAll('.ex-row').forEach(row => row.style.display = show ? '' : 'none');
+      }
+      if (typeSel){ typeSel.addEventListener('change', updateExchangeRows); updateExchangeRows(); }
+    })();
+  </script>
+  {% endblock %}
+{% endblock %}

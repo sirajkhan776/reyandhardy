@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="card shadow auth-card">
+        <div class="card-body p-4">
+          <div class="text-center mb-3">
+            <img src="{% static BRAND_LOGO %}" alt="{{ STORE_NAME }}" height="44" class="logo-img mb-2" onerror="this.style.display='none'" />
+            <h3 class="mb-0">Sign out</h3>
+          </div>
+          <p>Are you sure you want to sign out?</p>
+          <form method="post" action="{% url 'account_logout' %}">
+            {% csrf_token %}
+            <button class="btn btn-danger">Sign out</button>
+            <a href="/" class="btn btn-link">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2 class="mb-3">Checkout</h2>
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="card">
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+            {% if addresses and default_address %}
+              <div class="mb-3">
+                <label class="form-label">Deliver to</label>
+                <div class="border rounded p-3">
+                  <div class="fw-semibold">{{ default_address.full_name }} {% if default_address.is_default %}<span class="badge bg-success">Default</span>{% endif %}</div>
+                  <div class="small text-muted">{{ default_address.phone }}</div>
+                  <div class="small mt-1">{{ default_address.address_line1 }}{% if default_address.address_line2 %}, {{ default_address.address_line2 }}{% endif %}, {{ default_address.city }}, {{ default_address.state }} - {{ default_address.postal_code }}, {{ default_address.country }}</div>
+                </div>
+                <input type="hidden" name="address_id" value="{{ default_address.id }}" />
+                <a href="/accounts/addresses/?next=/checkout/" class="btn btn-sm btn-outline-light mt-2">Change delivery address</a>
+              </div>
+            {% else %}
+            <div class="row g-3">
+              <div class="col-md-6"><label class="form-label">Full Name</label><input name="shipping_name" class="form-control" required /></div>
+              <div class="col-md-6"><label class="form-label">Phone</label><input name="shipping_phone" class="form-control" required /></div>
+              <div class="col-12"><label class="form-label">Address Line 1</label><input name="address_line1" class="form-control" required /></div>
+              <div class="col-12"><label class="form-label">Address Line 2</label><input name="address_line2" class="form-control" /></div>
+              <div class="col-md-4"><label class="form-label">City</label><input name="city" class="form-control" required /></div>
+              <div class="col-md-4"><label class="form-label">State</label><input name="state" class="form-control" required /></div>
+              <div class="col-md-4"><label class="form-label">Postal Code</label><input name="postal_code" class="form-control" required /></div>
+            </div>
+            {% endif %}
+            <hr />
+            <label class="form-label">Payment Method</label>
+            <div class="d-flex gap-3">
+              <label class="card flex-fill p-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="payment_method" value="razorpay" id="pm1" checked>
+                  <label class="form-check-label" for="pm1">Razorpay (UPI, Card, Netbanking)</label>
+                </div>
+              </label>
+              <label class="card flex-fill p-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="payment_method" value="cod" id="pm2">
+                  <label class="form-check-label" for="pm2">Cash on Delivery</label>
+                </div>
+              </label>
+            </div>
+            <button class="btn btn-gradient mt-3">Place Order</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Summary</h5>
+          <ul class="list-group mb-3">
+            <li class="list-group-item d-flex justify-content-between"><span>Subtotal</span><strong>{{ CURRENCY_SYMBOL }}{{ subtotal }}</strong></li>
+            {% if discount_amount and discount_amount > 0 %}
+              <li class="list-group-item d-flex justify-content-between text-success"><span>Coupon{% if coupon_code %} ({{ coupon_code }}){% endif %}</span><strong>-{{ CURRENCY_SYMBOL }}{{ discount_amount }}</strong></li>
+              <li class="list-group-item d-flex justify-content-between"><span>Subtotal after discount</span><strong>{{ CURRENCY_SYMBOL }}{{ discounted_subtotal }}</strong></li>
+            {% else %}
+              <li class="list-group-item d-flex justify-content-between"><span>Subtotal after discount</span><strong>{{ CURRENCY_SYMBOL }}{{ subtotal }}</strong></li>
+            {% endif %}
+            <li class="list-group-item d-flex justify-content-between"><span>GST ({{ GST_RATE|floatformat:2 }}x)</span><strong>{{ CURRENCY_SYMBOL }}{{ gst_amount }}</strong></li>
+            <li class="list-group-item d-flex justify-content-between"><span>Shipment Charge</span><strong>{{ CURRENCY_SYMBOL }}{{ shipping }}</strong></li>
+            <li class="list-group-item d-flex justify-content-between"><span>Total</span><strong>{{ CURRENCY_SYMBOL }}{{ total }}</strong></li>
+          </ul>
+          <form class="input-group mb-2" method="post" action="/cart/coupon/apply/">
+            {% csrf_token %}
+            <input class="form-control" name="coupon" placeholder="Enter coupon code" value="{{ coupon_code|default_if_none:""|default:"" }}" />
+            <button class="btn btn-outline-light" type="submit">Apply</button>
+            {% if coupon_code %}
+              <a href="/cart/coupon/remove/" class="btn btn-outline-danger">Remove</a>
+            {% endif %}
+          </form>
+          <p class="text-muted">Free shipping over {{ CURRENCY_SYMBOL }}{{ FREE_SHIPPING_THRESHOLD }} · 7‑day returns</p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
