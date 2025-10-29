@@ -1,0 +1,34 @@
+{% load static %}
+<section class="rh-premium-hero reveal">
+  <div class="rh-hero-bg">
+    {% if banners and banners.0 %}
+      {% if banners.0.video %}
+        <video class="rh-hero-media" autoplay muted loop playsinline preload="auto"{% if banners.0.image %} poster="{{ banners.0.image.url }}"{% endif %}>
+          <source src="{{ banners.0.video.url }}" type="video/mp4" />
+        </video>
+      {% elif banners.0.image %}
+        <img class="rh-hero-media" src="{{ banners.0.image.url }}" alt="{{ banners.0.title }}" />
+      {% endif %}
+    {% endif %}
+    <div class="rh-hero-overlay"></div>
+  </div>
+
+  <div class="container rh-hero-content">
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <div class="rh-hero-kicker text-gradient">New Season · Best Fit</div>
+        <h1 class="rh-hero-title">{{ STORE_NAME }}<span class="rh-hero-accent"> Premium</span> Tees</h1>
+        <p class="rh-hero-sub">{{ BRAND_TAGLINE }}</p>
+        <div class="rh-hero-ctas">
+          <a href="/" class="btn btn-gradient btn-lg me-2">Shop Now</a>
+          <a href="#top-deals" class="btn btn-ghost btn-lg">View Deals</a>
+        </div>
+        <div class="rh-hero-badges">
+          <span><i class="bi bi-truck"></i> Free Shipping over {{ CURRENCY_SYMBOL }}{{ FREE_SHIPPING_THRESHOLD }}</span>
+          <span><i class="bi bi-shield-check"></i> Quality Guaranteed</span>
+          <span><i class="bi bi-arrow-repeat"></i> 7‑day Returns</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

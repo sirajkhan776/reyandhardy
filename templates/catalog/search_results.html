@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block hero %}
+  {% include "partials/premium_hero.html" with hero_title=title hero_sub=hint hero_cta_text="Search Again" hero_cta_link="/search/?q="|add:q banners=banners %}
+{% endblock %}
+{% block content %}
+  <h2 id="search-results" class="mb-2 d-none">{{ title }}</h2>
+  {% if hint %}<div class="text-muted mb-3 d-none">{{ hint }}</div>{% endif %}
+  <div class="row g-3">
+    {% for p in products %}
+      <div class="col-6 col-md-3">
+        <div class="card product-card h-100 hover-lift">
+          {% with img=p.images.all.0 %}
+            {% if img %}
+              <img src="{{ img.image.url }}" class="product-img" alt="{{ img.alt_text }}" />
+            {% else %}
+              <div class="product-img d-flex align-items-center justify-content-center text-muted">No Image</div>
+            {% endif %}
+          {% endwith %}
+          <div class="card-body">
+            <h6 class="card-title">{{ p.name }}</h6>
+            <div>
+              {% if p.sale_price %}
+                <span class="price">{{ CURRENCY_SYMBOL }}{{ p.sale_price }}</span>
+                <span class="price-old">{{ CURRENCY_SYMBOL }}{{ p.base_price }}</span>
+              {% else %}
+                <span class="price">{{ CURRENCY_SYMBOL }}{{ p.base_price }}</span>
+              {% endif %}
+            </div>
+            <a href="/product/{{ p.slug }}/" class="btn btn-sm btn-gradient mt-2">View</a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12"><div class="alert alert-info">No products found.</div></div>
+    {% endfor %}
+  </div>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load static %}
+{% block hero %}
+  {% include "partials/premium_hero.html" %}
+{% endblock %}
+
+{% block content %}
+
+  {% if category_cards %}
+  <div class="cat-rail mb-3">
+    <div class="cat-rail-thumbs">
+      {% for c in category_cards %}
+        <a href="{{ c.link }}" class="cat-thumb{% if not c.exists %} disabled{% endif %}" title="{{ c.label }}">
+          {% if c.thumb %}
+            <img src="{{ c.thumb }}" alt="{{ c.label }}" loading="lazy" />
+          {% else %}
+            <div class="cat-thumb-ph"></div>
+          {% endif %}
+          <div class="cat-thumb-label">{{ c.label }}</div>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="row g-3">
+    {% for p in products %}
+      <div class="col-6 col-md-3 reveal">
+        <div class="shadow-frame h-100">
+          {% if p.is_best_seller %}<span class="badge best-seller-badge">Best Seller</span>{% endif %}
+          <div class="sf-actions">
+            {% if user.is_authenticated %}
+              {% if p.id in wishlist_ids %}
+                <a class="btn-icon active" href="/wishlist/remove/{{ p.id }}/" title="Remove from wishlist"><i class="bi bi-heart-fill"></i></a>
+              {% else %}
+                <a class="btn-icon" href="/wishlist/add/{{ p.id }}/" title="Add to wishlist"><i class="bi bi-heart"></i></a>
+              {% endif %}
+            {% else %}
+              <a class="btn-icon" href="/accounts/login/" title="Login to wishlist"><i class="bi bi-heart"></i></a>
+            {% endif %}
+            <a class="btn-icon" href="/product/{{ p.slug }}/" title="View"><i class="bi bi-eye"></i></a>
+          </div>
+          <a class="sf-image" href="/product/{{ p.slug }}/">
+            {% with imgs=p.images.all vids=p.videos.all %}
+            {% if imgs or vids %}
+            <div id="cardMedia-{{ p.id }}" class="carousel slide premium-carousel" data-bs-ride="carousel" data-bs-interval="5000" data-bs-pause="hover">
+            <div class="carousel-inner">
+                {% for m in imgs %}
+                  <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    <img src="{{ m.image.url }}" alt="{{ m.alt_text }}" loading="lazy" />
+                  </div>
+                {% endfor %}
+                {% for v in vids %}
+            <div class="carousel-item {% if not imgs and forloop.first %}active{% endif %}">
+                    <video muted playsinline loop preload="metadata" autoplay>
+                      <source src="{{ v.video.url }}" type="video/mp4" />
+                    </video>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+            {% else %}
+              <div class="product-img d-flex align-items-center justify-content-center text-muted" style="height:210px;">No media</div>
+            {% endif %}
+            {% endwith %}
+          </a>
+          <div class="sf-body">
+            <div class="sf-title">{{ p.name }}</div>
+            {% if p.avg_rating %}
+              <div class="rating-badge"><i class="bi bi-star-fill"></i> {{ p.avg_rating|floatformat:1 }} <span class="text-muted">({{ p.review_count }})</span></div>
+            {% endif %}
+            <div>
+              {% if p.sale_price %}
+                <span class="sf-price">{{ CURRENCY_SYMBOL }}{{ p.sale_price }}</span>
+                <span class="sf-price-old">{{ CURRENCY_SYMBOL }}{{ p.base_price }}</span>
+              {% else %}
+                <span class="sf-price">{{ CURRENCY_SYMBOL }}{{ p.base_price }}</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p>No products yet.</p>
+    {% endfor %}
+  </div>
+
+  
+
+  {% if top_deals %}
+  <div class="mt-4" id="top-deals">
+    <h3 class="mb-3">Top Deals</h3>
+    <div class="row g-3">
+      {% for p in top_deals %}
+        <div class="col-6 col-md-3 reveal">
+          <div class="shadow-frame h-100">
+            <div class="sf-actions">
+              <a class="btn-icon" href="/product/{{ p.slug }}/" title="View"><i class="bi bi-eye"></i></a>
+            </div>
+            <a class="sf-image" href="/product/{{ p.slug }}/">
+              {% with img=p.images.all.0 %}
+                {% if img %}
+                  <img src="{{ img.image.url }}" alt="{{ img.alt_text }}" />
+                {% else %}
+                  <div class="product-img d-flex align-items-center justify-content-center text-muted" style="height:210px;">No Image</div>
+                {% endif %}
+              {% endwith %}
+            </a>
+            <div class="sf-body">
+              <div class="sf-title">{{ p.name }}</div>
+              <div>
+                <span class="sf-price">{{ CURRENCY_SYMBOL }}{{ p.sale_price }}</span>
+                <span class="sf-price-old">{{ CURRENCY_SYMBOL }}{{ p.base_price }}</span>
+                <span class="badge badge-discount">-{{ p.discount|floatformat:0 }}%</span>
+                <span class="deal-note">Limited Time Deal</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+{% endblock %}

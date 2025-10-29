@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h2 class="mb-0">Order {{ order.order_number }}</h2>
+    <div>
+      {% if order.status == 'paid' %}<span class="badge bg-success">Paid</span>
+      {% elif order.status == 'shipped' %}<span class="badge bg-info">Shipped</span>
+      {% elif order.status == 'delivered' %}<span class="badge bg-primary">Delivered</span>
+      {% elif order.status == 'cancelled' %}<span class="badge bg-danger">Cancelled</span>
+      {% elif order.status == 'refunded' %}<span class="badge bg-warning text-dark">Refunded</span>
+      {% elif order.status == 'processing' %}<span class="badge bg-secondary">Processing</span>
+      {% elif order.status == 'out_for_delivery' %}<span class="badge bg-info">Out for delivery</span>
+      {% elif order.status == 'return_requested' %}<span class="badge bg-warning text-dark">Return requested</span>
+      {% elif order.status == 'exchange_requested' %}<span class="badge bg-warning text-dark">Exchange requested</span>
+      {% elif order.status == 'return_in_transit' %}<span class="badge bg-info">Return in transit</span>
+      {% elif order.status == 'return_completed' %}<span class="badge bg-success">Return completed</span>
+      {% else %}<span class="badge bg-secondary">Created</span>{% endif %}
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      {% include "orders/_status_steps.html" %}
+      <!-- Order Details -->
+      <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>Order Details</span>
+          {% if order.status == 'delivered' %}
+            <a href="{% url 'order_invoice' order.order_number %}" class="btn btn-sm btn-outline-light">Download Invoice</a>
+          {% else %}
+            <button class="btn btn-sm btn-outline-secondary" disabled>Invoice available after delivery</button>
+          {% endif %}
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-3 col-6"><div class="text-muted small">Order ID</div><div>#{{ order.order_number }}</div></div>
+            <div class="col-md-3 col-6"><div class="text-muted small">Placed</div><div>{{ order.created_at|date:"d M Y, H:i" }}</div></div>
+            <div class="col-md-3 col-6"><div class="text-muted small">Payment</div><div>{% if order.payment_method == 'razorpay' %}Razorpay{% elif order.payment_method == 'cod' %}Cash on Delivery{% else %}—{% endif %}</div></div>
+            <div class="col-md-3 col-6"><div class="text-muted small">Delivered</div><div>{% if order.status == 'delivered' %}{{ order.updated_at|date:"d M Y, H:i" }}{% else %}<span class="text-muted">Not delivered yet</span>{% endif %}</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delivery and actions -->
+      <div class="card mb-3">
+        <div class="card-header">Delivery & Actions</div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-md-4"><div class="text-muted small">Status</div><div class="text-capitalize">{{ order.status|default:"—" }}</div></div>
+            <div class="col-md-4"><div class="text-muted small">AWB</div><div>{% if order.tracking_number %}{{ order.tracking_number }}{% else %}<span class="text-muted">Not assigned yet</span>{% endif %}</div></div>
+            <div class="col-md-4"><div class="text-muted small">Provider</div><div>{{ order.shipping_provider|default:"—" }}</div></div>
+          </div>
+
+          <div class="mb-3">
+            {% if order.tracking_number %}
+              <a class="btn btn-sm btn-outline-primary" href="{% url 'order_track' order.order_number %}">Track package</a>
+            {% else %}
+              <button class="btn btn-sm btn-outline-secondary" disabled>Track not available</button>
+            {% endif %}
+            {% if order.status == 'delivered' %}
+              <a class="btn btn-sm btn-outline-primary" href="{% url 'order_return_request' order.order_number %}">Return / Exchange</a>
+              <a class="btn btn-sm btn-outline-danger" href="{% url 'order_return_quick' order.order_number %}">Quick Return (All)</a>
+            {% endif %}
+          </div>
+
+          
+
+          <div class="list-group order-items">
+            {% for it in order.items.all %}
+              <div class="list-group-item d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2">
+                  {% with img=it.product.images.all.0 %}
+                    {% if img %}<img src="{{ img.image.url }}" alt="{{ it.product.name }}" class="rounded" style="width:56px; height:56px; object-fit:cover;" />{% endif %}
+                  {% endwith %}
+                  <div>
+                    <div class="fw-semibold">{{ it.product.name }}</div>
+                    <small class="text-muted">{% if it.variant %}{{ it.variant.size }} / {{ it.variant.color }}{% else %}—{% endif %}</small>
+                  </div>
+                </div>
+                <div class="text-end">
+                  <div class="small">Qty: {{ it.quantity }}</div>
+                  <div class="text-nowrap">{{ CURRENCY_SYMBOL }}{{ it.line_total }}</div>
+                  <a class="btn btn-sm btn-outline-light mt-1" href="/product/{{ it.product.slug }}/">Write a product review</a>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Ship to -->
+      <div class="card mb-3">
+        <div class="card-header">Ship To</div>
+        <div class="card-body">
+          <div>{{ order.shipping_name }}</div>
+          <div class="text-muted small">{{ order.shipping_phone }}</div>
+          <div class="mt-2 small">{{ order.address_line1 }}{% if order.address_line2 %}, {{ order.address_line2 }}{% endif %}, {{ order.city }}, {{ order.state }} - {{ order.postal_code }}, {{ order.country }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <!-- Order Summary -->
+      <div class="card mb-3">
+        <div class="card-header">Order Summary</div>
+        <div class="card-body">
+          <ul class="list-group mb-2">
+            {% if order.discount_amount and order.discount_amount > 0 %}
+              <li class="list-group-item d-flex justify-content-between"><span>Subtotal</span><strong>{{ CURRENCY_SYMBOL }}{{ order.subtotal|add:order.discount_amount }}</strong></li>
+              <li class="list-group-item d-flex justify-content-between"><span>Coupon{% if order.coupon_code %} ({{ order.coupon_code }}){% endif %}</span><strong>-{{ CURRENCY_SYMBOL }}{{ order.discount_amount }}</strong></li>
+              <li class="list-group-item d-flex justify-content-between"><span>Subtotal after discount</span><strong>{{ CURRENCY_SYMBOL }}{{ order.subtotal }}</strong></li>
+            {% else %}
+              <li class="list-group-item d-flex justify-content-between"><span>Subtotal</span><strong>{{ CURRENCY_SYMBOL }}{{ order.subtotal }}</strong></li>
+            {% endif %}
+            <li class="list-group-item d-flex justify-content-between"><span>GST</span><strong>{{ CURRENCY_SYMBOL }}{{ order.gst_amount }}</strong></li>
+            <li class="list-group-item d-flex justify-content-between"><span>Shipment Charge</span><strong>{{ CURRENCY_SYMBOL }}{{ order.shipping_amount }}</strong></li>
+            <li class="list-group-item d-flex justify-content-between"><span>Total</span><strong>{{ CURRENCY_SYMBOL }}{{ order.total_amount }}</strong></li>
+          </ul>
+          {% if GSTIN %}<div class="small text-muted">GSTIN: {{ GSTIN }}</div>{% endif %}
+        </div>
+      </div>
+      {% if order.status == 'delivered' %}
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Need Help?</h5>
+          <p class="small text-muted">You can request a return or exchange within 7 days of delivery.</p>
+          <a href="{% url 'order_return_request' order.order_number %}" class="btn btn-outline-primary btn-sm">Return / Exchange</a>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

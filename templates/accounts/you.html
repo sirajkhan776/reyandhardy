@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block content %}
+  <!-- Mobile greeting and profile icon -->
+  <div class="d-md-none d-flex align-items-center justify-content-between mb-3">
+    <div class="fw-semibold">Hello, {{ user.username }}</div>
+    <button class="btn p-0" type="button" data-bs-toggle="modal" data-bs-target="#whoShoppingModal" aria-label="Who is shopping">
+      {% if profile and profile.avatar %}
+        <img src="{{ profile.avatar.url }}" alt="avatar" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" />
+      {% else %}
+        <i class="bi bi-person-circle" style="font-size:32px;"></i>
+      {% endif %}
+    </button>
+  </div>
+  <h2 class="mb-3">Your Account</h2>
+
+  <!-- Your Orders -->
+  <div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span>Your Orders</span>
+      <a href="/orders/" class="btn btn-sm btn-outline-light">See all</a>
+    </div>
+    <div class="card-body">
+      {% if order_cards %}
+        <div class="row g-2 d-none d-md-flex">
+          {% for oc in order_cards %}
+            <div class="col-6 col-lg-3">
+              <a href="{{ oc.link }}" class="text-decoration-none d-block border rounded p-2">
+                {% if oc.img %}
+                  <img src="{{ oc.img }}" class="img-fluid rounded" alt="Order image" />
+                {% else %}
+                  <div class="d-flex align-items-center justify-content-center bg-dark rounded" style="height:120px;">No image</div>
+                {% endif %}
+                <div class="small text-muted mt-1">#{{ oc.order.order_number }} • {{ oc.order.created_at|date:"d M Y" }}</div>
+              </a>
+            </div>
+          {% endfor %}
+        </div>
+        <!-- Mobile: show only first 2 -->
+        <div class="row g-2 d-md-none">
+          {% for oc in order_cards|slice:":2" %}
+            <div class="col-6">
+              <a href="{{ oc.link }}" class="text-decoration-none d-block border rounded p-2">
+                {% if oc.img %}
+                  <img src="{{ oc.img }}" class="img-fluid rounded" alt="Order image" />
+                {% else %}
+                  <div class="d-flex align-items-center justify-content-center bg-dark rounded" style="height:100px;">No image</div>
+                {% endif %}
+                <div class="small text-muted mt-1">#{{ oc.order.order_number }}</div>
+              </a>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-muted">No orders yet.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Buy Again -->
+  <div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span>Buy Again</span>
+    </div>
+    <div class="card-body">
+      {% if buy_again %}
+        <div class="row g-2">
+          {% for bi in buy_again %}
+            <div class="col-6 col-md-3">
+              <a href="{{ bi.link }}" class="text-decoration-none d-block border rounded p-2">
+                {% if bi.img %}
+                  <img src="{{ bi.img }}" class="img-fluid rounded" alt="{{ bi.product.name }}" />
+                {% else %}
+                  <div class="d-flex align-items-center justify-content-center bg-dark rounded" style="height:120px;">No image</div>
+                {% endif %}
+                <div class="small text-white mt-1">{{ bi.product.name }}</div>
+              </a>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-muted">No previous purchases yet.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Your Account links -->
+  <div class="card mb-3">
+    <div class="card-header">Your Account</div>
+    <div class="card-body">
+      <div class="row g-2">
+        <div class="col-6 col-md-3"><a href="/orders/" class="btn btn-outline-light w-100">Your Orders</a></div>
+        <div class="col-6 col-md-3"><a href="/accounts/addresses/" class="btn btn-outline-light w-100">Your Addresses</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help -->
+  <div class="card">
+    <div class="card-header">Need more help?</div>
+    <div class="card-body">
+      <a href="/accounts/help/" class="btn btn-outline-light">Visit customer service</a>
+    </div>
+  </div>
+
+  <!-- Who is shopping modal -->
+  <div class="modal fade" id="whoShoppingModal" tabindex="-1" aria-labelledby="whoShoppingLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="whoShoppingLabel">Who is shopping?</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="d-flex align-items-center mb-3">
+            {% if profile and profile.avatar %}
+              <img src="{{ profile.avatar.url }}" alt="avatar" style="width:48px;height:48px;border-radius:50%;object-fit:cover;" />
+            {% else %}
+              <i class="bi bi-person-circle" style="font-size:36px;"></i>
+            {% endif %}
+            <div class="ms-3">
+              <div class="fw-semibold">{{ user.username }}</div>
+              <div class="text-muted small">View & edit profile</div>
+            </div>
+          </div>
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update_profile" />
+            <div class="mb-2"><label class="form-label">Username</label><input class="form-control" name="username" value="{{ user.username }}" /></div>
+            <div class="mb-2"><label class="form-label">Profile picture</label><input class="form-control" type="file" name="avatar" accept="image/*" /></div>
+            <div class="mb-2"><label class="form-label">Interests</label><input class="form-control" name="interests" value="{% if profile %}{{ profile.interests }}{% endif %}" placeholder="e.g., T-shirts, Jeans" /></div>
+            <div class="d-grid"><button class="btn btn-gradient" type="submit">Save changes</button></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
