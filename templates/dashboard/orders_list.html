@@ -17,14 +17,14 @@
                 <td>{{ o.order_number }}</td>
                 <td>{{ o.user.username }}</td>
                 <td>
-                  <form method="post" action="/dashboard/orders/{{ o.id }}/status/" class="d-flex align-items-center gap-2">
+                  <form method="post" action="/dashboard/orders/{{ o.id }}/status/" class="d-flex align-items-center gap-2 order-status-form">
                     {% csrf_token %}
                     <select name="status" class="form-select form-select-sm" style="width:auto">
-                      {% for key,label in o.STATUS_CHOICES %}
+                      {% for key,label in status_choices %}
                         <option value="{{ key }}" {% if o.status == key %}selected{% endif %}>{{ label }}</option>
                       {% endfor %}
                     </select>
-                    <button class="btn btn-sm btn-outline-primary" type="submit">Update</button>
+                    <button class="btn btn-sm btn-outline-primary d-none" type="submit">Update</button>
                   </form>
                 </td>
                 <td>{{ CURRENCY_SYMBOL }}{{ o.total_amount }}</td>
@@ -43,4 +43,19 @@
     </div>
   </div>
 </div>
+{% block scripts %}
+<script>
+  (function(){
+    // Auto-submit order status change without clicking Update
+    document.querySelectorAll('form.order-status-form select[name="status"]').forEach(function(sel){
+      sel.addEventListener('change', function(){
+        const form = sel.closest('form');
+        if (!form) return;
+        sel.disabled = true;
+        form.submit();
+      });
+    });
+  })();
+</script>
+{% endblock %}
 {% endblock %}

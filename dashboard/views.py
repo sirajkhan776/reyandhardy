@@ -52,7 +52,7 @@ def index(request):
 @staff_member_required(login_url="/accounts/login/")
 def orders_list(request):
     orders = Order.objects.order_by("-created_at")[:50]
-    return render(request, "dashboard/orders_list.html", {"orders": orders})
+    return render(request, "dashboard/orders_list.html", {"orders": orders, "status_choices": Order.STATUS_CHOICES})
 
 
 @staff_member_required(login_url="/accounts/login/")
