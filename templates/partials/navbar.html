@@ -5,6 +5,11 @@
       <img src="{% static BRAND_LOGO %}" alt="{{ STORE_NAME }}" height="40" class="logo-img me-2" onerror="this.style.display='none'" />
       <span class="logo">Rey&Hardy</span>
     </a>
+    {% if request.path != '/' %}
+      <a href="/" class="btn btn-outline-secondary btn-sm me-2 d-none d-md-inline-flex align-items-center" aria-label="Go back" onclick="if (window.history && history.length > 1) { history.back(); return false; }">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+    {% endif %}
     <form class="amz-search amz--no-cat d-flex flex-grow-1 mx-3" role="search" method="get" action="/search/">
       <div class="amz-wrap w-100">
         <input class="amz-input" type="search" name="q" placeholder="Search your product" aria-label="Search" value="{{ request.GET.q|default:'' }}" />

@@ -6,7 +6,10 @@
       <div class="logo fw-semibold">{{ STORE_NAME }}</div>
       <a href="#" class="ms-auto" id="themeToggleMobile" title="Toggle dark/light"><i class="bi bi-brightness-high"></i></a>
     </div>
-    <form class="amz-search amz-search-mobile amz--no-cat" role="search" method="get" action="/search/">
+    <form class="amz-search amz-search-mobile amz--no-cat d-flex align-items-center" role="search" method="get" action="/search/">
+      {% if request.path != '/' %}
+        <a href="/" class="btn btn-outline-secondary btn-sm me-2" aria-label="Go back" onclick="if (window.history && history.length > 1) { history.back(); return false; }"><i class="bi bi-arrow-left"></i></a>
+      {% endif %}
       <div class="amz-wrap w-100">
         <input id="mobileSearchInput" class="amz-input" type="search" name="q" placeholder="Search your product" aria-label="Search" value="{{ request.GET.q|default:'' }}" />
         <div class="amz-tools">

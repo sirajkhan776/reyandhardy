@@ -157,6 +157,17 @@ def add_to_cart(request, product_id):
         variant = get_object_or_404(product.variants, size=size, color=color)
 
     qty = int(request.POST.get("quantity", 1))
+    # Buy Now flow: skip adding to cart, store as temporary session item
+    if request.POST.get("buy_now") == "1":
+        request.session["buy_now"] = {
+            "product_id": product.id,
+            "variant_id": (variant.id if variant else None),
+            "quantity": qty,
+        }
+        request.session.modified = True
+        return redirect("checkout")
+
+    # Regular add to cart
     if request.user.is_authenticated:
         cart = _get_user_cart(request.user)
         item, created = CartItem.objects.get_or_create(cart=cart, product=product, variant=variant)

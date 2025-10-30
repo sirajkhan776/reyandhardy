@@ -22,25 +22,49 @@ def _generate_order_number() -> str:
 
 @login_required
 def checkout(request):
+    # Detect Buy Now mode (single-item checkout)
+    buy_now_data = request.session.get("buy_now")
+    buy_now_mode = bool(buy_now_data)
+
     # Merge any session cart items into the user's cart on first checkout
-    ses_items = get_session_items(request)
-    if ses_items:
-        cart = getattr(request.user, "cart", None)
-        if not cart:
-            cart = Cart.objects.create(user=request.user)
-        for it in ses_items:
-            db_item, created = cart.items.get_or_create(product=it.product, variant=it.variant, defaults={"quantity": it.quantity})
-            if not created:
-                db_item.quantity += it.quantity
-                db_item.save()
-        clear_session_cart(request)
+    # Skip when in Buy Now mode so we don't pollute the user's cart
+    if not buy_now_mode:
+        ses_items = get_session_items(request)
+        if ses_items:
+            cart = getattr(request.user, "cart", None)
+            if not cart:
+                cart = Cart.objects.create(user=request.user)
+            for it in ses_items:
+                db_item, created = cart.items.get_or_create(product=it.product, variant=it.variant, defaults={"quantity": it.quantity})
+                if not created:
+                    db_item.quantity += it.quantity
+                    db_item.save()
+            clear_session_cart(request)
 
     cart = getattr(request.user, "cart", None)
-    if not cart or cart.items.count() == 0:
+    if not buy_now_mode and (not cart or cart.items.count() == 0):
         messages.error(request, "Your cart is empty")
         return redirect("view_cart")
 
-    subtotal = cart.subtotal()
+    # Subtotal: for Buy Now use only the selected item; else use cart
+    if buy_now_mode:
+        from catalog.models import Product
+        try:
+            bn_product = Product.objects.get(id=int(buy_now_data.get("product_id")))
+        except Exception:
+            messages.error(request, "Selected item is unavailable.")
+            return redirect("/")
+        bn_variant = None
+        v_id = buy_now_data.get("variant_id")
+        if v_id not in (None, "", "None"):
+            try:
+                bn_variant = Variant.objects.get(id=int(v_id))
+            except Exception:
+                bn_variant = None
+        bn_qty = max(1, int(buy_now_data.get("quantity", 1)))
+        subtotal = (bn_product.price() * bn_qty).quantize(Decimal("0.01"))
+    else:
+        subtotal = cart.subtotal()
     # Coupon application
     coupon_code = get_session_coupon(request)
     coupon = None
@@ -73,25 +97,26 @@ def checkout(request):
         default_address = addresses.filter(is_default=True).first() or addresses.first()
 
     # Helpers for weight/dimensions based on product/variant fields
-    def _cart_total_weight_dims():
+    def _items_total_weight_dims():
         total_w = Decimal("0.00")
         max_l = int(getattr(settings, "SHIPROCKET_DEFAULT_DIM_LCM", 20))
         max_b = int(getattr(settings, "SHIPROCKET_DEFAULT_DIM_BCM", 15))
         max_h = int(getattr(settings, "SHIPROCKET_DEFAULT_DIM_HCM", 2))
-        for it in cart.items.select_related("product", "variant"):
-            # per-item weight
-            w = None
-            if it.variant and getattr(it.variant, "weight_kg", None):
-                w = Decimal(str(it.variant.weight_kg))
-            elif getattr(it.product, "weight_kg", None):
-                w = Decimal(str(it.product.weight_kg))
+        if buy_now_mode:
+            sources = [(bn_product, bn_variant, bn_qty)]
+        else:
+            sources = [(it.product, it.variant, it.quantity) for it in cart.items.select_related("product", "variant")]
+        for prod, var, qty in sources:
+            if var and getattr(var, "weight_kg", None):
+                w = Decimal(str(var.weight_kg))
+            elif getattr(prod, "weight_kg", None):
+                w = Decimal(str(prod.weight_kg))
             else:
                 w = Decimal(str(getattr(settings, "SHIPROCKET_DEFAULT_UNIT_WEIGHT_KG", 0.5)))
-            total_w += (w * Decimal(it.quantity))
-            # dims: take max of any item-provided dims
-            lv = (getattr(it.variant, "length_cm", None) if it.variant else None) or getattr(it.product, "length_cm", None)
-            bv = (getattr(it.variant, "breadth_cm", None) if it.variant else None) or getattr(it.product, "breadth_cm", None)
-            hv = (getattr(it.variant, "height_cm", None) if it.variant else None) or getattr(it.product, "height_cm", None)
+            total_w += (w * Decimal(qty))
+            lv = (getattr(var, "length_cm", None) if var else None) or getattr(prod, "length_cm", None)
+            bv = (getattr(var, "breadth_cm", None) if var else None) or getattr(prod, "breadth_cm", None)
+            hv = (getattr(var, "height_cm", None) if var else None) or getattr(prod, "height_cm", None)
             if lv:
                 try: max_l = max(max_l, int(lv))
                 except Exception: pass
@@ -111,11 +136,14 @@ def checkout(request):
         # Try Shiprocket estimate when configured and address present
         ship_estimate = None
         try:
-            cart = getattr(request.user, "cart", None)
-            units_total = sum((it.quantity for it in cart.items.all()), 0) if cart else 0
+            if buy_now_mode:
+                units_total = bn_qty
+            else:
+                cart = getattr(request.user, "cart", None)
+                units_total = sum((it.quantity for it in cart.items.all()), 0) if cart else 0
             drop_pin = default_address.postal_code if default_address else None
             if drop_pin:
-                total_w, dims = _cart_total_weight_dims()
+                total_w, dims = _items_total_weight_dims()
                 ship_est = estimate_shipping_charge(
                     drop_pin=str(drop_pin),
                     units_total=units_total or 1,
@@ -158,12 +186,15 @@ def checkout(request):
             shipping_for_order = Decimal("0.00")
         else:
             try:
-                cart_for_units = getattr(request.user, "cart", None)
-                units_total = sum((it.quantity for it in cart_for_units.items.all()), 0) if cart_for_units else 1
+                if buy_now_mode:
+                    units_total = bn_qty
+                else:
+                    cart_for_units = getattr(request.user, "cart", None)
+                    units_total = sum((it.quantity for it in cart_for_units.items.all()), 0) if cart_for_units else 1
                 drop_pin = (addr_obj.postal_code if addr_obj else request.POST.get("postal_code")) or ""
                 est = None
                 if drop_pin:
-                    total_w, dims = _cart_total_weight_dims()
+                    total_w, dims = _items_total_weight_dims()
                     est = estimate_shipping_charge(
                         drop_pin=str(drop_pin),
                         units_total=units_total or 1,
@@ -202,30 +233,54 @@ def checkout(request):
             country=(addr_obj.country if addr_obj else "India"),
         )
 
-        for item in cart.items.select_related("product", "variant"):
-            # Resolve unit cost from variant/product cost_price if available
+        if buy_now_mode:
             unit_cost_val = Decimal("0.00")
-            if item.variant and getattr(item.variant, "cost_price", None) is not None:
+            if bn_variant and getattr(bn_variant, "cost_price", None) is not None:
                 try:
-                    unit_cost_val = Decimal(str(item.variant.cost_price))
+                    unit_cost_val = Decimal(str(bn_variant.cost_price))
                 except Exception:
                     unit_cost_val = Decimal("0.00")
-            # Fallback: product doesn't yet have cost_price field; leave 0
             OrderItem.objects.create(
                 order=order,
-                product=item.product,
-                variant=item.variant,
-                quantity=item.quantity,
-                unit_price=item.unit_price(),
-                line_total=item.line_total(),
+                product=bn_product,
+                variant=bn_variant,
+                quantity=bn_qty,
+                unit_price=bn_product.price(),
+                line_total=(bn_product.price() * bn_qty).quantize(Decimal("0.01")),
                 unit_cost=unit_cost_val,
-                line_cost=(unit_cost_val * Decimal(item.quantity)).quantize(Decimal("0.01")),
+                line_cost=(unit_cost_val * Decimal(bn_qty)).quantize(Decimal("0.01")),
             )
+        else:
+            for item in cart.items.select_related("product", "variant"):
+                # Resolve unit cost from variant/product cost_price if available
+                unit_cost_val = Decimal("0.00")
+                if item.variant and getattr(item.variant, "cost_price", None) is not None:
+                    try:
+                        unit_cost_val = Decimal(str(item.variant.cost_price))
+                    except Exception:
+                        unit_cost_val = Decimal("0.00")
+                # Fallback: product doesn't yet have cost_price field; leave 0
+                OrderItem.objects.create(
+                    order=order,
+                    product=item.product,
+                    variant=item.variant,
+                    quantity=item.quantity,
+                    unit_price=item.unit_price(),
+                    line_total=item.line_total(),
+                    unit_cost=unit_cost_val,
+                    line_cost=(unit_cost_val * Decimal(item.quantity)).quantize(Decimal("0.01")),
+                )
 
         if payment_method == "razorpay":
             rp_order = create_razorpay_order(int(total * 100), receipt=order_number)
             order.razorpay_order_id = rp_order.get("id", "")
             order.save()
+            # Clear temp buy-now item
+            if buy_now_mode:
+                try:
+                    request.session.pop("buy_now")
+                except Exception:
+                    pass
             return render(
                 request,
                 "orders/razorpay_pay.html",
@@ -239,8 +294,14 @@ def checkout(request):
         else:  # COD
             order.status = "created"
             order.save()
-            cart.items.all().delete()
+            if not buy_now_mode and cart:
+                cart.items.all().delete()
             clear_session_coupon(request)
+            if buy_now_mode:
+                try:
+                    request.session.pop("buy_now")
+                except Exception:
+                    pass
             messages.success(request, f"COD order placed: {order.order_number}")
             return redirect("order_detail", order_number=order.order_number)
 
