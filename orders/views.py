@@ -25,6 +25,14 @@ def checkout(request):
     # Detect Buy Now mode (single-item checkout)
     buy_now_data = request.session.get("buy_now")
     buy_now_mode = bool(buy_now_data)
+    # Allow explicit override via query param when coming from cart
+    override_bn = (request.GET.get("bn") or "").lower()
+    if override_bn in ("0", "false", "cart"):
+        buy_now_mode = False
+        try:
+            request.session.pop("buy_now")
+        except Exception:
+            pass
 
     # Merge any session cart items into the user's cart on first checkout
     # Skip when in Buy Now mode so we don't pollute the user's cart
