@@ -1,11 +1,74 @@
 {% extends "base.html" %}
 {% block content %}
-  <h2>Customer Service</h2>
-  <p class="text-muted">We’re here to help. For order issues, returns, or questions, please reach out.</p>
-  <ul>
-    <li>Email: support@{{ STORE_DOMAIN }}</li>
-    <li>Orders: <a href="/orders/">Your Orders</a></li>
-    <li>Addresses: <a href="/accounts/profile/">Your Addresses</a></li>
-  </ul>
-{% endblock %}
+  <!-- Greeting hero -->
+  <div class="card mb-3">
+    <div class="card-body">
+      <h3 class="mb-1">Hello{% if request.user.is_authenticated %}, {{ request.user.username }}{% endif %}, welcome to Customer Service.</h3>
+      <div class="text-muted">You can quickly fix your problem here, or we will connect you to someone who can.</div>
+    </div>
+  </div>
 
+  <!-- Quick help with recent delivered orders -->
+  <div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span>Can I help with any of these?</span>
+      <a href="/orders/" class="btn btn-sm btn-outline-light">Show more items</a>
+    </div>
+    <div class="card-body">
+      {% if request.user.is_authenticated and delivered %}
+        <div class="row g-2">
+          {% for oc in delivered %}
+            <div class="col-12 col-md-4">
+              <a href="{{ oc.link }}" class="text-decoration-none d-block border rounded p-2">
+                {% if oc.img %}
+                  <img src="{{ oc.img }}" class="img-fluid rounded mb-2" alt="Order image" />
+                {% endif %}
+                <div class="fw-semibold">Order #{{ oc.order.order_number }}</div>
+                <div class="small text-muted">Delivered on {{ oc.order.updated_at|date:"d M Y" }}</div>
+              </a>
+            </div>
+          {% endfor %}
+        </div>
+      {% elif request.user.is_authenticated %}
+        <div class="text-muted">No delivered orders yet. See <a href="/orders/">Your Orders</a>.</div>
+      {% else %}
+        <div class="text-muted">Please <a href="/accounts/login/">sign in</a> to view your recent orders.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Account & Security -->
+  <div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span>Login, Address, Security & Privacy</span>
+      <a href="/accounts/profile/" class="btn btn-sm btn-outline-light">View all</a>
+    </div>
+    <div class="card-body">
+      <div class="row g-2">
+        {% if not request.user.is_authenticated %}
+          <div class="col-12 col-md-3"><a href="/accounts/login/" class="btn btn-outline-primary w-100">Login</a></div>
+        {% else %}
+          <div class="col-12 col-md-3"><a href="/accounts/you/" class="btn btn-outline-primary w-100">Account</a></div>
+        {% endif %}
+        <div class="col-12 col-md-3"><a href="/accounts/addresses/" class="btn btn-outline-primary w-100">Addresses</a></div>
+        {% if request.user.is_authenticated and request.user.has_usable_password %}
+          <div class="col-12 col-md-3"><a href="/accounts/password/change/" class="btn btn-outline-primary w-100">Change password</a></div>
+        {% elif request.user.is_authenticated %}
+          <div class="col-12 col-md-3"><a href="/accounts/password/set/" class="btn btn-outline-primary w-100">Set password</a></div>
+        {% else %}
+          <div class="col-12 col-md-3"><a href="/accounts/signup/" class="btn btn-outline-primary w-100">Sign up</a></div>
+        {% endif %}
+        <div class="col-12 col-md-3"><a href="/accounts/profile/" class="btn btn-outline-secondary w-100">Profile settings</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact support -->
+  <div class="card">
+    <div class="card-body">
+      <h5 class="mb-1">Still need help?</h5>
+      <div class="text-muted mb-2">Email our customer support and we’ll get back to you shortly.</div>
+      <a class="btn btn-gradient" href="mailto:support@reyandhardy.com">support@reyandhardy.com</a>
+    </div>
+  </div>
+{% endblock %}

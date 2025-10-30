@@ -117,7 +117,25 @@ def you(request):
 
 
 def help_center(request):
-    return render(request, "accounts/help_center.html")
+    delivered = []
+    if request.user.is_authenticated:
+        qs = Order.objects.filter(user=request.user, status="delivered").order_by("-updated_at")[:3]
+        for o in qs:
+            img_url = None
+            first_item = o.items.first()
+            if first_item:
+                try:
+                    img = first_item.product.images.first()
+                    if img and img.image:
+                        img_url = img.image.url
+                except Exception:
+                    img_url = None
+            delivered.append({
+                "order": o,
+                "img": img_url,
+                "link": f"/order/{o.order_number}/help/",
+            })
+    return render(request, "accounts/help_center.html", {"delivered": delivered})
 
 
 @login_required

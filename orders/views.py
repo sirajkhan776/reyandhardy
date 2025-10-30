@@ -279,6 +279,22 @@ def order_detail(request, order_number):
 
 
 @login_required
+def order_support(request, order_number):
+    order = get_object_or_404(Order, user=request.user, order_number=order_number)
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action == "not_received":
+            _ = (request.POST.get("details") or "").strip()
+            messages.info(request, "Thanks. We've recorded that you haven't received this order. Our team will review and reach out.")
+            return redirect("order_support", order_number=order.order_number)
+        if action == "delivery_feedback":
+            _ = (request.POST.get("feedback") or "").strip()
+            messages.success(request, "Thanks for your feedback on the delivery associate.")
+            return redirect("order_support", order_number=order.order_number)
+    return render(request, "orders/order_support.html", {"order": order})
+
+
+@login_required
 def order_invoice(request, order_number):
     order = get_object_or_404(Order, user=request.user, order_number=order_number)
     return render(request, "orders/invoice.html", {"order": order})

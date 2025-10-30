@@ -5,14 +5,14 @@
   <div class="d-md-none d-flex align-items-center justify-content-between mb-3">
     <!-- Left: Profile icon then Hello, username -->
     <div class="d-inline-flex align-items-center gap-2">
-      <button class="btn p-0" type="button" data-bs-toggle="modal" data-bs-target="#whoShoppingModal" aria-label="Profile">
+      <button class="btn p-0 d-inline-flex align-items-center gap-2" type="button" data-bs-toggle="modal" data-bs-target="#whoShoppingModal" aria-label="Profile and account options">
         {% if profile and profile.avatar %}
           <img src="{{ profile.avatar.url }}" alt="avatar" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" />
         {% else %}
           <i class="bi bi-person-circle" style="font-size:32px;"></i>
         {% endif %}
+        <span class="fw-semibold">Hello, {{ user.username }}</span>
       </button>
-      <div class="fw-semibold">Hello, {{ user.username }}</div>
     </div>
 
     <!-- Right: Language selector -->

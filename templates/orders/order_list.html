@@ -48,6 +48,7 @@
                 {% if o.status == 'delivered' %}
                   <a href="{% url 'order_return_request' o.order_number %}" class="btn btn-sm btn-outline-secondary">Return / Exchange</a>
                 {% endif %}
+                <a href="{% url 'order_support' o.order_number %}" class="btn btn-sm btn-outline-light">Get help</a>
               </div>
             </div>
           </div>

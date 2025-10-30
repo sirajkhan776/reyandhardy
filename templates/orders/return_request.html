@@ -18,11 +18,13 @@
       </div>
       <div class="col-md-8">
         <label class="form-label">Reason</label>
-        <select name="reason" class="form-select">
+        <select name="reason" id="reasonSelect" class="form-select">
           <option value="">Select reason (optional)</option>
           <option>Wrong size</option>
           <option>Damaged / Defective</option>
           <option>Wrong item received</option>
+          <option>Item missing</option>
+          <option>Accessory missing</option>
           <option>Not as described</option>
           <option>Other</option>
         </select>
@@ -85,6 +87,21 @@
         document.querySelectorAll('.ex-row').forEach(row => row.style.display = show ? '' : 'none');
       }
       if (typeSel){ typeSel.addEventListener('change', updateExchangeRows); updateExchangeRows(); }
+      // Preselect reason from URL param if provided
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const r = params.get('reason');
+        if (r){
+          const sel = document.getElementById('reasonSelect');
+          if (sel){
+            for (let i=0;i<sel.options.length;i++){
+              if (sel.options[i].text.toLowerCase() === r.toLowerCase()){
+                sel.selectedIndex = i; break;
+              }
+            }
+          }
+        }
+      } catch(e){}
     })();
   </script>
   {% endblock %}
