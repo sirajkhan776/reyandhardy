@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.conf import settings
 from django.http import JsonResponse
-from catalog.models import Product, Variant
+from catalog.models import Product, Variant, WishlistItem
 from .models import Cart, CartItem
 from .utils import (
     add_session_item,
@@ -131,6 +131,27 @@ def view_cart(request):
             flat = Decimal(str(getattr(settings, "FLAT_SHIPPING_RATE", 49)))
             shipping = flat
     total = (discounted_subtotal + gst_amount + shipping).quantize(Decimal("0.01"))
+
+    # Saved for later (wishlist) items for authenticated users
+    saved_items = []
+    if request.user.is_authenticated:
+        try:
+            qs = WishlistItem.objects.filter(user=request.user).select_related("product").prefetch_related("product__images")
+            for w in qs:
+                img_url = None
+                try:
+                    img_obj = w.product.images.first()
+                    img_url = img_obj.image.url if img_obj else None
+                except Exception:
+                    img_url = None
+                saved_items.append({
+                    "product": w.product,
+                    "img": img_url,
+                    "link": f"/product/{w.product.slug}/",
+                })
+        except Exception:
+            saved_items = []
+
     return render(
         request,
         "cart/view_cart.html",
@@ -144,6 +165,7 @@ def view_cart(request):
             "gst_amount": gst_amount,
             "shipping": shipping,
             "total": total,
+            "saved_items": saved_items,
         },
     )
 
@@ -347,6 +369,61 @@ def remove_cart_item(request, item_id):
         })
 
     messages.info(request, "Removed item from cart")
+    return redirect("view_cart")
+
+
+def save_for_later(request, item_id):
+    # Requires authentication to use wishlist
+    if not request.user.is_authenticated:
+        messages.info(request, "Sign in to save items for later.")
+        return redirect("view_cart")
+    # Try database cart item
+    try:
+        item = CartItem.objects.get(id=item_id, cart__user=request.user)
+        WishlistItem.objects.get_or_create(user=request.user, product=item.product)
+        item.delete()
+        messages.success(request, "Saved for later")
+        return redirect("view_cart")
+    except CartItem.DoesNotExist:
+        # Fallback: session cart item via product/variant ids
+        try:
+            pid = int(request.GET.get("product_id"))
+        except Exception:
+            pid = 0
+        vraw = request.GET.get("variant_id")
+        vid = int(vraw) if vraw not in (None, "", "None") else None
+        if pid:
+            try:
+                product = Product.objects.get(id=pid)
+                WishlistItem.objects.get_or_create(user=request.user, product=product)
+            except Product.DoesNotExist:
+                pass
+            # Remove from session cart
+            remove_session_item_session(request, pid, vid)
+            messages.success(request, "Saved for later")
+        return redirect("view_cart")
+
+
+def move_saved_to_cart(request, product_id: int):
+    if not request.user.is_authenticated:
+        messages.info(request, "Sign in to move items to cart.")
+        return redirect("view_cart")
+    product = get_object_or_404(Product, id=product_id, is_active=True)
+    # Remove from wishlist entry
+    WishlistItem.objects.filter(user=request.user, product=product).delete()
+    # If product has variants, send user to product page to pick size/color
+    if product.variants.exists():
+        messages.info(request, "Select size and color before adding to cart.")
+        return redirect("product_detail", slug=product.slug)
+    # Add to cart directly
+    cart = _get_user_cart(request.user)
+    item, created = CartItem.objects.get_or_create(cart=cart, product=product, variant=None)
+    if not created:
+        item.quantity += 1
+    else:
+        item.quantity = 1
+    item.save()
+    messages.success(request, "Moved to cart")
     return redirect("view_cart")
 
 

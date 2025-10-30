@@ -9,28 +9,45 @@
       <div class="d-block d-md-none">
         <ul class="list-group list-group-flush">
           {% for item in cart_items %}
-            <li class="list-group-item cart-row" data-pid="{{ item.product.id }}" data-vid="{% if item.variant %}{{ item.variant.id }}{% else %}0{% endif %}">
-              <div class="d-flex justify-content-between align-items-stretch">
-                <div class="me-3 flex-grow-1">
-                  <a href="/product/{{ item.product.slug }}/" class="text-decoration-none fw-semibold d-block text-truncate">{{ item.product.name }}</a>
-                  <div class="small text-muted mt-1">{% if item.variant %}Size: {{ item.variant.size }} • Color: {{ item.variant.color }}{% else %}No variant{% endif %}</div>
-                  <div class="mt-2 d-flex align-items-center">
-                    <form method="post" action="/cart/update/{{ item.db_item_id|default:0 }}/" class="d-flex align-items-center w-100 cart-qty-form" style="max-width: 260px;">
-                      {% csrf_token %}
-                      <input type="hidden" name="product_id" value="{{ item.product.id }}" />
-                      <input type="hidden" name="variant_id" value="{% if item.variant %}{{ item.variant.id }}{% endif %}" />
-                      <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control cart-qty-input" />
-                    </form>
-                  </div>
+            <li class="list-group-item cart-row cart-mobile-item" data-pid="{{ item.product.id }}" data-vid="{% if item.variant %}{{ item.variant.id }}{% else %}0{% endif %}">
+              <div class="d-flex gap-2 align-items-start">
+                <div class="cart-media d-flex flex-column align-items-center">
+                  <a href="/product/{{ item.product.slug }}/" class="cart-thumb">
+                    {% with img=item.product.images.all.0 %}
+                      {% if img %}
+                        <img src="{{ img.image.url }}" alt="{{ item.product.name }}" />
+                      {% else %}
+                        <span class="cart-thumb-ph"></span>
+                      {% endif %}
+                    {% endwith %}
+                  </a>
+                  <form method="post" action="/cart/update/{{ item.db_item_id|default:0 }}/" class="cart-qty-form mt-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="product_id" value="{{ item.product.id }}" />
+                    <input type="hidden" name="variant_id" value="{% if item.variant %}{{ item.variant.id }}{% endif %}" />
+                    <div class="qty-stepper">
+                      <button type="button" class="btn btn-outline-secondary btn-sm qty-dec" aria-label="Decrease quantity">−</button>
+                      <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control cart-qty-input text-center" />
+                      <button type="button" class="btn btn-outline-secondary btn-sm qty-inc" aria-label="Increase quantity">+</button>
+                    </div>
+                  </form>
                 </div>
-                <div class="text-end cart-right d-flex flex-column align-items-end">
-                  <div class="fw-semibold text-nowrap">{{ CURRENCY_SYMBOL }}<span class="lt" data-pid="{{ item.product.id }}" data-vid="{% if item.variant %}{{ item.variant.id }}{% else %}0{% endif %}">{{ item.line_total }}</span></div>
-                  <div class="small text-muted text-nowrap">{{ CURRENCY_SYMBOL }}{{ item.unit_price }} ea</div>
-                  <a href="/cart/remove/{{ item.db_item_id|default:0 }}/?product_id={{ item.product.id }}{% if item.variant %}&variant_id={{ item.variant.id }}{% endif %}"
-                     class="btn btn-sm btn-outline-danger mt-auto cart-remove"
-                     data-action="/cart/remove/{{ item.db_item_id|default:0 }}/"
-                     data-pid="{{ item.product.id }}"
-                     data-vid="{% if item.variant %}{{ item.variant.id }}{% else %}0{% endif %}">Remove</a>
+                <div class="flex-grow-1 min-w-0">
+                  <div class="d-flex justify-content-between align-items-start gap-2">
+                    <a href="/product/{{ item.product.slug }}/" class="text-decoration-none fw-semibold cart-item-title">{{ item.product.name }}</a>
+                    <div class="cart-price fw-semibold text-nowrap">{{ CURRENCY_SYMBOL }}<span class="lt" data-pid="{{ item.product.id }}" data-vid="{% if item.variant %}{{ item.variant.id }}{% else %}0{% endif %}">{{ item.line_total }}</span></div>
+                  </div>
+                  <div class="small text-muted mt-1">{% if item.variant %}Size: {{ item.variant.size }} • Color: {{ item.variant.color }}{% else %}No variant{% endif %}</div>
+                  <div class="d-flex justify-content-between align-items-center mt-2">
+                    <a href="/cart/save/{{ item.db_item_id|default:0 }}/?product_id={{ item.product.id }}{% if item.variant %}&variant_id={{ item.variant.id }}{% endif %}"
+                       class="btn btn-link text-decoration-none p-0">Save for later</a>
+                    <a href="/cart/remove/{{ item.db_item_id|default:0 }}/?product_id={{ item.product.id }}{% if item.variant %}&variant_id={{ item.variant.id }}{% endif %}"
+                       class="btn btn-link text-danger cart-remove p-0"
+                       data-action="/cart/remove/{{ item.db_item_id|default:0 }}/"
+                       data-pid="{{ item.product.id }}"
+                       data-vid="{% if item.variant %}{{ item.variant.id }}{% else %}0{% endif %}">Remove</a>
+                  </div>
+                  <div class="small text-muted mt-1">{{ CURRENCY_SYMBOL }}{{ item.unit_price }} each</div>
                 </div>
               </div>
             </li>
@@ -56,12 +73,18 @@
                         {% csrf_token %}
                         <input type="hidden" name="product_id" value="{{ item.product.id }}" />
                         <input type="hidden" name="variant_id" value="{% if item.variant %}{{ item.variant.id }}{% endif %}" />
-                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control cart-qty-input" style="max-width:110px" />
+                        <div class="qty-stepper">
+                          <button type="button" class="btn btn-outline-secondary btn-sm qty-dec" aria-label="Decrease quantity">−</button>
+                          <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control cart-qty-input text-center" />
+                          <button type="button" class="btn btn-outline-secondary btn-sm qty-inc" aria-label="Increase quantity">+</button>
+                        </div>
                       </form>
                     </td>
                     <td class="text-nowrap">{{ CURRENCY_SYMBOL }}{{ item.unit_price }}</td>
                     <td class="text-nowrap fw-semibold">{{ CURRENCY_SYMBOL }}<span class="lt" data-pid="{{ item.product.id }}" data-vid="{% if item.variant %}{{ item.variant.id }}{% else %}0{% endif %}">{{ item.line_total }}</span></td>
-                    <td>
+                    <td class="text-end">
+                      <a href="/cart/save/{{ item.db_item_id|default:0 }}/?product_id={{ item.product.id }}{% if item.variant %}&variant_id={{ item.variant.id }}{% endif %}"
+                         class="btn btn-sm btn-outline-secondary">Save for later</a>
                       <a href="/cart/remove/{{ item.db_item_id|default:0 }}/?product_id={{ item.product.id }}{% if item.variant %}&variant_id={{ item.variant.id }}{% endif %}"
                          class="btn btn-sm btn-outline-danger cart-remove"
                          data-action="/cart/remove/{{ item.db_item_id|default:0 }}/"
@@ -113,6 +136,39 @@
       <h4>Your cart is empty</h4>
       <p class="text-muted">Browse products and add your favorites to the cart.</p>
       <a href="/" class="btn btn-primary">Start Shopping</a>
+    </div>
+  {% endif %}
+
+  {% if saved_items and saved_items|length > 0 %}
+    <div class="card mt-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Saved for later</span>
+        <a href="/wishlist/" class="btn btn-sm btn-outline-light">View all</a>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          {% for s in saved_items %}
+            <div class="col-12 col-md-6">
+              <div class="d-flex gap-2 align-items-start">
+                <a href="{{ s.link }}" class="cart-thumb" style="width:64px;height:64px;border-radius:8px;overflow:hidden;background:var(--g2);flex-shrink:0;">
+                  {% if s.img %}
+                    <img src="{{ s.img }}" alt="{{ s.product.name }}" style="width:100%;height:100%;object-fit:cover;display:block;" />
+                  {% else %}
+                    <span class="cart-thumb-ph" style="display:block;width:100%;height:100%;background:linear-gradient(180deg,var(--g3),var(--g2));"></span>
+                  {% endif %}
+                </a>
+                <div class="flex-grow-1 min-w-0">
+                  <a href="{{ s.link }}" class="text-decoration-none fw-semibold d-block" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.25;">{{ s.product.name }}</a>
+                  <div class="mt-2 d-flex gap-2">
+                    <a href="{% url 'move_saved_to_cart' s.product.id %}" class="btn btn-sm btn-outline-primary">Move to cart</a>
+                    <a href="/wishlist/remove/{{ s.product.id }}/" class="btn btn-sm btn-outline-secondary">Remove</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
     </div>
   {% endif %}
 {% endblock %}

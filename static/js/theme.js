@@ -220,6 +220,23 @@ wireImageSearchCameraFirst('imageSearchBtnMobileTop', 'imageSearchFormMobileTop'
     input.addEventListener('change', submitNow);
     form.addEventListener('submit', (e) => { e.preventDefault(); submitNow(); });
   });
+  // Stepper buttons (+/-)
+  document.addEventListener('click', function(e){
+    const inc = e.target.closest('.qty-inc');
+    const dec = e.target.closest('.qty-dec');
+    if (!inc && !dec) return;
+    e.preventDefault();
+    const form = e.target.closest('form.cart-qty-form');
+    if (!form) return;
+    const input = form.querySelector('input[name="quantity"]');
+    if (!input) return;
+    let v = parseInt(input.value || '1', 10);
+    if (isNaN(v) || v < 1) v = 1;
+    v = inc ? v + 1 : Math.max(1, v - 1);
+    input.value = v;
+    // Trigger the same auto-submit debounce as manual input
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  });
 })();
 
 // Autoplay/pause videos within Bootstrap carousels
