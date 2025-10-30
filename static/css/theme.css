@@ -398,6 +398,14 @@ html[data-theme='light'] .cat-thumb img, html[data-theme='light'] .cat-thumb-ph 
 
 /* Dark theme overrides */
 .card { background: var(--rh-bg-elev); border-color: var(--rh-border); color: var(--rh-accent); border-radius: 16px; box-shadow: 0 10px 28px rgba(0,0,0,.22); }
+
+/* Cart layout: stabilize remove button and inputs on mobile */
+.cart-row .cart-qty-input { max-width: 90px; }
+@media (max-width: 767.98px){
+  .cart-row .cart-right { min-width: 128px; }
+  .cart-row .cart-qty-input { max-width: 80px; }
+  .cart-row .cart-right .btn { white-space: nowrap; }
+}
 .list-group-item { background: var(--rh-bg-elev); border-color: var(--rh-border); color: var(--rh-accent); }
 .offcanvas { background: var(--rh-bg); color: var(--rh-accent); border-top: 1px solid var(--rh-border); }
 .dropdown-menu { background: var(--rh-bg-elev); color: var(--rh-accent); border-color: var(--rh-border); }

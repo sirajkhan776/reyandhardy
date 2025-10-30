@@ -10,7 +10,7 @@
         <ul class="list-group list-group-flush">
           {% for item in cart_items %}
             <li class="list-group-item cart-row" data-pid="{{ item.product.id }}" data-vid="{% if item.variant %}{{ item.variant.id }}{% else %}0{% endif %}">
-              <div class="d-flex justify-content-between align-items-start">
+              <div class="d-flex justify-content-between align-items-stretch">
                 <div class="me-3 flex-grow-1">
                   <a href="/product/{{ item.product.slug }}/" class="text-decoration-none fw-semibold d-block text-truncate">{{ item.product.name }}</a>
                   <div class="small text-muted mt-1">{% if item.variant %}Size: {{ item.variant.size }} • Color: {{ item.variant.color }}{% else %}No variant{% endif %}</div>
@@ -19,15 +19,15 @@
                       {% csrf_token %}
                       <input type="hidden" name="product_id" value="{{ item.product.id }}" />
                       <input type="hidden" name="variant_id" value="{% if item.variant %}{{ item.variant.id }}{% endif %}" />
-                      <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control cart-qty-input" style="max-width:90px" />
+                      <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control cart-qty-input" />
                     </form>
                   </div>
                 </div>
-                <div class="text-end">
+                <div class="text-end cart-right d-flex flex-column align-items-end">
                   <div class="fw-semibold text-nowrap">{{ CURRENCY_SYMBOL }}<span class="lt" data-pid="{{ item.product.id }}" data-vid="{% if item.variant %}{{ item.variant.id }}{% else %}0{% endif %}">{{ item.line_total }}</span></div>
                   <div class="small text-muted text-nowrap">{{ CURRENCY_SYMBOL }}{{ item.unit_price }} ea</div>
                   <a href="/cart/remove/{{ item.db_item_id|default:0 }}/?product_id={{ item.product.id }}{% if item.variant %}&variant_id={{ item.variant.id }}{% endif %}"
-                     class="btn btn-sm btn-outline-danger mt-2 cart-remove"
+                     class="btn btn-sm btn-outline-danger mt-auto cart-remove"
                      data-action="/cart/remove/{{ item.db_item_id|default:0 }}/"
                      data-pid="{{ item.product.id }}"
                      data-vid="{% if item.variant %}{{ item.variant.id }}{% else %}0{% endif %}">Remove</a>
