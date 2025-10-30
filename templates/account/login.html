@@ -16,11 +16,28 @@
             {% csrf_token %}
             {{ form.non_field_errors }}
             {% for field in form %}
-              <div class="mb-3">
-                <label class="form-label" for="id_{{ field.name }}">{{ field.label }}</label>
-                {% render_field field class+="form-control" %}
-                {% if field.errors %}<div class="text-danger small">{{ field.errors|striptags }}</div>{% endif %}
-              </div>
+              {% if field.field.widget.input_type == 'checkbox' %}
+                <div class="mb-3 form-check form-switch">
+                  {% render_field field class+="form-check-input" id="id_{{ field.name }}" %}
+                  <label class="form-check-label" for="id_{{ field.name }}">{{ field.label }}</label>
+                  {% if field.errors %}<div class="text-danger small">{{ field.errors|striptags }}</div>{% endif %}
+                </div>
+              {% elif field.field.widget.input_type == 'password' %}
+                <div class="mb-3">
+                  <label class="form-label" for="id_{{ field.name }}">{{ field.label }}</label>
+                  <div class="input-group">
+                    {% render_field field class+="form-control" %}
+                    <button type="button" class="btn btn-outline-secondary toggle-password" data-target="id_{{ field.name }}" aria-label="Show password" onclick="if(window.togglePwd){togglePwd(this);} return false;"><i class="bi bi-eye"></i></button>
+                  </div>
+                  {% if field.errors %}<div class="text-danger small">{{ field.errors|striptags }}</div>{% endif %}
+                </div>
+              {% else %}
+                <div class="mb-3">
+                  <label class="form-label" for="id_{{ field.name }}">{{ field.label }}</label>
+                  {% render_field field class+="form-control" %}
+                  {% if field.errors %}<div class="text-danger small">{{ field.errors|striptags }}</div>{% endif %}
+                </div>
+              {% endif %}
             {% endfor %}
             <div class="d-grid">
               <button class="btn btn-gradient" type="submit">Sign in</button>
@@ -36,8 +53,29 @@
             <a href="{% url 'account_reset_password' %}">Forgot password?</a>
           </div>
           <div class="mt-2 small">New here? <a href="{% url 'account_signup' %}">Create an account</a></div>
-        </div>
       </div>
     </div>
   </div>
+</div>
+{% block scripts %}
+<script src="{% static 'js/password_toggle.js' %}"></script>
+<script>
+  function togglePwd(btn){
+    var id = btn.getAttribute('data-target');
+    var input = id ? document.getElementById(id) : null;
+    if(!input){ var g = btn.closest('.input-group'); if(g) input = g.querySelector('input'); }
+    if(!input) return false;
+    if(input.type === 'password'){
+      input.type = 'text';
+      var icon = btn.querySelector('i'); if(icon){ icon.classList.remove('bi-eye'); icon.classList.add('bi-eye-slash'); }
+      btn.setAttribute('aria-label','Hide password');
+    } else {
+      input.type = 'password';
+      var icon2 = btn.querySelector('i'); if(icon2){ icon2.classList.remove('bi-eye-slash'); icon2.classList.add('bi-eye'); }
+      btn.setAttribute('aria-label','Show password');
+    }
+    return false;
+  }
+</script>
+{% endblock %}
 {% endblock %}

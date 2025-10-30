@@ -49,7 +49,16 @@
 
   function hookRowStatus(){
     // Reattach after refresh
+    $$('form.order-status-form').forEach(function(f){
+      ['click','touchstart','mousedown'].forEach(evt => {
+        f.addEventListener(evt, function(e){ e.stopPropagation(); });
+      });
+    });
     $$('form.order-status-form select[name="status"]').forEach(function(sel){
+      // Prevent row navigation when interacting with the select on mobile/desktop
+      ['click','mousedown','touchstart','keydown','focus'].forEach(evt => {
+        sel.addEventListener(evt, function(e){ e.stopPropagation(); });
+      });
       sel.addEventListener('change', async function(){
         const form = sel.closest('form');
         if (!form) return;

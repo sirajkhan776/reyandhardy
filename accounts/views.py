@@ -1,15 +1,37 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .models import UserProfile
 from orders.models import Order
 from catalog.models import ProductImage
 from .models import Address
+from django.contrib.sessions.models import Session
+from django.utils import timezone
 
 
 @login_required
 def profile(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    if request.method == "POST" and request.POST.get("action") == "update_profile":
+        # Update username, interests, avatar
+        new_username = request.POST.get("username", "").strip()
+        interests = request.POST.get("interests", "").strip()
+        avatar = request.FILES.get("avatar")
+        if new_username and new_username != request.user.username:
+            try:
+                request.user.username = new_username
+                request.user.save()
+                messages.success(request, "Username updated")
+            except Exception:
+                messages.error(request, "Could not update username (maybe taken)")
+        if interests is not None:
+            profile.interests = interests
+        if avatar:
+            profile.avatar = avatar
+        profile.save()
+        messages.success(request, "Profile updated")
+        return redirect("profile")
     if request.method == "POST":
         profile.phone = request.POST.get("phone", "")
         profile.address_line1 = request.POST.get("address_line1", "")
@@ -168,3 +190,74 @@ def address_make_default(request, pk: int):
     addr.save()
     messages.success(request, "Default address set")
     return redirect("addresses")
+
+
+@login_required
+def signout_all_sessions(request):
+    if request.method != "POST":
+        return redirect("profile")
+    uid = str(request.user.pk)
+    # Delete all active sessions for this user (including current)
+    for session in Session.objects.filter(expire_date__gte=timezone.now()):
+        try:
+            data = session.get_decoded()
+        except Exception:
+            continue
+        if str(data.get("_auth_user_id")) == uid:
+            session.delete()
+    # Ensure current request is logged out too
+    logout(request)
+    messages.info(request, "Signed out from all sessions.")
+    return redirect("account_login")
+
+
+@login_required
+def delete_account(request):
+    if request.method != "POST":
+        return redirect("profile")
+    user = request.user
+    # Remove sessions for the user
+    uid = str(user.pk)
+    for session in Session.objects.filter(expire_date__gte=timezone.now()):
+        try:
+            data = session.get_decoded()
+        except Exception:
+            continue
+        if str(data.get("_auth_user_id")) == uid:
+            session.delete()
+
+    # Soft-delete: deactivate and anonymize to preserve orders integrity
+    # Clear profile PII if present
+    try:
+        prof = user.profile
+        prof.avatar = None
+        prof.phone = ""
+        prof.address_line1 = ""
+        prof.address_line2 = ""
+        prof.city = ""
+        prof.state = ""
+        prof.postal_code = ""
+        prof.country = prof.country or ""
+        prof.interests = ""
+        prof.save()
+    except UserProfile.DoesNotExist:
+        pass
+
+    # Remove saved addresses
+    Address.objects.filter(user=user).delete()
+
+    # Deactivate and make credentials unusable
+    user.is_active = False
+    try:
+        user.username = f"deleted_{user.pk}"
+    except Exception:
+        pass
+    user.email = ""
+    user.set_unusable_password()
+    user.first_name = ""
+    user.last_name = ""
+    user.save()
+
+    logout(request)
+    messages.success(request, "Your account has been deleted.")
+    return redirect("/")

@@ -2,10 +2,10 @@
   <tr class="order-row" onclick="location.href='/dashboard/orders/{{ o.id }}/'" style="cursor:pointer;">
     <td data-label="#"><a href="/dashboard/orders/{{ o.id }}/" class="text-decoration-none">{{ o.order_number }}</a></td>
     <td data-label="User">{{ o.user.username }}</td>
-    <td data-label="Status">
-      <form method="post" action="/dashboard/orders/{{ o.id }}/status/" class="d-flex align-items-center gap-2 order-status-form" data-order-id="{{ o.id }}">
+    <td data-label="Status" onclick="event.stopPropagation();" onmousedown="event.stopPropagation();" ontouchstart="event.stopPropagation();">
+      <form method="post" action="/dashboard/orders/{{ o.id }}/status/" class="d-flex align-items-center gap-2 order-status-form" data-order-id="{{ o.id }}" onclick="event.stopPropagation();" onmousedown="event.stopPropagation();" ontouchstart="event.stopPropagation();">
         {% csrf_token %}
-        <select name="status" class="form-select form-select-sm" style="width:auto">
+        <select name="status" class="form-select form-select-sm" style="width:auto" onclick="event.stopPropagation();" onfocus="event.stopPropagation();" onmousedown="event.stopPropagation();" ontouchstart="event.stopPropagation();">
           {% for key,label in status_choices %}
             <option value="{{ key }}" {% if o.status == key %}selected{% endif %}>{{ label }}</option>
           {% endfor %}

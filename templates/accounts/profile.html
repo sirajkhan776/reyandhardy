@@ -1,8 +1,44 @@
 {% extends "base.html" %}
 {% block content %}
+  <!-- Mobile back button -->
+  <div class="d-md-none mb-2">
+    <a
+      href="/accounts/you/"
+      class="btn btn-outline-secondary btn-sm"
+      aria-label="Go back"
+      onclick="if (window.history && history.length > 1) { history.back(); return false; }"
+    >
+      <i class="bi bi-arrow-left"></i> Back
+    </a>
+  </div>
   <h2 class="mb-3">My Profile</h2>
+  <div class="card mb-3">
+    <div class="card-body">
+      <h5 class="mb-3">Account</h5>
+      <form method="post" enctype="multipart/form-data" class="row g-3">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_profile" />
+        <div class="col-md-6">
+          <label class="form-label">Username</label>
+          <input name="username" class="form-control" value="{{ request.user.username }}" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Profile picture</label>
+          <input class="form-control" type="file" name="avatar" accept="image/*" />
+        </div>
+        <div class="col-md-12">
+          <label class="form-label">Interests</label>
+          <input class="form-control" name="interests" value="{{ profile.interests }}" placeholder="e.g., T‑shirts, Jeans" />
+        </div>
+        <div class="col-12">
+          <button class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
   <div class="card">
     <div class="card-body">
+      <h5 class="mb-3">Contact & Address</h5>
       <form method="post" class="row g-3">
         {% csrf_token %}
         <div class="col-md-6">
@@ -37,6 +73,77 @@
           <button class="btn btn-primary">Save</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <div class="card mt-3">
+    <div class="card-body">
+      <h5 class="mb-3">Privacy & Security</h5>
+      <p class="text-muted small mb-3">Manage your password and account security.</p>
+      <div class="d-flex flex-wrap gap-2">
+        {% if request.user.has_usable_password %}
+          <a href="{% url 'account_change_password' %}" class="btn btn-outline-primary">
+            <i class="bi bi-shield-lock me-1"></i> Change password
+          </a>
+        {% else %}
+          <a href="{% url 'account_set_password' %}" class="btn btn-outline-primary">
+            <i class="bi bi-shield-lock me-1"></i> Set password
+          </a>
+        {% endif %}
+        <!-- Sign out of all sessions -->
+        <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#signoutAllModal">
+          <i class="bi bi-box-arrow-right me-1"></i> Sign out of all sessions
+        </button>
+
+        <!-- Delete account (soft delete / deactivate) -->
+        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+          <i class="bi bi-trash me-1"></i> Delete account
+        </button>
+      </div>
+      
+      <!-- Sign out all sessions modal -->
+      <div class="modal fade" id="signoutAllModal" tabindex="-1" aria-labelledby="signoutAllLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="signoutAllLabel">Sign out of all sessions</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              This will sign you out from all devices, including this one.
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <form method="post" action="{% url 'signout_all_sessions' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning">Sign out everywhere</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delete account modal -->
+      <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="deleteAccountLabel">Delete account</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              Are you sure? This cannot be undone. Your orders are retained, but your account will be deactivated.
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <form method="post" action="{% url 'delete_account' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete account</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 {% endblock %}

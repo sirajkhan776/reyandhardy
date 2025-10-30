@@ -1,15 +1,34 @@
 {% extends "base.html" %}
+ 
 {% block content %}
-  <!-- Mobile greeting and profile icon -->
+  <!-- Mobile top bar: Profile + Hello (left) and Language (right) -->
   <div class="d-md-none d-flex align-items-center justify-content-between mb-3">
-    <div class="fw-semibold">Hello, {{ user.username }}</div>
-    <button class="btn p-0" type="button" data-bs-toggle="modal" data-bs-target="#whoShoppingModal" aria-label="Who is shopping">
-      {% if profile and profile.avatar %}
-        <img src="{{ profile.avatar.url }}" alt="avatar" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" />
-      {% else %}
-        <i class="bi bi-person-circle" style="font-size:32px;"></i>
-      {% endif %}
-    </button>
+    <!-- Left: Profile icon then Hello, username -->
+    <div class="d-inline-flex align-items-center gap-2">
+      <button class="btn p-0" type="button" data-bs-toggle="modal" data-bs-target="#whoShoppingModal" aria-label="Profile">
+        {% if profile and profile.avatar %}
+          <img src="{{ profile.avatar.url }}" alt="avatar" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" />
+        {% else %}
+          <i class="bi bi-person-circle" style="font-size:32px;"></i>
+        {% endif %}
+      </button>
+      <div class="fw-semibold">Hello, {{ user.username }}</div>
+    </div>
+
+    <!-- Right: Language selector -->
+    <div class="dropdown">
+      <button class="btn btn-outline-light btn-sm d-inline-flex align-items-center" type="button" id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <span class="me-1" aria-hidden="true">🇮🇳</span>
+        <span id="langCode">EN</span>
+        <i class="bi bi-chevron-down ms-1 small"></i>
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="langDropdown">
+        <li><a class="dropdown-item lang-choice" href="#" data-code="EN">English (EN)</a></li>
+        <li><a class="dropdown-item lang-choice" href="#" data-code="HI">Hindi (HI)</a></li>
+        <li><a class="dropdown-item lang-choice" href="#" data-code="MR">Marathi (MR)</a></li>
+        <li><a class="dropdown-item lang-choice" href="#" data-code="BH">Bihari (BH)</a></li>
+      </ul>
+    </div>
   </div>
   <h2 class="mb-3">Your Account</h2>
 
@@ -111,27 +130,40 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div class="d-flex align-items-center mb-3">
-            {% if profile and profile.avatar %}
-              <img src="{{ profile.avatar.url }}" alt="avatar" style="width:48px;height:48px;border-radius:50%;object-fit:cover;" />
-            {% else %}
-              <i class="bi bi-person-circle" style="font-size:36px;"></i>
-            {% endif %}
-            <div class="ms-3">
-              <div class="fw-semibold">{{ user.username }}</div>
-              <div class="text-muted small">View & edit profile</div>
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center">
+              {% if profile and profile.avatar %}
+                <img src="{{ profile.avatar.url }}" alt="avatar" style="width:48px;height:48px;border-radius:50%;object-fit:cover;" />
+              {% else %}
+                <i class="bi bi-person-circle" style="font-size:36px;"></i>
+              {% endif %}
+              <div class="ms-3">
+                <div class="fw-semibold">{{ user.username }}</div>
+                <div class="text-muted small">View & edit profile</div>
+              </div>
             </div>
+            <a href="/accounts/profile/" class="btn btn-gradient">Edit Profile</a>
           </div>
-          <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="update_profile" />
-            <div class="mb-2"><label class="form-label">Username</label><input class="form-control" name="username" value="{{ user.username }}" /></div>
-            <div class="mb-2"><label class="form-label">Profile picture</label><input class="form-control" type="file" name="avatar" accept="image/*" /></div>
-            <div class="mb-2"><label class="form-label">Interests</label><input class="form-control" name="interests" value="{% if profile %}{{ profile.interests }}{% endif %}" placeholder="e.g., T-shirts, Jeans" /></div>
-            <div class="d-grid"><button class="btn btn-gradient" type="submit">Save changes</button></div>
-          </form>
+          <p class="text-muted">Manage your personal details, photo and interests.</p>
         </div>
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Language selector: persist in localStorage and update label
+  (function(){
+    function getLang(){ try { return localStorage.getItem('rh_lang') || 'EN'; } catch(e){ return 'EN'; } }
+    function setLang(code){ try { localStorage.setItem('rh_lang', code); } catch(e){} }
+    function updateLabel(){ var el = document.getElementById('langCode'); if (el) el.textContent = getLang(); }
+    document.addEventListener('DOMContentLoaded', function(){
+      updateLabel();
+      document.querySelectorAll('.lang-choice').forEach(function(a){
+        a.addEventListener('click', function(ev){ ev.preventDefault(); var code = a.getAttribute('data-code') || 'EN'; setLang(code); updateLabel(); });
+      });
+    });
+  })();
+</script>
 {% endblock %}
