@@ -37,3 +37,38 @@ class Address(models.Model):
 
     def __str__(self):
         return f"{self.full_name} ({self.city})"
+
+
+class Notification(models.Model):
+    LEVELS = (
+        ("info", "Info"),
+        ("promo", "Promotion"),
+        ("alert", "Alert"),
+    )
+    # If user is null -> broadcast to all users
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name="notifications")
+    title = models.CharField(max_length=150)
+    message = models.CharField(max_length=500, blank=True)
+    link_url = models.CharField(max_length=300, blank=True)
+    level = models.CharField(max_length=12, choices=LEVELS, default="info")
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+
+    def __str__(self):
+        tgt = self.user.username if self.user_id else "ALL"
+        return f"{self.title} -> {tgt}"
+
+
+class NotificationRead(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications_read")
+    notification = models.ForeignKey(Notification, on_delete=models.CASCADE, related_name="reads")
+    read_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "notification")
+
+    def __str__(self):
+        return f"Read {self.notification_id} by {self.user_id}"

@@ -1,0 +1,2 @@
+New order: {{ order.order_number }} — {{ CURRENCY_SYMBOL }}{{ order.total_amount }}
+

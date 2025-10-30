@@ -8,6 +8,8 @@ from catalog.models import ProductImage
 from .models import Address
 from django.contrib.sessions.models import Session
 from django.utils import timezone
+from .models import Notification, NotificationRead
+from django.db import models
 
 
 @login_required
@@ -279,3 +281,45 @@ def delete_account(request):
     logout(request)
     messages.success(request, "Your account has been deleted.")
     return redirect("/")
+
+
+@login_required
+def notifications(request):
+    # Fetch broadcast + user-specific notifications
+    qs = Notification.objects.filter(is_active=True).filter(models.Q(user__isnull=True) | models.Q(user=request.user)).order_by("-created_at")
+    # Determine read set
+    read_ids = set(NotificationRead.objects.filter(user=request.user, notification_id__in=qs.values_list('id', flat=True)).values_list('notification_id', flat=True))
+    return render(request, "accounts/notifications.html", {"notifications": qs, "read_ids": read_ids})
+
+
+@login_required
+def notification_mark_read(request, pk: int):
+    if request.method != "POST":
+        return redirect("notifications")
+    try:
+        n = Notification.objects.get(pk=pk)
+        NotificationRead.objects.get_or_create(user=request.user, notification=n)
+    except Notification.DoesNotExist:
+        pass
+    return redirect(request.META.get("HTTP_REFERER", "notifications"))
+
+
+@login_required
+def notifications_clear(request):
+    if request.method != "POST":
+        return redirect("notifications")
+    try:
+        # All active notifications visible to this user
+        notif_qs = Notification.objects.filter(is_active=True).filter(models.Q(user__isnull=True) | models.Q(user=request.user))
+        ids = list(notif_qs.values_list('id', flat=True))
+        # Mark broadcasts as read for this user (so they disappear)
+        existing = set(NotificationRead.objects.filter(user=request.user, notification_id__in=ids).values_list('notification_id', flat=True))
+        to_create = [NotificationRead(user=request.user, notification_id=nid) for nid in ids if nid not in existing]
+        if to_create:
+            NotificationRead.objects.bulk_create(to_create, ignore_conflicts=True)
+        # Delete user-specific notifications entirely
+        Notification.objects.filter(user=request.user).delete()
+        messages.success(request, "Notifications cleared")
+    except Exception:
+        messages.error(request, "Could not clear notifications")
+    return redirect(request.META.get("HTTP_REFERER", "notifications"))

@@ -9,6 +9,7 @@ from django.contrib.auth import get_user_model
 from django.utils.text import slugify
 
 from PIL import Image, ImageDraw, ImageFont
+from django.core.files.base import ContentFile, File
 
 from catalog.models import Category, Product, Variant, ProductImage
 from coupons.models import Coupon
@@ -19,66 +20,210 @@ from core.models import Banner
 class Command(BaseCommand):
     help = "Seed demo data: categories, products (with variants, images), coupons, users, reviews"
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--force",
+            action="store_true",
+            help="Seed even if database is not empty (use with caution)",
+        )
+
     sizes = ["M", "L", "XL", "XXL"]
-    colors = ["Red", "Black", "Navy Blue", "White", "Grey"]
+    colors = ["Black", "Beige", "Navy Blue", "Grey", "White", "Red"]
 
     def handle(self, *args, **options):
+        force = options.get("force", False)
+
+        # Only seed when DB is empty unless --force is provided
+        if not force and not self._is_db_empty():
+            self.stdout.write(
+                self.style.WARNING(
+                    "Database is not empty. Skipping seeding. Run with --force to seed anyway."
+                )
+            )
+            return
+
         self.stdout.write("Seeding demo data…")
         self.seed_categories()
-        products = self.seed_products()
+        products = self.seed_products_real()
         self.seed_coupons()
         users = self.seed_users()
         self.seed_reviews(users, products)
-        self.seed_banners(products)
+        self.seed_banners_videos()
         self.stdout.write(self.style.SUCCESS("Demo data seeded."))
 
+    def _is_db_empty(self) -> bool:
+        """Consider DB empty if no categories or products (and related items) exist."""
+        has_categories = Category.objects.exists()
+        has_products = Product.objects.exists()
+        has_variants = Variant.objects.exists()
+        try:
+            from core.models import Banner  # local import to avoid circulars
+
+            has_banners = Banner.objects.exists()
+        except Exception:
+            has_banners = False
+        return not (has_categories or has_products or has_variants or has_banners)
+
     def seed_categories(self):
-        for name in ["T-shirts", "Oversized T-shirts"]:
-            Category.objects.get_or_create(name=name)
+        """Create common categories with thumbnails from media/categories and set is_display=True."""
+        cat_files = {
+            "T-shirts": "media/categories/tshirtthumb.jpg",
+            "Shirts": "media/categories/shirtthumb.jpg",
+            "Jeans": "media/categories/jeansthumb.jpg",
+            "Jackets": "media/categories/jacketthumb.jpg",
+            "Formal Wear": "media/categories/formalwear_thumb.jpg",
+            "Sweatshirts": "media/categories/sweatshirtthumb.jpg",
+            "Wedding": "media/categories/weddingthumb.jpeg",
+        }
+        for name, path in cat_files.items():
+            cat, _ = Category.objects.get_or_create(name=name, defaults={"is_display": True})
+            # Attach thumbnail if present
+            try:
+                with open(path, "rb") as fh:
+                    cat.thumbnail.save(path.split("/")[-1], File(fh), save=False)
+                cat.is_display = True
+                cat.save()
+            except FileNotFoundError:
+                cat.is_display = True
+                cat.save()
 
-    def seed_products(self) -> List[Product]:
-        tees = Category.objects.get(name="T-shirts")
-        oversize = Category.objects.get(name="Oversized T-shirts")
-
-        catalogue = [
-            ("Classic Cotton Tee", tees, 499, 449, "100% cotton. Breathable everyday T‑shirt."),
-            ("Graphic Street Tee", tees, 599, 499, "Soft cotton with bold front graphic. Street style."),
-            ("Essential Pocket Tee", tees, 549, None, "Minimal tee with chest pocket. Everyday essential."),
-            ("Oversized Drop Shoulder", oversize, 699, 599, "Relaxed fit, drop shoulder oversized tee."),
-            ("Oversized Heavyweight", oversize, 799, 699, "Heavyweight fabric for premium drape."),
-            ("Oversized Retro Print", oversize, 749, 649, "Retro inspired print, soft hand‑feel."),
-        ]
-
+    def seed_products_real(self) -> List[Product]:
+        """Create real products with variants and color-tagged images from media/products."""
         products: List[Product] = []
-        for name, cat, base, sale, desc in catalogue:
-            slug = slugify(f"reyhardy-{name}")
-            p, created = Product.objects.get_or_create(
-                slug=slug,
-                defaults={
-                    "name": f"Rey&Hardy {name}",
-                    "category": cat,
-                    "description": self._description_block(desc),
-                    "base_price": Decimal(str(base)),
-                    "sale_price": Decimal(str(sale)) if sale else None,
-                    "is_active": True,
-                },
-            )
-            # Ensure all variants exist even on re-seed
-            for size in self.sizes:
-                for color in self.colors:
-                    Variant.objects.get_or_create(
-                        product=p,
-                        size=size,
-                        color=color,
-                        defaults={
-                            "sku": self._sku_for(p, size, color),
-                            "stock": random.randint(10, 80),
-                        },
-                    )
-            # Generated images per color
-            self._ensure_images(p)
-            products.append(p)
-        return products
+        jeans = Category.objects.get_or_create(name="Jeans", defaults={"is_display": True})[0]
+
+        # 1) Men's Slim Fit Cotton Stretch Pants (Black variants + black images)
+        pants_desc = (
+            "These slim-fit cotton stretch pants offer a perfect blend of comfort and style. "
+            "Made from premium breathable fabric, they’re ideal for casual outings, office wear, or semi-formal events. "
+            "Pair them with shirts or t-shirts for a smart look.\n\n"
+            "\U0001F4CB Key Features\n\n"
+            "Material: 98% Cotton, 2% Spandex\n\n"
+            "Fit Type: Slim Fit\n\n"
+            "Closure: Button and Zip Fly\n\n"
+            "Pockets: 2 front, 2 back\n\n"
+            "Stretchable and comfortable fabric\n\n"
+            "Easy to wash and maintain."
+        )
+        p1 = self._create_product(
+            name="Men’s Slim Fit Cotton Stretch Pants",
+            category=jeans,
+            base_price=Decimal("1000.00"),
+            sale_price=Decimal("499.00"),
+            description=pants_desc,
+        )
+        # Images for Black
+        self._attach_image_from_file(p1, "media/products/blackcolorpant.jpg", color="Black", primary=True)
+        self._attach_image_from_file(p1, "media/products/black-2.jpg", color="Black", primary=False)
+        # Variants: Black M/L/XL/XXL stock 10
+        for sz in ["M", "L", "XL", "XXL"]:
+            self._ensure_variant(p1, sz, "Black", stock=10)
+
+        # 2) Beige pants from provided image
+        p2 = self._create_product(
+            name="Men’s Slim Fit Stretch Pants (Beige)",
+            category=jeans,
+            base_price=Decimal("999.00"),
+            sale_price=Decimal("499.00"),
+            description="Slim fit stretch pants in beige for all-day comfort.",
+        )
+        self._attach_image_from_file(p2, "media/products/beigecolorpant.avif", color="Beige", primary=True)
+        for sz in ["M", "L", "XL"]:
+            self._ensure_variant(p2, sz, "Beige", stock=10)
+
+        # 3) Navy blue pants
+        p3 = self._create_product(
+            name="Men’s Slim Fit Stretch Pants (Navy Blue)",
+            category=jeans,
+            base_price=Decimal("999.00"),
+            sale_price=Decimal("549.00"),
+            description="Navy blue slim pants with clean lines and stretch.",
+        )
+        self._attach_image_from_file(p3, "media/products/navybluepant.webp", color="Navy Blue", primary=True)
+        for sz in ["M", "L", "XL"]:
+            self._ensure_variant(p3, sz, "Navy Blue", stock=10)
+
+        # 4) Classic Black formal pants
+        p4 = self._create_product(
+            name="Classic Black Formal Pants",
+            category=jeans,
+            base_price=Decimal("899.00"),
+            sale_price=Decimal("499.00"),
+            description="Classic black pants suitable for work and evenings.",
+        )
+        self._attach_image_from_file(p4, "media/products/Pant.jpg", color="Black", primary=True)
+        for sz in ["M", "L"]:
+            self._ensure_variant(p4, sz, "Black", stock=8)
+
+        # 5) Everyday Stretch Pants (Grey)
+        p5 = self._create_product(
+            name="Everyday Stretch Pants (Grey)",
+            category=jeans,
+            base_price=Decimal("899.00"),
+            sale_price=Decimal("499.00"),
+            description="Everyday stretch comfort in a versatile grey.",
+        )
+        self._attach_image_from_file(p5, "media/products/pant2.jpg", color="Grey", primary=True)
+        for sz in ["M", "XL"]:
+            self._ensure_variant(p5, sz, "Grey", stock=6)
+
+        # 6) Lightweight Pants (Black)
+        p6 = self._create_product(
+            name="Lightweight Cotton Pants",
+            category=jeans,
+            base_price=Decimal("799.00"),
+            sale_price=Decimal("499.00"),
+            description="Lightweight cotton pants for daily wear.",
+        )
+        self._attach_image_from_file(p6, "media/products/pant1.avif", color="Black", primary=True)
+        for sz in ["L", "XXL"]:
+            self._ensure_variant(p6, sz, "Black", stock=5)
+
+        return [p1, p2, p3, p4, p5, p6]
+
+    # Helpers for real products
+    def _create_product(self, name: str, category: Category, base_price: Decimal, sale_price: Decimal | None, description: str) -> Product:
+        slug = slugify(name)
+        p, _ = Product.objects.get_or_create(
+            slug=slug,
+            defaults={
+                "name": name,
+                "category": category,
+                "description": description,
+                "base_price": base_price,
+                "sale_price": sale_price,
+                "is_active": True,
+            },
+        )
+        return p
+
+    def _attach_image_from_file(self, product: Product, path: str, color: str = "", primary: bool = False):
+        try:
+            with open(path, "rb") as fh:
+                img_file = File(fh)
+                # If primary, clear previous primaries
+                if primary:
+                    product.images.update(is_primary=False)
+                ProductImage.objects.create(
+                    product=product,
+                    image=img_file,
+                    alt_text=f"{product.name}",
+                    is_primary=primary,
+                    color=color,
+                )
+        except FileNotFoundError:
+            pass
+
+    def _ensure_variant(self, product: Product, size: str, color: str, stock: int = 10):
+        Variant.objects.get_or_create(
+            product=product,
+            size=size,
+            color=color,
+            defaults={
+                "sku": self._sku_for(product, size, color),
+                "stock": stock,
+            },
+        )
 
     def _sku_for(self, product: Product, size: str, color: str) -> str:
         # Use product ID and short slug to guarantee uniqueness across products
@@ -187,26 +332,29 @@ class Command(BaseCommand):
                 body = random.choice(texts)
                 Review.objects.get_or_create(product=p, user=u, defaults={"rating": rating, "title": title, "body": body})
 
-    def seed_banners(self, products: List[Product]):
-        if Banner.objects.exists():
-            return
-        # Create 3 banners using existing product images if available
-        picks = products[:3]
+    def seed_banners_videos(self):
+        """Add two active video banners using provided files."""
+        video_paths = [
+            "media/banners/videos/853800-hd_1920_1080_25fps.mp4",
+            "media/banners/videos/5822804-hd_1920_1080_25fps_1.mp4",
+        ]
         order = 0
-        for p in picks:
+        for vp in video_paths:
             order += 1
-            img = p.images.first()
-            if not img:
+            try:
+                with open(vp, "rb") as fh:
+                    video_file = File(fh)
+                    Banner.objects.create(
+                        title="New collection",
+                        subtitle="Premium fits for every day",
+                        video=video_file,
+                        link_url="/",
+                        button_text="Shop now",
+                        sort_order=order,
+                        is_active=True,
+                    )
+            except FileNotFoundError:
                 continue
-            Banner.objects.create(
-                title=p.name,
-                subtitle="New arrivals • Limited time pricing",
-                image=img.image,
-                link_url=f"/product/{p.slug}/",
-                button_text="Shop now",
-                sort_order=order,
-                is_active=True,
-            )
 
     def _color_rgb(self, name: str):
         mapping = {

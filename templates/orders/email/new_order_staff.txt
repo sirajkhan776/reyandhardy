@@ -1,0 +1,23 @@
+New order placed on {{ site_name }}
+
+Order #: {{ order.order_number }}
+Placed by: {{ order.user.username }} <{{ order.user.email }}>
+Status: {{ order.get_status_display }}
+Payment: {{ order.get_payment_method_display }}
+Total: {{ CURRENCY_SYMBOL }}{{ order.total_amount }}
+
+Ship to:
+  {{ order.shipping_name }}
+  {{ order.address_line1 }}{% if order.address_line2 %}
+  {{ order.address_line2 }}{% endif %}
+  {{ order.city }}, {{ order.state }} {{ order.postal_code }}
+  {{ order.country }} · {{ order.shipping_phone }}
+
+Items:
+{% for it in items %}
+  - {{ it.product.name }}{% if it.variant %} ({{ it.variant }}){% endif %} × {{ it.quantity }} — {{ CURRENCY_SYMBOL }}{{ it.line_total }}
+{% endfor %}
+
+Open in Dashboard:
+{{ dashboard_url }}
+

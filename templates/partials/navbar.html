@@ -12,7 +12,8 @@
     {% endif %}
     <form class="amz-search amz--no-cat d-flex flex-grow-1 mx-3" role="search" method="get" action="/search/">
       <div class="amz-wrap w-100">
-        <input class="amz-input" type="search" name="q" placeholder="Search your product" aria-label="Search" value="{{ request.GET.q|default:'' }}" />
+        <img class="amz-logo-in" src="{% static BRAND_LOGO %}" alt="{{ STORE_NAME }}" onerror="this.style.display='none'" />
+        <input id="desktopSearchInput" class="amz-input" type="search" name="q" placeholder='Search "Jeans"' aria-label="Search" value="{{ request.GET.q|default:'' }}" />
         <div class="amz-tools">
           <button class="amz-tool" type="button" id="voiceSearchBtn" title="Voice search"><i class="bi bi-mic"></i></button>
           <button class="amz-tool" type="button" id="imageSearchBtn" title="Search with image"><i class="bi bi-camera"></i></button>
@@ -47,17 +48,28 @@
       </ul>
       <ul class="navbar-nav align-items-center">
         {% if user.is_authenticated %}
-          <li class="nav-item"><a href="/accounts/you/" class="nav-link">Hi, {{ user.username }}</a></li>
-          <li class="nav-item"><a href="/accounts/logout/" class="nav-link">Logout</a></li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-inline-flex align-items-center" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              {% if USER_PROFILE and USER_PROFILE.avatar %}
+                <img src="{{ USER_PROFILE.avatar.url }}" alt="avatar" width="24" height="24" style="object-fit:cover;border-radius:999px;" class="me-2" />
+              {% else %}
+                <i class="bi bi-person-circle me-2"></i>
+              {% endif %}
+              <span>Hi, {{ user.username }}</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+              <li><a class="dropdown-item" href="/accounts/you/">Your Account</a></li>
+              <li><a class="dropdown-item" href="/accounts/profile/">Profile settings</a></li>
+              <li><a class="dropdown-item" href="/accounts/addresses/">Your addresses</a></li>
+              <li><a class="dropdown-item" href="/orders/">Your orders</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="/accounts/logout/">Logout</a></li>
+            </ul>
+          </li>
         {% else %}
           <li class="nav-item"><a href="/accounts/login/" class="nav-link">Login</a></li>
           <li class="nav-item"><a href="/accounts/signup/" class="nav-link">Sign up</a></li>
         {% endif %}
-        <li class="nav-item ms-2">
-          <a href="#" class="nav-link" id="themeToggle" title="Toggle dark/light">
-            <i class="bi bi-brightness-high" id="themeToggleIcon"></i>
-          </a>
-        </li>
       </ul>
     </div>
   </div>

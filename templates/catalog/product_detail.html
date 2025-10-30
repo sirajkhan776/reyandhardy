@@ -3,11 +3,11 @@
   <div class="row">
     <div class="col-md-6">
       {% if images or videos %}
-      <div id="productMedia" class="carousel slide premium-carousel" data-bs-ride="carousel" data-bs-interval="5000" data-bs-pause="hover">
+      <div id="productMedia" class="carousel slide premium-carousel">
         <div class="carousel-inner">
           {% for m in images %}
-            <div class="carousel-item {% if forloop.first %}active{% endif %}">
-              <img src="{{ m.image.url }}" class="d-block w-100" alt="{{ m.alt_text }}" />
+            <div class="carousel-item {% if forloop.first %}active{% endif %}" data-color="{{ m.color|default:'' }}">
+              <img src="{{ m.image.url }}" class="d-block w-100" alt="{{ m.alt_text }}" data-fs-index="{{ forloop.counter0 }}" />
             </div>
           {% endfor %}
           {% for v in videos %}
@@ -27,6 +27,7 @@
           <span class="visually-hidden">Next</span>
         </button>
       </div>
+      {# Removed per request: inline image thumbnails under main carousel (pdThumbs) #}
       {% else %}
         <div class="product-img d-flex align-items-center justify-content-center text-muted" style="height:320px;">No media</div>
       {% endif %}
@@ -50,22 +51,61 @@
           <div class="row g-2">
             {% if sizes %}
             <div class="col-md-6">
-              <label class="form-label">Size</label>
-              <select name="size" class="form-select" required>
+              <div class="d-flex justify-content-between align-items-center">
+                <label class="form-label m-0">Size</label>
+                <a href="#sizeChartModal" data-bs-toggle="modal" class="small text-decoration-underline">Size chart</a>
+              </div>
+              <!-- Desktop select -->
+              <select id="sizeSelect" name="size" class="form-select d-none d-md-block" required>
                 {% for s in sizes %}
                   <option value="{{ s }}">{{ s }}</option>
                 {% endfor %}
               </select>
+              <!-- Mobile pills -->
+              <div class="option-pills d-md-none" id="sizePills">
+                {% for s in sizes %}
+                  <input class="btn-check" type="radio" name="sizeMobile" id="size_{{ forloop.counter }}" value="{{ s }}" {% if forloop.first %}checked{% endif %}>
+                  <label class="btn btn-outline-light btn-sm size-pill" for="size_{{ forloop.counter }}">{{ s }}</label>
+                {% endfor %}
+              </div>
             </div>
             {% endif %}
             {% if colors %}
             <div class="col-md-6">
-              <label class="form-label">Color</label>
-              <select name="color" class="form-select" required>
+              <div class="d-flex justify-content-between align-items-center">
+                <label class="form-label m-0">Color <span id="selectedColorName" class="text-muted"></span></label>
+              </div>
+              <!-- Desktop select -->
+              <select id="colorSelect" name="color" class="form-select d-none d-md-block" required>
                 {% for c in colors %}
                   <option value="{{ c }}">{{ c }}</option>
                 {% endfor %}
               </select>
+              <!-- Desktop color thumbnails -->
+              <div class="pd-thumbs d-none d-md-flex mt-2" id="colorThumbs">
+                {% for opt in color_options %}
+                  <button type="button" class="pd-thumb{% if forloop.first %} active{% endif %}" data-color="{{ opt.name }}" aria-label="Select color {{ opt.name }}">
+                    {% if opt.thumb %}
+                      <img src="{{ opt.thumb }}" alt="{{ opt.name }}" class="pd-thumb-img" />
+                    {% else %}
+                      <span class="pd-thumb-img pd-thumb-ph" aria-hidden="true"></span>
+                    {% endif %}
+                  </button>
+                {% endfor %}
+              </div>
+              <!-- Mobile pills -->
+              <div class="option-pills d-md-none" id="colorPills">
+                {% for opt in color_options %}
+                  <input class="btn-check" type="radio" name="colorMobile" id="color_{{ forloop.counter }}" value="{{ opt.name }}" {% if forloop.first %}checked{% endif %}>
+                  <label class="btn btn-outline-light btn-sm color-pill d-inline-flex align-items-center justify-content-center" for="color_{{ forloop.counter }}" aria-label="{{ opt.name }}">
+                    {% if opt.thumb %}
+                      <img src="{{ opt.thumb }}" alt="" class="color-thumb" />
+                    {% else %}
+                      <span class="color-swatch" aria-hidden="true"></span>
+                    {% endif %}
+                  </label>
+                {% endfor %}
+              </div>
             </div>
             {% endif %}
           </div>
@@ -88,6 +128,231 @@
       </form>
     </div>
   </div>
+  
+  {% if images %}
+  <!-- Fullscreen image viewer -->
+  <div class="modal fade pd-modal" id="pdFsModal" tabindex="-1" aria-labelledby="pdFsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title" id="pdFsLabel">{{ product.name }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div id="pdFsCarousel" class="carousel slide" data-bs-ride="false">
+            <div class="carousel-inner">
+              {% for m in images %}
+              <div class="carousel-item {% if forloop.first %}active{% endif %}" data-color="{{ m.color|default:'' }}">
+                <img src="{{ m.image.url }}" alt="{{ m.alt_text }}" class="pd-full-img" />
+              </div>
+              {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#pdFsCarousel" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#pdFsCarousel" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Next</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+  
+  <!-- Size Chart Modal -->
+  <div class="modal fade" id="sizeChartModal" tabindex="-1" aria-labelledby="sizeChartLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="sizeChartLabel">Size chart</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="small text-muted mb-2">Measurements are approximate and may vary slightly by style.</div>
+          <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead>
+                <tr>
+                  <th>Size</th>
+                  <th class="text-nowrap">Chest (in)</th>
+                  <th class="text-nowrap">Length (in)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>M</td><td>38–40</td><td>27</td></tr>
+                <tr><td>L</td><td>41–43</td><td>28</td></tr>
+                <tr><td>XL</td><td>44–46</td><td>29</td></tr>
+                <tr><td>XXL</td><td>47–49</td><td>30</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="small text-muted">Tip: For a relaxed or oversized fit, choose one size up.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{# scripts are consolidated in a single block below #}
+<script>
+  (function(){
+    function syncRadiosToSelect(groupName, selectId){
+      var group = document.getElementsByName(groupName);
+      var select = document.getElementById(selectId);
+      if (!group || !select) return;
+      function update(){
+        var checked = Array.prototype.find.call(group, function(r){ return r.checked; });
+        if (checked) select.value = checked.value;
+      }
+      Array.prototype.forEach.call(group, function(r){ r.addEventListener('change', update); });
+      update();
+    }
+    document.addEventListener('DOMContentLoaded', function(){
+      syncRadiosToSelect('sizeMobile', 'sizeSelect');
+      syncRadiosToSelect('colorMobile', 'colorSelect');
+      var COLOR_SIZE_MAP = (function(){ try { return JSON.parse('{{ color_size_map_json|escapejs }}'); } catch(e){ return {}; } })();
+      var ALL_SIZES = (function(){ try { return JSON.parse('{{ sizes_json|escapejs }}'); } catch(e){ return []; } })();
+      var mediaTimer = null;
+      function cacheOriginal(containerId){
+        var cont = document.getElementById(containerId);
+        if (!cont) return;
+        var inner = cont.querySelector('.carousel-inner');
+        if (!inner) return;
+        window._pdAll = window._pdAll || {};
+        if (!window._pdAll[containerId]){
+          window._pdAll[containerId] = Array.prototype.map.call(inner.children, function(n){ return n.cloneNode(true); });
+        }
+      }
+      cacheOriginal('productMedia');
+      cacheOriginal('pdFsCarousel');
+      function updateSizesByColor(){
+        var color = (document.querySelector('input[name="colorMobile"]:checked') || {}).value || (document.getElementById('colorSelect') || {}).value || '';
+        var allowed = COLOR_SIZE_MAP[color] || ALL_SIZES;
+        // Desktop select
+        var sel = document.getElementById('sizeSelect');
+        if (sel){
+          var hasSelected = false;
+          Array.prototype.forEach.call(sel.options, function(opt){
+            var ok = allowed.indexOf(opt.value) !== -1;
+            opt.disabled = !ok;
+            opt.classList.toggle('d-none', !ok);
+            if (ok && !hasSelected) { sel.value = opt.value; hasSelected = true; }
+          });
+        }
+        // Mobile pills
+        var radios = document.getElementsByName('sizeMobile');
+        var first = null, setChecked = false;
+        Array.prototype.forEach.call(radios, function(r){
+          var ok = allowed.indexOf(r.value) !== -1;
+          var lab = document.querySelector('label[for="'+r.id+'"]');
+          r.disabled = !ok;
+          if (lab) lab.classList.toggle('d-none', !ok);
+          if (ok && !first) first = r;
+        });
+        var current = Array.prototype.find.call(radios, function(r){ return r.checked; });
+        if (current && current.disabled && first){ first.checked = true; setChecked = true; }
+        if (setChecked){
+          // sync to select
+          if (sel) sel.value = first.value;
+        }
+      }
+      function filterByColor(){
+        var color = (document.querySelector('input[name="colorMobile"]:checked') || {}).value || (document.getElementById('colorSelect') || {}).value || '';
+        var nameSpan = document.getElementById('selectedColorName');
+        if (nameSpan){ nameSpan.textContent = color ? ('· ' + color) : ''; }
+        function apply(containerId){
+          var cont = document.getElementById(containerId);
+          if (!cont) return;
+          var inner = cont.querySelector('.carousel-inner');
+          if (!inner) return;
+          var all = (window._pdAll && window._pdAll[containerId]) ? window._pdAll[containerId] : [];
+          var colorLc = (color || '').trim().toLowerCase();
+          var filtered = all.filter(function(node){
+            var c = (node.getAttribute('data-color') || '').trim().toLowerCase();
+            return !colorLc ? true : (c && c === colorLc);
+          });
+          if (!filtered.length) filtered = all.slice();
+          // Rebuild inner with filtered slides
+          inner.innerHTML = '';
+          filtered.forEach(function(n, i){
+            var clone = n.cloneNode(true);
+            clone.classList.remove('active');
+            if (i === 0) clone.classList.add('active');
+            inner.appendChild(clone);
+          });
+          if (typeof bootstrap !== 'undefined'){
+            var inst = bootstrap.Carousel.getInstance(cont);
+            if (inst) inst.dispose();
+            inst = new bootstrap.Carousel(cont, { interval: false, ride: false, wrap: true, pause: 'hover' });
+            try { inst.to(0); inst.pause(); } catch(e){}
+          }
+        }
+        apply('productMedia');
+        apply('pdFsCarousel');
+        // Filter thumbnails
+        var thumbs = document.querySelectorAll('#pdThumbs .pd-thumb');
+        var firstShownIdx = null;
+        thumbs.forEach(function(btn){
+          var c = (btn.getAttribute('data-color') || '').toLowerCase();
+          var match = !color || !c || (c === color.toLowerCase());
+          btn.classList.toggle('d-none', !match);
+          if (match && firstShownIdx === null) firstShownIdx = parseInt(btn.getAttribute('data-idx') || '0', 10);
+        });
+        if (typeof firstShownIdx === 'number') updateThumbActive(firstShownIdx);
+        // Update desktop color thumbs active
+        document.querySelectorAll('#colorThumbs .pd-thumb').forEach(function(b){
+          var c = (b.getAttribute('data-color') || '').toLowerCase();
+          b.classList.toggle('active', c === (color || '').toLowerCase());
+        });
+        updateSizesByColor();
+      }
+      // Thumbnail click -> navigate carousel
+      function updateThumbActive(idx){
+        document.querySelectorAll('#pdThumbs .pd-thumb').forEach(function(b){ b.classList.remove('active'); });
+        var btn = document.querySelector('#pdThumbs .pd-thumb[data-idx="'+idx+'"]');
+        if (btn) btn.classList.add('active');
+      }
+      (function(){
+        var media = document.getElementById('productMedia');
+        if (!media || !window.bootstrap) return;
+        var carousel = bootstrap.Carousel.getOrCreateInstance(media, { interval: false, ride: false });
+        document.getElementById('pdThumbs')?.addEventListener('click', function(e){
+          var btn = e.target.closest('.pd-thumb');
+          if (!btn) return;
+          e.preventDefault();
+          var idx = parseInt(btn.getAttribute('data-idx') || '0', 10);
+          try { carousel.to(idx); updateThumbActive(idx); } catch(_){}
+        });
+        media.addEventListener('slid.bs.carousel', function(){
+          var items = media.querySelectorAll('.carousel-item');
+          var activeIdx = 0;
+          items.forEach(function(it, i){ if (it.classList.contains('active')) activeIdx = i; });
+          updateThumbActive(activeIdx);
+        });
+      })();
+      // Desktop color thumbs -> select color and filter
+      (function(){
+        var ct = document.getElementById('colorThumbs');
+        if (!ct) return;
+        ct.addEventListener('click', function(e){
+          var btn = e.target.closest('.pd-thumb');
+          if (!btn) return;
+          var val = btn.getAttribute('data-color') || '';
+          var sel = document.getElementById('colorSelect'); if (sel){ sel.value = val; sel.dispatchEvent(new Event('change')); }
+          var mob = Array.prototype.find.call(document.getElementsByName('colorMobile') || [], function(r){ return (r.value||'') === val; });
+          if (mob){ mob.checked = true; mob.dispatchEvent(new Event('change')); }
+          filterByColor();
+        });
+      })();
+      document.querySelectorAll('input[name="colorMobile"]').forEach(function(r){ r.addEventListener('change', filterByColor); });
+      var cs = document.getElementById('colorSelect'); if (cs) cs.addEventListener('change', filterByColor);
+      filterByColor();
+      updateSizesByColor();
+    });
+  })();
+</script>
   <hr />
   <div class="row mt-3">
     <div class="col-md-6">
@@ -123,4 +388,40 @@
       {% endif %}
     </div>
   </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Open fullscreen viewer when clicking product images
+  (function(){
+    var media = document.getElementById('productMedia');
+    var modalEl = document.getElementById('pdFsModal');
+    var fsCarouselEl = document.getElementById('pdFsCarousel');
+    if (!media || !modalEl || !fsCarouselEl) return;
+    var fsCarousel = bootstrap.Carousel.getOrCreateInstance(fsCarouselEl, { interval: false, ride: false });
+    media.addEventListener('click', function(e){
+      var img = e.target.closest('img');
+      if (!img) return;
+      var idx = parseInt(img.getAttribute('data-fs-index') || '0', 10);
+      try { fsCarousel.to(idx); } catch(e) {}
+      var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+      modal.show();
+    });
+  })();
+</script>
+<script>
+  // Accessibility: move focus out before modal becomes aria-hidden to avoid warning
+  (function(){
+    var modalEl = document.getElementById('pdFsModal');
+    var media = document.getElementById('productMedia');
+    if (!modalEl) return;
+    modalEl.addEventListener('hide.bs.modal', function(){
+      try {
+        var target = media && (media.querySelector('.carousel-control-next') || media.querySelector('.carousel-control-prev'));
+        if (target) { target.focus(); }
+        else { document.body.focus(); }
+      } catch(e){}
+    });
+  })();
+</script>
 {% endblock %}

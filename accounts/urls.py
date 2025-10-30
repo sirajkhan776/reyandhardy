@@ -4,6 +4,9 @@ from . import views
 
 urlpatterns = [
     path("profile/", views.profile, name="profile"),
+    path("notifications/", views.notifications, name="notifications"),
+    path("notifications/<int:pk>/read/", views.notification_mark_read, name="notification_mark_read"),
+    path("notifications/clear/", views.notifications_clear, name="notifications_clear"),
     path("you/", views.you, name="you"),
     path("help/", views.help_center, name="help_center"),
     path("addresses/", views.addresses, name="addresses"),

@@ -29,31 +29,39 @@ def view_cart(request):
     if is_auth and hasattr(request.user, "cart"):
         cart = _get_user_cart(request.user)
         db_items = list(cart.items.select_related("product", "variant"))
-        cart_items = [
-            {
+        cart_items = []
+        for it in db_items:
+            try:
+                size_options = list({v.size for v in it.product.variants.all()})
+            except Exception:
+                size_options = []
+            cart_items.append({
                 "db_item_id": it.id,
                 "product": it.product,
                 "variant": it.variant,
                 "quantity": it.quantity,
                 "unit_price": it.unit_price(),
                 "line_total": it.line_total(),
-            }
-            for it in db_items
-        ]
+                "size_options": size_options,
+            })
         subtotal = cart.subtotal()
     else:
         ses_items = get_session_items(request)
-        cart_items = [
-            {
+        cart_items = []
+        for it in ses_items:
+            try:
+                size_options = list({v.size for v in it.product.variants.all()})
+            except Exception:
+                size_options = []
+            cart_items.append({
                 "db_item_id": None,
                 "product": it.product,
                 "variant": it.variant,
                 "quantity": it.quantity,
                 "unit_price": it.unit_price(),
                 "line_total": it.line_total(),
-            }
-            for it in ses_items
-        ]
+                "size_options": size_options,
+            })
         subtotal = sum((it["line_total"] for it in cart_items), Decimal("0.00"))
     # Coupon application
     coupon_code = get_session_coupon(request)
@@ -335,6 +343,68 @@ def update_cart_item(request, item_id):
 
     if is_ajax:
         return JsonResponse(resp)
+    return redirect("view_cart")
+
+
+def update_cart_variant(request, item_id):
+    if request.method != "POST":
+        return redirect("view_cart")
+    size = request.POST.get("size")
+    if not size:
+        messages.error(request, "Select a size")
+        return redirect("view_cart")
+    # Auth path
+    if request.user.is_authenticated:
+        try:
+            item = CartItem.objects.select_related("product", "variant", "cart").get(id=item_id, cart__user=request.user)
+        except CartItem.DoesNotExist:
+            messages.error(request, "Item not found")
+            return redirect("view_cart")
+        product = item.product
+        cur_color = getattr(item.variant, "color", None)
+        try:
+            new_variant = product.variants.get(size=size, color=cur_color) if cur_color else product.variants.get(size=size)
+        except Variant.DoesNotExist:
+            messages.error(request, "Selected size not available")
+            return redirect("view_cart")
+        if item.variant_id == new_variant.id:
+            return redirect("view_cart")
+        # Merge if exists
+        existing = CartItem.objects.filter(cart=item.cart, product=product, variant=new_variant).first()
+        if existing:
+            existing.quantity += item.quantity
+            existing.save()
+            item.delete()
+        else:
+            item.variant = new_variant
+            item.save()
+        messages.success(request, "Size updated")
+        return redirect("view_cart")
+    # Session path
+    try:
+        pid = int(request.POST.get("product_id"))
+    except Exception:
+        return redirect("view_cart")
+    product = get_object_or_404(Product, id=pid)
+    vid_raw = request.POST.get("variant_id")
+    cur_vid = int(vid_raw) if vid_raw not in (None, "", "None") else None
+    cur_variant = Variant.objects.filter(id=cur_vid).first() if cur_vid else None
+    cur_color = getattr(cur_variant, "color", None)
+    try:
+        new_variant = product.variants.get(size=size, color=cur_color) if cur_color else product.variants.get(size=size)
+    except Variant.DoesNotExist:
+        messages.error(request, "Selected size not available")
+        return redirect("view_cart")
+    # Determine current qty in session
+    ses_items = get_session_items(request)
+    qty = 1
+    for it in ses_items:
+        if it.product.id == pid and ((it.variant and it.variant.id) == cur_vid or (it.variant is None and cur_vid is None)):
+            qty = it.quantity
+            break
+    remove_session_item_session(request, pid, cur_vid)
+    add_session_item(request, pid, new_variant.id if new_variant else None, qty)
+    messages.success(request, "Size updated")
     return redirect("view_cart")
 
 

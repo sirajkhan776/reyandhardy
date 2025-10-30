@@ -33,6 +33,17 @@ env = environ.Env(
     SHIPROCKET_DEFAULT_DIM_HCM=(int, 2),
     # Analytics: estimated cost of goods as a fraction of net sales (0.0-1.0)
     COGS_RATE=(float, 0.0),
+    # Email / SMTP
+    EMAIL_BACKEND=(str, ""),
+    EMAIL_HOST=(str, ""),
+    EMAIL_PORT=(int, 0),
+    EMAIL_HOST_USER=(str, ""),
+    EMAIL_HOST_PASSWORD=(str, ""),
+    EMAIL_USE_TLS=(bool, True),
+    EMAIL_USE_SSL=(bool, False),
+    DEFAULT_FROM_EMAIL=(str, "Rey&Hardy Support <support@reyandhardy.com>"),
+    SMTP_DEBUG=(bool, False),
+    ORDER_ALERT_EMAILS=(list, []),
 )
 
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
@@ -116,6 +127,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "core.context_processors.store_context",
+                "accounts.context_processors.user_profile",
             ],
         },
     },
@@ -129,8 +141,50 @@ AUTHENTICATION_BACKENDS = [
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
-# Dev email backend
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+# Email configuration
+# By default, use console backend in DEBUG unless overridden via env.
+EMAIL_BACKEND = env(
+    "EMAIL_BACKEND",
+    default=(
+        "django.core.mail.backends.console.EmailBackend"
+        if DEBUG
+        else "django.core.mail.backends.smtp.EmailBackend"
+    ),
+)
+
+# If using SMTP, these should be provided via environment
+EMAIL_HOST = env("EMAIL_HOST", default="smtp.office365.com")  # or smtpout.secureserver.net
+EMAIL_PORT = env("EMAIL_PORT", default=587)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+EMAIL_USE_TLS = env("EMAIL_USE_TLS", default=True)
+EMAIL_USE_SSL = env("EMAIL_USE_SSL", default=False)
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+
+# SMTP protocol debug toggle (when using SMTP backend).
+SMTP_DEBUG = env("SMTP_DEBUG")
+ORDER_ALERT_EMAILS = env("ORDER_ALERT_EMAILS")
+
+# Basic logging to console, including mail logger
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simple": {"format": "%(levelname)s %(asctime)s %(name)s: %(message)s"},
+    },
+    "handlers": {
+        "console": {"class": "logging.StreamHandler", "formatter": "simple"},
+    },
+    "root": {"handlers": ["console"], "level": "INFO"},
+    "loggers": {
+        "django": {"handlers": ["console"], "level": "INFO", "propagate": False},
+        "django.request": {"handlers": ["console"], "level": "WARNING", "propagate": False},
+        "django.security": {"handlers": ["console"], "level": "WARNING", "propagate": False},
+        "django.core.mail": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
+        "dashboard": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
+        "core": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
+    },
+}
 
 # Database: use DATABASE_URL if provided (e.g., Render Postgres), fallback to SQLite
 DATABASES = {
@@ -169,6 +223,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 ACCOUNT_LOGIN_METHODS = {"email", "username"}
 ACCOUNT_SIGNUP_FIELDS = ["email*", "username*", "password1*", "password2*"]
 ACCOUNT_EMAIL_VERIFICATION = "optional"
+ACCOUNT_EMAIL_SUBJECT_PREFIX = ""  # Disable [Site] prefix in email subjects
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 

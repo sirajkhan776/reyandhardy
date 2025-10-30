@@ -10,6 +10,7 @@
         <div class="col-md-4">{{ form.code.label_tag }}{{ form.code }}{% if form.code.errors %}<div class="invalid-feedback d-block">{{ form.code.errors|join:", " }}</div>{% endif %}</div>
         <div class="col-md-4">{{ form.discount_percent.label_tag }}{{ form.discount_percent }}{% if form.discount_percent.errors %}<div class="invalid-feedback d-block">{{ form.discount_percent.errors|join:", " }}</div>{% endif %}</div>
         <div class="col-md-4 form-check d-flex align-items-center">{{ form.active }} {{ form.active.label_tag }}</div>
+        <div class="col-md-4 form-check d-flex align-items-center">{{ form.notify_users }} {{ form.notify_users.label_tag }}</div>
         <div class="col-12">{{ form.description.label_tag }}{{ form.description }}</div>
         <div class="col-md-6">{{ form.valid_from.label_tag }}{{ form.valid_from }}</div>
         <div class="col-md-6">{{ form.valid_to.label_tag }}{{ form.valid_to }}</div>
@@ -22,4 +23,3 @@
   </div>
 </div>
 {% endblock %}
-

@@ -7,6 +7,7 @@ class Coupon(models.Model):
     description = models.CharField(max_length=200, blank=True)
     discount_percent = models.PositiveIntegerField(help_text="e.g., 10 for 10%")
     active = models.BooleanField(default=True)
+    notify_users = models.BooleanField(default=False, help_text="Notify users when this offer is added")
     valid_from = models.DateTimeField(null=True, blank=True)
     valid_to = models.DateTimeField(null=True, blank=True)
 
@@ -22,4 +23,3 @@ class Coupon(models.Model):
 
     def __str__(self):
         return f"{self.code} ({self.discount_percent}% off)"
-

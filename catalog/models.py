@@ -32,6 +32,7 @@ class Product(models.Model):
     sale_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_best_seller = models.BooleanField(default=False)
+    notify_users = models.BooleanField(default=False, help_text="Notify users about this product")
     created_at = models.DateTimeField(auto_now_add=True)
     # Shipping attributes (fallbacks when variant-level absent)
     weight_kg = models.DecimalField(max_digits=6, decimal_places=3, null=True, blank=True, help_text="Weight per unit in kg")
@@ -56,6 +57,8 @@ class ProductImage(models.Model):
     image = models.ImageField(upload_to="products/")
     alt_text = models.CharField(max_length=200, blank=True)
     is_primary = models.BooleanField(default=False)
+    # Optional: assign this image to a specific variant color (e.g., "Black")
+    color = models.CharField(max_length=30, blank=True)
 
     def __str__(self):
         return f"Image for {self.product.name}"
@@ -69,16 +72,32 @@ class Variant(models.Model):
         ("XXL", "XXL"),
     ]
     COLOR_CHOICES = [
-        ("Red", "Red"),
         ("Black", "Black"),
-        ("Navy Blue", "Navy Blue"),
         ("White", "White"),
         ("Grey", "Grey"),
+        ("Red", "Red"),
+        ("Blue", "Blue"),
+        ("Navy Blue", "Navy Blue"),
+        ("Green", "Green"),
+        ("Olive", "Olive"),
+        ("Yellow", "Yellow"),
+        ("Orange", "Orange"),
+        ("Pink", "Pink"),
+        ("Purple", "Purple"),
+        ("Brown", "Brown"),
+        ("Maroon", "Maroon"),
+        ("Beige", "Beige"),
+        ("Cream", "Cream"),
+        ("Teal", "Teal"),
+        ("Sky Blue", "Sky Blue"),
+        ("Lavender", "Lavender"),
+        ("Multi", "Multi"),
     ]
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="variants")
     size = models.CharField(max_length=4, choices=SIZE_CHOICES)
-    color = models.CharField(max_length=20, choices=COLOR_CHOICES)
+    # Freeform color entry (use dashboard datalist suggestions)
+    color = models.CharField(max_length=30)
     sku = models.CharField(max_length=50, unique=True)
     stock = models.PositiveIntegerField(default=0)
     # Cost of goods per unit (for profit analytics). Optional; defaults to 0.

@@ -15,6 +15,9 @@ from decimal import Decimal
 import random
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse
+from django.core.mail import send_mail, EmailMessage, get_connection
+import logging
+logger = logging.getLogger(__name__)
 
 from orders.models import Order, OrderItem
 from catalog.models import Variant, Product, Category, ProductImage, ProductVideo
@@ -317,6 +320,15 @@ def create_product(request):
         images_fs = ImageFormSet(request.POST, request.FILES, instance=product_candidate, prefix="images")
         videos_fs = VideoFormSet(request.POST, request.FILES, instance=product_candidate, prefix="videos")
         variants_fs = VariantFormSet(request.POST, instance=product_candidate, prefix="variants")
+        # Build variant colors from submitted variant forms for suggestions
+        var_colors = []
+        try:
+            for k, v in request.POST.items():
+                if k.startswith('variants-') and k.endswith('-color') and v.strip():
+                    if v not in var_colors:
+                        var_colors.append(v)
+        except Exception:
+            var_colors = []
         if form.is_valid() and images_fs.is_valid() and videos_fs.is_valid() and variants_fs.is_valid():
             from django.db import transaction, IntegrityError
             try:
@@ -338,6 +350,12 @@ def create_product(request):
         images_fs = ImageFormSet(instance=blank_product, prefix="images")
         videos_fs = VideoFormSet(instance=blank_product, prefix="videos")
         variants_fs = VariantFormSet(instance=blank_product, prefix="variants")
+        # Default colors from Variant choices for suggestions
+        try:
+            from catalog.models import Variant as _Variant
+            var_colors = [c for c in {c for c in dict(_Variant.COLOR_CHOICES).keys()}]
+        except Exception:
+            var_colors = ["Red", "Black", "Navy Blue", "White", "Grey"]
     return render(request, "dashboard/product_form.html", {
         "form": form,
         "images_fs": images_fs,
@@ -345,6 +363,7 @@ def create_product(request):
         "variants_fs": variants_fs,
         "form_title": "Create Product",
         "submit_label": "Create Product",
+        "variant_colors": var_colors,
     })
 
 
@@ -483,6 +502,11 @@ def edit_product(request, pk: int):
         images_fs = ImageFormSet(instance=product, prefix="images")
         videos_fs = VideoFormSet(instance=product, prefix="videos")
         variants_fs = VariantFormSet(instance=product, prefix="variants")
+    # Build variant colors from product's variants
+    try:
+        var_colors = list(product.variants.values_list('color', flat=True).distinct())
+    except Exception:
+        var_colors = []
     return render(request, "dashboard/product_form.html", {
         "form": form,
         "images_fs": images_fs,
@@ -490,6 +514,7 @@ def edit_product(request, pk: int):
         "variants_fs": variants_fs,
         "form_title": "Edit Product",
         "submit_label": "Save Changes",
+        "variant_colors": var_colors,
     })
 
 

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New order {{ order.order_number }}</title>
+  <style>
+    body { background:#0d1117; margin:0; padding:0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; color:#e6edf3; }
+    .wrap { width:100%; background:#0d1117; padding:24px 0; }
+    .container { max-width:680px; margin:0 auto; background:#161b22; border:1px solid #30363d; border-radius:10px; overflow:hidden; }
+    .inner { padding:24px; }
+    h1 { font-size:20px; margin:0 0 12px 0; }
+    .muted { color:#8b949e; font-size:14px; }
+    .grid { display:block; }
+    .card { background:#0d1117; border:1px solid #30363d; border-radius:8px; padding:12px; margin-top:12px; }
+    .table { width:100%; border-collapse:collapse; margin-top:8px; }
+    .table th, .table td { text-align:left; padding:8px; border-bottom:1px solid #30363d; font-size:14px; }
+    .table th { color:#8b949e; font-weight:600; }
+    .right { text-align:right; }
+    .summary { margin-top:12px; }
+    .summary .row { display:flex; justify-content:space-between; margin:6px 0; font-size:14px; }
+    .summary .total { font-weight:700; }
+    .btn { display:inline-block; background: linear-gradient(135deg,#d4af37,#b8860b); color:#0d1117 !important; text-decoration:none; padding:12px 18px; border-radius:8px; font-weight:600; }
+    a { color:#58a6ff; }
+  </style>
+  <!--[if mso]>
+  <style>
+    .btn { background:#d4af37; color:#0d1117 !important; }
+  </style>
+  <![endif]-->
+</head>
+<body>
+  <div class="wrap">
+    <div class="container">
+      <div class="inner">
+        <h1>New order {{ order.order_number }}</h1>
+        <div class="muted">{{ site_name }} • {{ site_domain }}</div>
+
+        <div class="grid">
+          <div class="card">
+            <div class="muted">Overview</div>
+            <div class="summary">
+              <div class="row"><span>Status</span><span>{{ order.get_status_display }}</span></div>
+              <div class="row"><span>Payment</span><span>{{ order.get_payment_method_display }}</span></div>
+              <div class="row total"><span>Total</span><span>{{ CURRENCY_SYMBOL }}{{ order.total_amount }}</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="muted">Ship to</div>
+            <div style="margin-top:8px; font-size:14px; line-height:1.5;">
+              <div>{{ order.shipping_name }}</div>
+              <div>{{ order.address_line1 }}</div>
+              {% if order.address_line2 %}<div>{{ order.address_line2 }}</div>{% endif %}
+              <div>{{ order.city }}, {{ order.state }} {{ order.postal_code }}</div>
+              <div>{{ order.country }} · {{ order.shipping_phone }}</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="muted">Items</div>
+            <table class="table" role="presentation" cellpadding="0" cellspacing="0">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th class="right">Qty</th>
+                  <th class="right">Unit</th>
+                  <th class="right">Line total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for it in items %}
+                <tr>
+                  <td>{{ it.product.name }}{% if it.variant %} ({{ it.variant }}){% endif %}</td>
+                  <td class="right">{{ it.quantity }}</td>
+                  <td class="right">{{ CURRENCY_SYMBOL }}{{ it.unit_price }}</td>
+                  <td class="right">{{ CURRENCY_SYMBOL }}{{ it.line_total }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <div class="summary">
+              <div class="row"><span>Subtotal</span><span>{{ CURRENCY_SYMBOL }}{{ order.subtotal }}</span></div>
+              {% if order.discount_amount and order.discount_amount|floatformat != '0' %}
+              <div class="row"><span>Discount</span><span>-{{ CURRENCY_SYMBOL }}{{ order.discount_amount }}</span></div>
+              {% endif %}
+              <div class="row"><span>GST</span><span>{{ CURRENCY_SYMBOL }}{{ order.gst_amount }}</span></div>
+              <div class="row"><span>Shipping</span><span>{{ CURRENCY_SYMBOL }}{{ order.shipping_amount }}</span></div>
+              <div class="row total"><span>Total</span><span>{{ CURRENCY_SYMBOL }}{{ order.total_amount }}</span></div>
+            </div>
+          </div>
+        </div>
+
+        <p style="margin-top:16px;">
+          <a class="btn" href="{{ dashboard_url }}" target="_blank" rel="noopener">Open in Dashboard</a>
+        </p>
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+

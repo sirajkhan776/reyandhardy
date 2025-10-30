@@ -71,5 +71,35 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="{% static 'js/theme.js' %}"></script>
   {% block scripts %}{% endblock %}
+  <!-- Global submit overlay (loader) -->
+  <div id="globalSubmitOverlay" class="submit-overlay d-none" aria-hidden="true">
+    <div class="submit-box">
+      <div class="spinner-border me-2" role="status" aria-label="Submitting..."></div>
+      <div>
+        <div class="fw-semibold">Please wait…</div>
+        <div class="small text-muted">Processing your request</div>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function(){
+      var overlay = document.getElementById('globalSubmitOverlay');
+      function showOverlay(){ if(overlay) overlay.classList.remove('d-none'); }
+      // Show on POST forms (avoid GET like search). Allow opt-out via data-no-overlay
+      document.addEventListener('submit', function(ev){
+        try {
+          var form = ev.target;
+          if (!form || form.tagName !== 'FORM') return;
+          var method = (form.getAttribute('method') || 'GET').toUpperCase();
+          if (form.hasAttribute('data-no-overlay')) return;
+          if (method === 'POST') {
+            showOverlay();
+            // Prevent double submit
+            form.querySelectorAll('button, input[type="submit"]').forEach(function(el){ el.disabled = true; });
+          }
+        } catch(e) {}
+      }, true);
+    })();
+  </script>
 </body>
 </html>

@@ -23,15 +23,15 @@
               </div>
               <div class="d-flex gap-2 align-items-start">
                 <div class="cart-media d-flex flex-column align-items-center">
-                  <a href="/product/{{ item.product.slug }}/" class="cart-thumb">
-                    {% with img=item.product.images.all.0 %}
-                      {% if img %}
-                        <img src="{{ img.image.url }}" alt="{{ item.product.name }}" />
-                      {% else %}
-                        <span class="cart-thumb-ph"></span>
-                      {% endif %}
-                    {% endwith %}
+                  {% with img=item.product.images.all.0 %}
+                  <a href="/product/{{ item.product.slug }}/" class="cart-thumb" data-preview="{% if img %}{{ img.image.url }}{% endif %}">
+                    {% if img %}
+                      <img src="{{ img.image.url }}" alt="{{ item.product.name }}" />
+                    {% else %}
+                      <span class="cart-thumb-ph"></span>
+                    {% endif %}
                   </a>
+                  {% endwith %}
                   <form method="post" action="/cart/update/{{ item.db_item_id|default:0 }}/" class="cart-qty-form mt-2">
                     {% csrf_token %}
                     <input type="hidden" name="product_id" value="{{ item.product.id }}" />
@@ -48,7 +48,23 @@
                     <a href="/product/{{ item.product.slug }}/" class="text-decoration-none fw-semibold cart-item-title">{{ item.product.name }}</a>
                     <div class="cart-price fw-semibold text-nowrap">{{ CURRENCY_SYMBOL }}<span class="lt" data-pid="{{ item.product.id }}" data-vid="{% if item.variant %}{{ item.variant.id }}{% else %}0{% endif %}">{{ item.line_total }}</span></div>
                   </div>
-                  <div class="small text-muted mt-1">{% if item.variant %}Size: {{ item.variant.size }} • Color: {{ item.variant.color }}{% else %}No variant{% endif %}</div>
+                  <div class="small text-muted mt-1">
+                    {% if item.variant %}
+                      <form method="post" action="/cart/update-variant/{{ item.db_item_id|default:0 }}/" class="d-flex align-items-center gap-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="product_id" value="{{ item.product.id }}" />
+                        <input type="hidden" name="variant_id" value="{% if item.variant %}{{ item.variant.id }}{% endif %}" />
+                        <label class="me-1">Size</label>
+                        <select name="size" class="form-select form-select-sm" style="width:auto;">
+                          {% for s in item.size_options %}
+                            <option value="{{ s }}"{% if s == item.variant.size %} selected{% endif %}>{{ s }}</option>
+                          {% endfor %}
+                        </select>
+                        <span class="badge bg-dark">{{ item.variant.color }}</span>
+                        <button class="btn btn-sm btn-outline-secondary" type="submit">Update</button>
+                      </form>
+                    {% else %}No variant{% endif %}
+                  </div>
                   <div class="cart-action-links d-flex justify-content-end align-items-center gap-3 mt-2">
                     <a href="/cart/save/{{ item.db_item_id|default:0 }}/?product_id={{ item.product.id }}{% if item.variant %}&variant_id={{ item.variant.id }}{% endif %}"
                        class="btn btn-sm btn-outline-secondary">Save for later</a>
@@ -88,7 +104,24 @@
                       <input class="form-check-input" type="checkbox" value="{% if item.db_item_id %}db:{{ item.db_item_id }}{% else %}sv:{{ item.product.id }}:{% if item.variant %}{{ item.variant.id }}{% else %}0{% endif %}{% endif %}" id="sel_d_{{ forloop.counter }}" form="selectForm" name="sel">
                     </td>
                     <td><a href="/product/{{ item.product.slug }}/" class="text-decoration-none">{{ item.product.name }}</a></td>
-                    <td>{% if item.variant %}<span class="badge bg-secondary">{{ item.variant.size }}</span> <span class="badge bg-dark">{{ item.variant.color }}</span>{% else %}-{% endif %}</td>
+                    <td>
+                      {% if item.variant %}
+                        <div class="d-flex align-items-center gap-2">
+                          <form method="post" action="/cart/update-variant/{{ item.db_item_id|default:0 }}/" class="d-flex align-items-center gap-2">
+                            {% csrf_token %}
+                            <input type="hidden" name="product_id" value="{{ item.product.id }}" />
+                            <input type="hidden" name="variant_id" value="{{ item.variant.id }}" />
+                            <select name="size" class="form-select form-select-sm" style="width:auto;">
+                              {% for s in item.size_options %}
+                                <option value="{{ s }}"{% if s == item.variant.size %} selected{% endif %}>{{ s }}</option>
+                              {% endfor %}
+                            </select>
+                            <span class="badge bg-dark">{{ item.variant.color }}</span>
+                            <button class="btn btn-sm btn-outline-secondary" type="submit">Update</button>
+                          </form>
+                        </div>
+                      {% else %}-{% endif %}
+                    </td>
                     <td>
                       <form method="post" action="/cart/update/{{ item.db_item_id|default:0 }}/" class="d-flex cart-qty-form">
                         {% csrf_token %}
@@ -177,7 +210,7 @@
             <div class="col-12 col-sm-6 col-lg-4">
               <div class="saved-item card h-100">
                 <div class="saved-thumb">
-                  <a href="{{ s.link }}" class="d-block h-100 w-100">
+                  <a href="{{ s.link }}" class="d-block h-100 w-100 cart-thumb" data-preview="{% if s.img %}{{ s.img }}{% endif %}">
                     {% if s.img %}
                       <img src="{{ s.img }}" alt="{{ s.product.name }}" />
                     {% else %}
@@ -205,4 +238,41 @@
       </div>
     </div>
   {% endif %}
+  
+  <!-- Image preview modal -->
+  <div class="modal fade" id="cartImageModal" tabindex="-1" aria-labelledby="cartImageLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="cartImageLabel">Preview</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-2">
+          <img id="cartPreviewImg" class="cart-preview-img" alt="Product image preview" />
+        </div>
+      </div>
+    </div>
+  </div>
+  
+{% block scripts %}
+<script>
+  // Open image preview modal on cart-thumb click
+  (function(){
+    document.addEventListener('click', function(e){
+      var a = e.target.closest('a.cart-thumb');
+      if (!a) return;
+      var src = a.getAttribute('data-preview');
+      if (!src) return; // fallback to default link
+      e.preventDefault();
+      var img = document.getElementById('cartPreviewImg');
+      if (img){ img.src = src; }
+      var modalEl = document.getElementById('cartImageModal');
+      if (modalEl && window.bootstrap){
+        var m = bootstrap.Modal.getOrCreateInstance(modalEl);
+        m.show();
+      }
+    });
+  })();
+</script>
+{% endblock %}
 {% endblock %}

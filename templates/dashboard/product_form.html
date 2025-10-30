@@ -36,6 +36,7 @@
         <div class="col-md-2">{{ form.height_cm.label_tag }}{{ form.height_cm }}{% if form.height_cm.errors %}<div class="invalid-feedback d-block">{{ form.height_cm.errors|join:", " }}</div>{% endif %}</div>
         <div class="col-md-3 form-check d-flex align-items-center">{{ form.is_active }} {{ form.is_active.label_tag }}</div>
         <div class="col-md-3 form-check d-flex align-items-center">{{ form.is_best_seller }} {{ form.is_best_seller.label_tag }}</div>
+        <div class="col-md-3 form-check d-flex align-items-center">{{ form.notify_users }} {{ form.notify_users.label_tag }}</div>
       </div>
 
       <hr />
@@ -43,13 +44,20 @@
         <h6 class="text-muted m-0">Images</h6>
         <button class="btn btn-outline-primary btn-sm add-formset" data-formset="images" type="button"><i class="bi bi-plus"></i> Add image</button>
       </div>
+      <div class="small text-muted mt-1">Tip: Set <strong>Color</strong> to link this image with a variant color (e.g., Black, Blue). The first image per color is used as that color's thumbnail.</div>
+      <datalist id="variantColorOptions">
+        {% for c in variant_colors %}
+          <option value="{{ c }}"></option>
+        {% endfor %}
+      </datalist>
       {{ images_fs.management_form }}
       <div id="imagesContainer" class="mt-2">
         {% for f in images_fs %}
           <div class="row g-2 align-items-end border rounded p-2 mb-2 formset-item" data-prefix="images" data-index="{{ forloop.counter0 }}">
             {{ f.id }}
-            <div class="col-md-6">{{ f.image.label_tag }}{{ f.image }}{% if f.image.errors %}<div class="invalid-feedback d-block">{{ f.image.errors|join:", " }}</div>{% endif %}</div>
-            <div class="col-md-4">{{ f.alt_text.label_tag }}{{ f.alt_text }}{% if f.alt_text.errors %}<div class="invalid-feedback d-block">{{ f.alt_text.errors|join:", " }}</div>{% endif %}</div>
+            <div class="col-md-5">{{ f.image.label_tag }}{{ f.image }}{% if f.image.errors %}<div class="invalid-feedback d-block">{{ f.image.errors|join:", " }}</div>{% endif %}</div>
+            <div class="col-md-3">{{ f.alt_text.label_tag }}{{ f.alt_text }}{% if f.alt_text.errors %}<div class="invalid-feedback d-block">{{ f.alt_text.errors|join:", " }}</div>{% endif %}</div>
+            <div class="col-md-2">{{ f.color.label_tag }}{{ f.color }}{% if f.color.errors %}<div class="invalid-feedback d-block">{{ f.color.errors|join:", " }}</div>{% endif %}</div>
             <div class="col-md-1 form-check">{{ f.is_primary }} {{ f.is_primary.label_tag }}</div>
             <div class="col-md-1 text-end">
               {% if images_fs.can_delete %}<span class="d-none">{{ f.DELETE }}</span>{% endif %}
@@ -60,8 +68,9 @@
       </div>
       <template id="template-images">
         <div class="row g-2 align-items-end border rounded p-2 mb-2 formset-item" data-prefix="images" data-index="__prefix__">
-          <div class="col-md-6">{{ images_fs.empty_form.image.label_tag }}{{ images_fs.empty_form.image }}</div>
-          <div class="col-md-4">{{ images_fs.empty_form.alt_text.label_tag }}{{ images_fs.empty_form.alt_text }}</div>
+          <div class="col-md-5">{{ images_fs.empty_form.image.label_tag }}{{ images_fs.empty_form.image }}</div>
+          <div class="col-md-3">{{ images_fs.empty_form.alt_text.label_tag }}{{ images_fs.empty_form.alt_text }}</div>
+          <div class="col-md-2">{{ images_fs.empty_form.color.label_tag }}{{ images_fs.empty_form.color }}</div>
           <div class="col-md-1 form-check">{{ images_fs.empty_form.is_primary }} {{ images_fs.empty_form.is_primary.label_tag }}</div>
           <div class="col-md-1 text-end">
             {% if images_fs.can_delete %}<span class="d-none">{{ images_fs.empty_form.DELETE }}</span>{% endif %}
@@ -155,34 +164,8 @@
         <a class="btn btn-outline-secondary" href="/dashboard/products/">Cancel</a>
       </div>
     </form>
-    <!-- Submit overlay (loader) -->
-    <div id="submitOverlay" class="submit-overlay d-none" aria-hidden="true">
-      <div class="submit-box">
-        <div class="spinner-border me-2" role="status" aria-label="Saving..."></div>
-        <div>
-          <div class="fw-semibold">Saving product…</div>
-          <div class="small text-muted">Uploading media and updating details</div>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 
 <script src="{% static 'js/product_formsets.js' %}"></script>
-<script>
-  (function(){
-    var form = document.getElementById('productForm');
-    var overlay = document.getElementById('submitOverlay');
-    if (form && overlay){
-      form.addEventListener('submit', function(){
-        try {
-          // Show overlay and prevent double submit
-          overlay.classList.remove('d-none');
-          var btns = form.querySelectorAll('button[type="submit"], button');
-          btns.forEach(function(b){ b.disabled = true; });
-        } catch(e) {}
-      });
-    }
-  })();
-</script>
 {% endblock %}

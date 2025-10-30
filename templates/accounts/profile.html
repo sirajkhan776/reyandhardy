@@ -146,4 +146,68 @@
       </div>
     </div>
   </div>
+
+  <div class="card mt-3">
+    <div class="card-body">
+      <h5 class="mb-3">Preferences</h5>
+      <div class="mb-2">Theme</div>
+      <form onsubmit="return false" class="row g-3" id="themePrefForm">
+        <div class="col-12 col-md-8">
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="theme" id="thLight" value="light" />
+              <label class="form-check-label" for="thLight">Light</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="theme" id="thDark" value="dark" />
+              <label class="form-check-label" for="thDark">Dark</label>
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <button type="button" class="btn btn-primary" id="saveThemeBtn">Save theme</button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function(){
+    function currentTheme(){ try { return localStorage.getItem('theme') || 'light'; } catch(e){ return 'light'; } }
+    function applyTheme(theme){
+      try { localStorage.setItem('theme', theme); } catch(e){}
+      document.documentElement.setAttribute('data-theme', theme);
+      try {
+        var darkLink = document.getElementById('bootswatchDark');
+        var lightLink = document.getElementById('bootswatchLight');
+        if (darkLink) darkLink.disabled = (theme === 'light');
+        if (lightLink) lightLink.disabled = (theme !== 'light');
+      } catch(e){}
+    }
+    document.addEventListener('DOMContentLoaded', function(){
+      var th = currentTheme();
+      var light = document.getElementById('thLight');
+      var dark = document.getElementById('thDark');
+      if (th === 'dark' && dark) dark.checked = true; else if (light) light.checked = true;
+      var btn = document.getElementById('saveThemeBtn');
+      if (btn) btn.addEventListener('click', function(){
+        var chosen = document.querySelector('input[name="theme"]:checked');
+        var val = chosen ? chosen.value : 'light';
+        applyTheme(val);
+        try {
+          var cont = document.getElementById('chip-messages');
+          if (cont){
+            var chip = document.createElement('div');
+            chip.className = 'chip-msg chip-success';
+            chip.innerHTML = '<span class="chip-dot"></span><span class="chip-text">Theme updated</span><button class="chip-close" aria-label="Close">&times;</button>';
+            cont.appendChild(chip);
+            setTimeout(function(){ chip.remove(); }, 2500);
+          }
+        } catch(e){}
+      });
+    });
+  })();
+</script>
 {% endblock %}

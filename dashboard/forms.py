@@ -50,6 +50,7 @@ class ProductForm(_BootstrapFormMixin, forms.ModelForm):
             "sale_price",
             "is_active",
             "is_best_seller",
+            "notify_users",
             # Measurements
             "weight_kg",
             "length_cm",
@@ -141,6 +142,7 @@ class CouponForm(_BootstrapFormMixin, forms.ModelForm):
             "description",
             "discount_percent",
             "active",
+            "notify_users",
             "valid_from",
             "valid_to",
         ]
@@ -161,7 +163,7 @@ class CouponForm(_BootstrapFormMixin, forms.ModelForm):
 class ProductImageForm(_BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = ProductImage
-        fields = ["image", "alt_text", "is_primary"]
+        fields = ["image", "alt_text", "is_primary", "color"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -169,6 +171,11 @@ class ProductImageForm(_BootstrapFormMixin, forms.ModelForm):
         # Hint mobile to show image picker/camera
         try:
             self.fields["image"].widget.attrs.setdefault("accept", "image/*")
+        except Exception:
+            pass
+        try:
+            self.fields["color"].widget.attrs.setdefault("placeholder", "Optional: assign to variant color (e.g., Black)")
+            self.fields["color"].widget.attrs.setdefault("list", "variantColorOptions")
         except Exception:
             pass
 
@@ -208,3 +215,9 @@ class VariantForm(_BootstrapFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._apply_bootstrap()
+        try:
+            # Provide suggestions for color via datalist defined on the page
+            self.fields["color"].widget.attrs.setdefault("list", "variantColorOptions")
+            self.fields["color"].widget.attrs.setdefault("placeholder", "e.g., Black, Blue, Green")
+        except Exception:
+            pass

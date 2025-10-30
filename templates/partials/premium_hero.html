@@ -1,40 +1,108 @@
 {% load static %}
 <section class="rh-premium-hero reveal">
   <div class="rh-hero-bg">
-    {% if banners and banners.0 %}
-      {% if banners.0.video %}
-        <video class="rh-hero-media" autoplay muted loop playsinline preload="auto"{% if banners.0.image %} poster="{{ banners.0.image.url }}"{% endif %}>
-          <source src="{{ banners.0.video.url }}" />
-        </video>
-      {% elif banners.0.image %}
-        <img class="rh-hero-media" src="{{ banners.0.image.url }}" alt="{{ banners.0.title }}" />
-      {% endif %}
+    {% if banners %}
+      <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000" data-bs-pause="false">
+        <div class="carousel-inner">
+          {% for b in banners %}
+            {% with default_title=hero_title|default:STORE_NAME %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}"
+                 data-title="{{ b.title|default:default_title }}"
+                 data-sub="{% firstof b.subtitle hero_sub BRAND_TAGLINE %}"
+                 data-link="{% firstof b.link_url hero_cta_link '/' %}"
+                 data-btn-text="{% firstof b.button_text hero_cta_text 'Shop Now' %}">
+              {% if b.video %}
+                <video class="rh-hero-media" autoplay muted loop playsinline preload="auto"{% if b.image %} poster="{{ b.image.url }}"{% endif %}>
+                  <source src="{{ b.video.url }}" />
+                </video>
+              {% elif b.image %}
+                <img class="rh-hero-media" src="{{ b.image.url }}" alt="{{ b.title }}" />
+              {% endif %}
+            </div>
+            {% endwith %}
+          {% endfor %}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev" aria-label="Previous slide">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next" aria-label="Next slide">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
     {% endif %}
     <div class="rh-hero-overlay"></div>
   </div>
 
   <div class="container rh-hero-content">
-    <div class="row align-items-center">
-      <div class="col-lg-7">
-        <div class="rh-hero-kicker text-gradient">{{ hero_kicker|default:"New Season · Best Fit" }}</div>
-        <h1 class="rh-hero-title">
+    <div class="row align-items-center justify-content-center">
+      <div class="col-12 col-lg-10 col-xl-8 text-center">
+        <h1 class="rh-hero-title" id="heroTitle">
           {% if hero_title %}
             {{ hero_title }}
           {% else %}
-            {{ STORE_NAME }}<span class="rh-hero-accent"> Premium</span> Tees
+            {{ STORE_NAME }}
           {% endif %}
         </h1>
-        <p class="rh-hero-sub">{{ hero_sub|default:BRAND_TAGLINE }}</p>
+        <p class="rh-hero-sub" id="heroSub">{{ hero_sub|default:BRAND_TAGLINE }}</p>
         <div class="rh-hero-ctas">
-          <a href="{{ hero_cta_link|default:"/" }}" class="btn btn-gradient btn-lg me-2">{{ hero_cta_text|default:"Shop Now" }}</a>
+          <a id="heroCta" href="{{ hero_cta_link|default:"/" }}" class="btn btn-gradient btn-lg me-2">{{ hero_cta_text|default:"Shop Now" }}</a>
           <a href="{{ hero_cta2_link|default:"#top-deals" }}" class="btn btn-ghost btn-lg">{{ hero_cta2_text|default:"View Deals" }}</a>
         </div>
         <div class="rh-hero-badges">
           <span><i class="bi bi-truck"></i> Free Shipping over {{ CURRENCY_SYMBOL }}{{ FREE_SHIPPING_THRESHOLD }}</span>
           <span><i class="bi bi-shield-check"></i> Quality Guaranteed</span>
-          <span><i class="bi bi-arrow-repeat"></i> 7‑day Returns</span>
         </div>
       </div>
     </div>
   </div>
 </section>
+
+{% comment %} Dynamic overlay text from active banner {% endcomment %}
+<script>
+  (function(){
+    var hero = document.getElementById('heroCarousel');
+    if(!hero) return;
+    function getAttr(el, name, fallback){ var v = el ? el.getAttribute(name) : null; return (v && v.trim()) ? v : fallback; }
+    function setTitleWithAccent(title){
+      var el = document.getElementById('heroTitle');
+      if(!el) return;
+      el.innerHTML = '';
+      var str = String(title || '');
+      // Split preserving whitespace tokens
+      var tokens = str.split(/(\s+)/);
+      var wordCount = 0;
+      for (var i = 0; i < tokens.length; i++) {
+        var tok = tokens[i];
+        if (!tok) continue;
+        if (/^\s+$/.test(tok)) { el.appendChild(document.createTextNode(tok)); continue; }
+        wordCount += 1;
+        if (wordCount === 2) {
+          var span = document.createElement('span');
+          span.className = 'rh-hero-accent';
+          span.textContent = tok;
+          el.appendChild(span);
+        } else {
+          el.appendChild(document.createTextNode(tok));
+        }
+      }
+    }
+    function applyFromActive(){
+      var active = hero.querySelector('.carousel-item.active');
+      if(!active) return;
+      var title = getAttr(active, 'data-title', '{{ hero_title|default:STORE_NAME|escapejs }}');
+      var sub = getAttr(active, 'data-sub', '{{ hero_sub|default:BRAND_TAGLINE|escapejs }}');
+      var link = getAttr(active, 'data-link', '{{ hero_cta_link|default:"/" }}');
+      var btn = getAttr(active, 'data-btn-text', '{{ hero_cta_text|default:"Shop Now" }}');
+      var subEl = document.getElementById('heroSub');
+      var ctaEl = document.getElementById('heroCta');
+      setTitleWithAccent(title);
+      if(subEl) subEl.textContent = sub;
+      if(ctaEl){ ctaEl.textContent = btn; ctaEl.setAttribute('href', link || '#'); }
+    }
+    // Seed first
+    applyFromActive();
+    hero.addEventListener('slid.bs.carousel', applyFromActive);
+  })();
+</script>

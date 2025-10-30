@@ -47,6 +47,7 @@
       <div class="row g-2">
         {% if not request.user.is_authenticated %}
           <div class="col-12 col-md-3"><a href="/accounts/login/" class="btn btn-outline-primary w-100">Login</a></div>
+          <div class="col-12 col-md-3"><a href="/accounts/password/reset/" class="btn btn-outline-secondary w-100">Reset password</a></div>
         {% else %}
           <div class="col-12 col-md-3"><a href="/accounts/you/" class="btn btn-outline-primary w-100">Account</a></div>
         {% endif %}

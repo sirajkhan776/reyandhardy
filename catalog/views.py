@@ -7,6 +7,7 @@ try:
 except Exception:
     Banner = None
 from django.db.models import Q, F, DecimalField, ExpressionWrapper, Avg, Count
+import json
 from PIL import Image
 import io
 
@@ -114,10 +115,47 @@ def product_detail(request, slug):
 
     videos = product.videos.all()
     images = product.images.all()
+    # Build color -> first image thumb mapping and color options list
+    color_first_img = {}
+    try:
+        for img in images:
+            c = getattr(img, "color", "") or ""
+            if c and c not in color_first_img:
+                color_first_img[c] = img.image.url if getattr(img.image, "url", None) else ""
+    except Exception:
+        color_first_img = {}
+    color_options = [
+        {"name": c, "thumb": color_first_img.get(c, "")}
+        for c in colors
+    ]
+    # Build color -> allowed sizes map for UI filtering
+    c2s = {}
+    try:
+        for v in product.variants.all():
+            if not v.color or not v.size:
+                continue
+            c2s.setdefault(v.color, set()).add(v.size)
+    except Exception:
+        c2s = {}
+    # Order sizes within each color based on sizes order
+    def _order_sizes(szs):
+        order = {s: i for i, s in enumerate(sizes)}
+        return [s for s in sizes if s in szs]
+    color_size_map = {c: _order_sizes(szs) for c, szs in c2s.items()}
     return render(
         request,
         "catalog/product_detail.html",
-        {"product": product, "wishlist": wishlist, "sizes": sizes, "colors": colors, "videos": videos, "images": images},
+        {
+            "product": product,
+            "wishlist": wishlist,
+            "sizes": sizes,
+            "colors": colors,
+            "color_options": color_options,
+            "videos": videos,
+            "images": images,
+            "color_size_map_json": json.dumps(color_size_map),
+            "sizes_json": json.dumps(list(sizes)),
+        },
     )
 
 
