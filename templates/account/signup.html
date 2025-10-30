@@ -13,6 +13,9 @@
           </div>
           <form method="post" action="{% url 'account_signup' %}">
             {% csrf_token %}
+            {% if redirect_field_value %}
+              <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+            {% endif %}
             {{ form.non_field_errors }}
             {% for field in form %}
               {% if field.field.widget.input_type == 'password' %}
