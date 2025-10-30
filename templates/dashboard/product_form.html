@@ -5,7 +5,7 @@
   <div class="col-md-3">{% include "dashboard/_nav.html" %}</div>
   <div class="col-md-9">
     <h3>{{ form_title|default:"Create Product" }}</h3>
-    <form method="post" enctype="multipart/form-data" class="card card-body">
+    <form id="productForm" method="post" enctype="multipart/form-data" class="card card-body">
       {% csrf_token %}
       {% if form.errors or images_fs.non_form_errors or videos_fs.non_form_errors or variants_fs.non_form_errors %}
       <div class="alert alert-danger">
@@ -155,8 +155,34 @@
         <a class="btn btn-outline-secondary" href="/dashboard/products/">Cancel</a>
       </div>
     </form>
+    <!-- Submit overlay (loader) -->
+    <div id="submitOverlay" class="submit-overlay d-none" aria-hidden="true">
+      <div class="submit-box">
+        <div class="spinner-border me-2" role="status" aria-label="Saving..."></div>
+        <div>
+          <div class="fw-semibold">Saving product…</div>
+          <div class="small text-muted">Uploading media and updating details</div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <script src="{% static 'js/product_formsets.js' %}"></script>
+<script>
+  (function(){
+    var form = document.getElementById('productForm');
+    var overlay = document.getElementById('submitOverlay');
+    if (form && overlay){
+      form.addEventListener('submit', function(){
+        try {
+          // Show overlay and prevent double submit
+          overlay.classList.remove('d-none');
+          var btns = form.querySelectorAll('button[type="submit"], button');
+          btns.forEach(function(b){ b.disabled = true; });
+        } catch(e) {}
+      });
+    }
+  })();
+</script>
 {% endblock %}
