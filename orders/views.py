@@ -25,6 +25,9 @@ def checkout(request):
     # Detect Buy Now mode (single-item checkout)
     buy_now_data = request.session.get("buy_now")
     buy_now_mode = bool(buy_now_data)
+    # Detect Selected Items checkout (subset of cart)
+    selected_data = request.session.get("checkout_selected")
+    selected_mode = bool(selected_data)
     # Allow explicit override via query param when coming from cart
     override_bn = (request.GET.get("bn") or "").lower()
     if override_bn in ("0", "false", "cart"):
@@ -36,7 +39,7 @@ def checkout(request):
 
     # Merge any session cart items into the user's cart on first checkout
     # Skip when in Buy Now mode so we don't pollute the user's cart
-    if not buy_now_mode:
+    if not buy_now_mode and not selected_mode:
         ses_items = get_session_items(request)
         if ses_items:
             cart = getattr(request.user, "cart", None)
@@ -50,7 +53,7 @@ def checkout(request):
             clear_session_cart(request)
 
     cart = getattr(request.user, "cart", None)
-    if not buy_now_mode and (not cart or cart.items.count() == 0):
+    if not buy_now_mode and not selected_mode and (not cart or cart.items.count() == 0):
         messages.error(request, "Your cart is empty")
         return redirect("view_cart")
 
@@ -71,8 +74,37 @@ def checkout(request):
                 bn_variant = None
         bn_qty = max(1, int(buy_now_data.get("quantity", 1)))
         subtotal = (bn_product.price() * bn_qty).quantize(Decimal("0.01"))
+        sources = [(bn_product, bn_variant, bn_qty)]
+    elif selected_mode:
+        sources = []
+        subtotal = Decimal("0.00")
+        # Auth users: resolve DB cart items by id; Guests: use sv list
+        if request.user.is_authenticated and selected_data.get("db_ids"):
+            ids = list(map(int, selected_data.get("db_ids") or []))
+            for it in (cart.items.select_related("product", "variant").filter(id__in=ids) if cart else []):
+                sources.append((it.product, it.variant, it.quantity))
+                subtotal += (it.product.price() * it.quantity)
+        else:
+            from catalog.models import Product, Variant
+            for sv in (selected_data.get("sv") or []):
+                try:
+                    prod = Product.objects.get(id=int(sv.get("pid")))
+                except Exception:
+                    continue
+                var = None
+                vid = sv.get("vid")
+                if vid not in (None, "", 0, "0", "None"):
+                    try:
+                        var = Variant.objects.get(id=int(vid))
+                    except Exception:
+                        var = None
+                qty = max(1, int(sv.get("qty", 1)))
+                sources.append((prod, var, qty))
+                subtotal += (prod.price() * qty)
+        subtotal = subtotal.quantize(Decimal("0.01"))
     else:
         subtotal = cart.subtotal()
+        sources = [(it.product, it.variant, it.quantity) for it in cart.items.select_related("product", "variant")]
     # Coupon application
     coupon_code = get_session_coupon(request)
     coupon = None
@@ -110,10 +142,6 @@ def checkout(request):
         max_l = int(getattr(settings, "SHIPROCKET_DEFAULT_DIM_LCM", 20))
         max_b = int(getattr(settings, "SHIPROCKET_DEFAULT_DIM_BCM", 15))
         max_h = int(getattr(settings, "SHIPROCKET_DEFAULT_DIM_HCM", 2))
-        if buy_now_mode:
-            sources = [(bn_product, bn_variant, bn_qty)]
-        else:
-            sources = [(it.product, it.variant, it.quantity) for it in cart.items.select_related("product", "variant")]
         for prod, var, qty in sources:
             if var and getattr(var, "weight_kg", None):
                 w = Decimal(str(var.weight_kg))
@@ -146,6 +174,8 @@ def checkout(request):
         try:
             if buy_now_mode:
                 units_total = bn_qty
+            elif selected_mode:
+                units_total = sum((qty for _, _, qty in sources), 0) or 1
             else:
                 cart = getattr(request.user, "cart", None)
                 units_total = sum((it.quantity for it in cart.items.all()), 0) if cart else 0
@@ -196,6 +226,8 @@ def checkout(request):
             try:
                 if buy_now_mode:
                     units_total = bn_qty
+                elif selected_mode:
+                    units_total = sum((qty for _, _, qty in sources), 0) or 1
                 else:
                     cart_for_units = getattr(request.user, "cart", None)
                     units_total = sum((it.quantity for it in cart_for_units.items.all()), 0) if cart_for_units else 1
@@ -258,6 +290,24 @@ def checkout(request):
                 unit_cost=unit_cost_val,
                 line_cost=(unit_cost_val * Decimal(bn_qty)).quantize(Decimal("0.01")),
             )
+        elif selected_mode:
+            for prod, var, qty in sources:
+                unit_cost_val = Decimal("0.00")
+                if var and getattr(var, "cost_price", None) is not None:
+                    try:
+                        unit_cost_val = Decimal(str(var.cost_price))
+                    except Exception:
+                        unit_cost_val = Decimal("0.00")
+                OrderItem.objects.create(
+                    order=order,
+                    product=prod,
+                    variant=var,
+                    quantity=qty,
+                    unit_price=prod.price(),
+                    line_total=(prod.price() * qty).quantize(Decimal("0.01")),
+                    unit_cost=unit_cost_val,
+                    line_cost=(unit_cost_val * Decimal(qty)).quantize(Decimal("0.01")),
+                )
         else:
             for item in cart.items.select_related("product", "variant"):
                 # Resolve unit cost from variant/product cost_price if available
@@ -283,10 +333,15 @@ def checkout(request):
             rp_order = create_razorpay_order(int(total * 100), receipt=order_number)
             order.razorpay_order_id = rp_order.get("id", "")
             order.save()
-            # Clear temp buy-now item
+            # Clear temp buy-now / selected items
             if buy_now_mode:
                 try:
                     request.session.pop("buy_now")
+                except Exception:
+                    pass
+            if selected_mode:
+                try:
+                    request.session.pop("checkout_selected")
                 except Exception:
                     pass
             return render(
@@ -302,12 +357,19 @@ def checkout(request):
         else:  # COD
             order.status = "created"
             order.save()
-            if not buy_now_mode and cart:
+            if not buy_now_mode and not selected_mode and cart:
                 cart.items.all().delete()
+            elif selected_mode and cart and request.user.is_authenticated and (selected_data.get("db_ids") or []):
+                cart.items.filter(id__in=list(map(int, selected_data.get("db_ids") or []))).delete()
             clear_session_coupon(request)
             if buy_now_mode:
                 try:
                     request.session.pop("buy_now")
+                except Exception:
+                    pass
+            if selected_mode:
+                try:
+                    request.session.pop("checkout_selected")
                 except Exception:
                     pass
             messages.success(request, f"COD order placed: {order.order_number}")

@@ -237,6 +237,31 @@ wireImageSearchCameraFirst('imageSearchBtnMobileTop', 'imageSearchFormMobileTop'
     // Trigger the same auto-submit debounce as manual input
     input.dispatchEvent(new Event('input', { bubbles: true }));
   });
+  // Select-all and selection count on cart
+  (function(){
+    function updateCount(){
+      var boxes = document.querySelectorAll('input[name="sel"]');
+      var cnt = 0; boxes.forEach(function(b){ if (b.checked) cnt++; });
+      document.querySelectorAll('.selCount').forEach(function(el){ el.textContent = String(cnt); });
+      var btn = document.getElementById('proceedSelBtn'); if (btn) btn.disabled = cnt === 0;
+      var totals = boxes.length;
+      document.querySelectorAll('[data-sel-all]').forEach(function(master){
+        master.indeterminate = (cnt > 0 && cnt < totals);
+        if (cnt === totals) master.checked = true; else if (cnt === 0) master.checked = false;
+      });
+    }
+    document.addEventListener('change', function(e){
+      if (e.target && e.target.matches('input[name="sel"]')) updateCount();
+      if (e.target && e.target.hasAttribute('data-sel-all')){
+        var on = e.target.checked;
+        document.querySelectorAll('input[name="sel"]').forEach(function(b){ b.checked = on; });
+        // Sync all masters to same state
+        document.querySelectorAll('[data-sel-all]').forEach(function(m){ m.checked = on; m.indeterminate = false; });
+        updateCount();
+      }
+    });
+    document.addEventListener('DOMContentLoaded', updateCount);
+  })();
 })();
 
 // Autoplay/pause videos within Bootstrap carousels

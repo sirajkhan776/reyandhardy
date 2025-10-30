@@ -144,10 +144,15 @@ def view_cart(request):
                     img_url = img_obj.image.url if img_obj else None
                 except Exception:
                     img_url = None
+                # compute display price
+                price = w.product.price()
+                old_price = w.product.base_price if (w.product.sale_price is not None) else None
                 saved_items.append({
                     "product": w.product,
                     "img": img_url,
                     "link": f"/product/{w.product.slug}/",
+                    "price": price,
+                    "old_price": old_price,
                 })
         except Exception:
             saved_items = []
@@ -200,6 +205,15 @@ def add_to_cart(request, product_id):
         item.save()
     else:
         add_session_item(request, product.id, variant.id if variant else None, qty)
+    # Remember last picked variant for this product (to reuse when moving from saved)
+    try:
+        lv = request.session.get('last_variant', {})
+        key = str(product.id)
+        lv[key] = (variant.id if variant else None)
+        request.session['last_variant'] = lv
+        request.session.modified = True
+    except Exception:
+        pass
     messages.success(request, "Added to cart")
     return redirect("view_cart")
 
@@ -381,6 +395,14 @@ def save_for_later(request, item_id):
     try:
         item = CartItem.objects.get(id=item_id, cart__user=request.user)
         WishlistItem.objects.get_or_create(user=request.user, product=item.product)
+        # store last variant choice
+        try:
+            lv = request.session.get('last_variant', {})
+            lv[str(item.product.id)] = (item.variant.id if item.variant else None)
+            request.session['last_variant'] = lv
+            request.session.modified = True
+        except Exception:
+            pass
         item.delete()
         messages.success(request, "Saved for later")
         return redirect("view_cart")
@@ -400,6 +422,14 @@ def save_for_later(request, item_id):
                 pass
             # Remove from session cart
             remove_session_item_session(request, pid, vid)
+            # store last variant for session save
+            try:
+                lv = request.session.get('last_variant', {})
+                lv[str(pid)] = vid
+                request.session['last_variant'] = lv
+                request.session.modified = True
+            except Exception:
+                pass
             messages.success(request, "Saved for later")
         return redirect("view_cart")
 
@@ -411,13 +441,23 @@ def move_saved_to_cart(request, product_id: int):
     product = get_object_or_404(Product, id=product_id, is_active=True)
     # Remove from wishlist entry
     WishlistItem.objects.filter(user=request.user, product=product).delete()
-    # If product has variants, send user to product page to pick size/color
+    # If product has variants, try last_variant mapping
     if product.variants.exists():
-        messages.info(request, "Select size and color before adding to cart.")
-        return redirect("product_detail", slug=product.slug)
+        try:
+            lv = request.session.get('last_variant', {})
+            vid = lv.get(str(product.id))
+            variant = None
+            if vid not in (None, '', '0', 0, 'None'):
+                variant = Variant.objects.filter(id=int(vid), product=product).first()
+            if not variant:
+                messages.info(request, "Select size and color before adding to cart.")
+                return redirect("product_detail", slug=product.slug)
+        except Exception:
+            messages.info(request, "Select size and color before adding to cart.")
+            return redirect("product_detail", slug=product.slug)
     # Add to cart directly
     cart = _get_user_cart(request.user)
-    item, created = CartItem.objects.get_or_create(cart=cart, product=product, variant=None)
+    item, created = CartItem.objects.get_or_create(cart=cart, product=product, variant=(variant if product.variants.exists() else None))
     if not created:
         item.quantity += 1
     else:
@@ -425,6 +465,42 @@ def move_saved_to_cart(request, product_id: int):
     item.save()
     messages.success(request, "Moved to cart")
     return redirect("view_cart")
+
+
+def checkout_selected(request):
+    if request.method != "POST":
+        return redirect("view_cart")
+    sels = request.POST.getlist("sel")
+    if not sels:
+        messages.info(request, "Select at least one item to proceed.")
+        return redirect("view_cart")
+    selected = {"auth": request.user.is_authenticated, "db_ids": [], "sv": []}
+    for s in sels:
+        try:
+            if s.startswith("db:"):
+                sid = int(s.split(":", 1)[1])
+                selected["db_ids"].append(sid)
+            elif s.startswith("sv:"):
+                _, pid, vid = s.split(":", 2)
+                pid_i = int(pid)
+                vid_i = int(vid) if vid not in ("", "0", "None", None) else None
+                # Find current qty from session cart
+                qty = 1
+                for it in get_session_items(request):
+                    if it.product.id == pid_i and ((it.variant.id if it.variant else None) == vid_i):
+                        qty = it.quantity
+                        break
+                selected["sv"].append({"pid": pid_i, "vid": vid_i, "qty": qty})
+        except Exception:
+            continue
+    if not selected["db_ids"] and not selected["sv"]:
+        messages.info(request, "Select at least one item to proceed.")
+        return redirect("view_cart")
+    # Persist selection for checkout and ensure buy-now is cleared
+    request.session["checkout_selected"] = selected
+    request.session.pop("buy_now", None)
+    request.session.modified = True
+    return redirect("checkout")
 
 
 def apply_coupon(request):

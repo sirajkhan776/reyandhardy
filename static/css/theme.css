@@ -448,6 +448,15 @@ a:hover { color: #f3f4f6; }
 html[data-theme='light'] a { color: #111827; }
 html[data-theme='light'] a:hover { color: #0f172a; }
 
+/* Saved for later grid */
+.saved-item { border: 1px solid var(--rh-border); border-radius: 14px; overflow: hidden; background: var(--rh-bg-elev); }
+.saved-item .saved-thumb { height: 140px; background: var(--g2); display: block; overflow: hidden; }
+.saved-item .saved-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.saved-item .saved-thumb-ph { width: 100%; height: 100%; display: block; background: linear-gradient(180deg, var(--g3), var(--g2)); }
+.saved-item .saved-title { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.25; min-height: 40px; }
+.saved-item .saved-actions .btn { white-space: nowrap; }
+@media (max-width: 575.98px){ .saved-item .saved-thumb { height: 120px; } }
+
 /* Premium hero */
 .rh-premium-hero { position: relative; overflow: hidden; border-radius: 20px; margin-bottom: 22px; min-height: 62vh; display: grid; align-items: stretch; }
 @media (max-width: 991.98px){ .rh-premium-hero { min-height: 54vh; } }

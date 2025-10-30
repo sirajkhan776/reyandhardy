@@ -183,8 +183,8 @@ class ProductVideoForm(_BootstrapFormMixin, forms.ModelForm):
         self._apply_bootstrap()
         try:
             self.fields["video"].widget.attrs.setdefault("accept", "video/*")
-            # Some mobile browsers honor capture for video
-            self.fields["video"].widget.attrs.setdefault("capture", "environment")
+            # Do NOT set 'capture' so mobile opens gallery/picker instead of camera
+            self.fields["video"].widget.attrs.pop("capture", None)
         except Exception:
             pass
 
