@@ -26,26 +26,27 @@ def _get_user_cart(user):
 
 def view_cart(request):
     is_auth = request.user.is_authenticated
+    # Local helper to pick a thumbnail URL for a product, optionally color-aware
+    def _thumb_for(product, color: str):
+        try:
+            imgs = list(getattr(product, "images", None).all()) if getattr(product, "images", None) else []
+            if color:
+                low = str(color).strip().lower()
+                for im in imgs:
+                    c = (getattr(im, "color", "") or "").strip().lower()
+                    if c and c == low and getattr(im, "image", None) and getattr(im.image, "url", None):
+                        return im.image.url
+            if imgs:
+                im0 = imgs[0]
+                if getattr(im0, "image", None) and getattr(im0.image, "url", None):
+                    return im0.image.url
+        except Exception:
+            return ""
+        return ""
     if is_auth and hasattr(request.user, "cart"):
         cart = _get_user_cart(request.user)
         db_items = list(cart.items.select_related("product", "variant"))
         cart_items = []
-        def _thumb_for(product, color: str):
-            try:
-                imgs = list(getattr(product, "images", None).all()) if getattr(product, "images", None) else []
-                if color:
-                    low = str(color).strip().lower()
-                    for im in imgs:
-                        c = (getattr(im, "color", "") or "").strip().lower()
-                        if c and c == low and getattr(im, "image", None) and getattr(im.image, "url", None):
-                            return im.image.url
-                if imgs:
-                    im0 = imgs[0]
-                    if getattr(im0, "image", None) and getattr(im0.image, "url", None):
-                        return im0.image.url
-            except Exception:
-                return ""
-            return ""
         for it in db_items:
             try:
                 size_options = list({v.size for v in it.product.variants.all()})
