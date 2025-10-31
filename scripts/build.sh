@@ -9,8 +9,15 @@ echo "[build] Installing dependencies…"
 python -m pip install --upgrade pip wheel setuptools
 python -m pip install -r requirements.txt
 
+echo "[build] Preparing database file…"
+# Prefer a pre-baked SQLite DB if provided to speed up seeding on Render free plan
+if [[ -f "seed.sqlite3" ]]; then
+  echo "[build] Using pre-baked seed.sqlite3"
+  cp -f seed.sqlite3 db.sqlite3
+fi
+
 echo "[build] Migrating DB and seeding if empty…"
-python manage.py migrate --noinput
+python manage.py migrate --noinput || true
 
 if [[ -f "data.json" ]]; then
   NEED_SEED=$(python - <<'PY'
