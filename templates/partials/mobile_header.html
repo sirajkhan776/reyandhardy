@@ -2,8 +2,11 @@
 <div class="mobile-search-bar d-md-none bg-gradient-primary shadow-sm">
   <div class="container py-2">
     <div class="d-flex align-items-center justify-content-between mb-2">
-      {# Left: Deliver to (always visible; for guests shows generic text) #}
+      {# Left: optional Back + Deliver to (for guests shows generic text) #}
       <div class="d-inline-flex align-items-center text-white small me-3">
+        {% if request.path != '/' %}
+          <a href="/" class="btn btn-outline-light btn-sm me-2" aria-label="Go back" onclick="if (window.history && history.length > 1) { history.back(); return false; }"><i class="bi bi-arrow-left"></i></a>
+        {% endif %}
         <i class="bi bi-geo-alt me-2"></i>
         <button class="btn btn-link p-0 text-white text-decoration-none d-inline-flex align-items-center" type="button" data-bs-toggle="modal" data-bs-target="#deliveryLocationModal">
           Deliver to
@@ -30,9 +33,6 @@
       </div>
     </div>
     <form class="amz-search amz-search-mobile amz--no-cat d-flex align-items-center" role="search" method="get" action="/search/">
-      {% if request.path != '/' %}
-        <a href="/" class="btn btn-outline-secondary btn-sm me-2" aria-label="Go back" onclick="if (window.history && history.length > 1) { history.back(); return false; }"><i class="bi bi-arrow-left"></i></a>
-      {% endif %}
       <div class="amz-wrap w-100">
         <img class="amz-logo-in" src="{% static BRAND_LOGO %}" alt="{{ STORE_NAME }}" onerror="this.style.display='none'" />
         <input id="mobileSearchInput" class="amz-input" type="search" name="q" placeholder='Search "Jeans"' aria-label="Search" value="{{ request.GET.q|default:'' }}" />
