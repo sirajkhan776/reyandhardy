@@ -37,6 +37,6 @@ fi
 echo "[start] Collecting static files…"
 python manage.py collectstatic --noinput || true
 
-echo "[start] Starting server…"
-python manage.py runserver 0.0.0.0:${PORT:-8000}
-
+echo "[start] Starting server with gunicorn…"
+export PORT=${PORT:-8000}
+exec gunicorn reyhardy.wsgi:application --bind 0.0.0.0:${PORT} --workers ${WEB_CONCURRENCY:-2}
