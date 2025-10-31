@@ -1,8 +1,19 @@
 {% for o in orders %}
   <tr class="order-row" onclick="location.href='/dashboard/orders/{{ o.id }}/'" style="cursor:pointer;">
-    <td data-label="#"><a href="/dashboard/orders/{{ o.id }}/" class="text-decoration-none">{{ o.order_number }}</a></td>
-    <td data-label="User">{{ o.user.username }}</td>
-    <td data-label="Status" onclick="event.stopPropagation();" onmousedown="event.stopPropagation();" ontouchstart="event.stopPropagation();">
+    <td data-label="#" class="align-middle">
+      <a href="/dashboard/orders/{{ o.id }}/" class="text-decoration-none d-flex align-items-center gap-2">
+        {% if o.thumb_url %}<img src="{{ o.thumb_url }}" alt="" style="width:40px;height:40px;object-fit:cover;border-radius:8px;" />{% endif %}
+        <div>
+          <div class="fw-semibold">#{{ o.order_number }}</div>
+          {% if o.first_item_name %}<div class="small text-muted text-truncate" style="max-width:220px;">{{ o.first_item_name }}</div>{% endif %}
+          {% if o.first_size or o.first_color %}
+            <div class="small text-muted mt-1">{% if o.first_size %}Size: {{ o.first_size }}{% endif %}{% if o.first_color %} {% if o.first_size %}• {% endif %}Color: {{ o.first_color }}{% endif %}</div>
+          {% endif %}
+        </div>
+      </a>
+    </td>
+    <td data-label="User" class="align-middle">{{ o.user.username }}</td>
+    <td data-label="Status" class="align-middle" onclick="event.stopPropagation();" onmousedown="event.stopPropagation();" ontouchstart="event.stopPropagation();">
       <form method="post" action="/dashboard/orders/{{ o.id }}/status/" class="d-flex align-items-center gap-2 order-status-form" data-order-id="{{ o.id }}" onclick="event.stopPropagation();" onmousedown="event.stopPropagation();" ontouchstart="event.stopPropagation();">
         {% csrf_token %}
         <select name="status" class="form-select form-select-sm" style="width:auto" onclick="event.stopPropagation();" onfocus="event.stopPropagation();" onmousedown="event.stopPropagation();" ontouchstart="event.stopPropagation();">
@@ -13,9 +24,9 @@
         <button class="btn btn-sm btn-outline-primary d-none" type="submit">Update</button>
       </form>
     </td>
-    <td class="text-muted small text-uppercase d-none d-sm-table-cell" data-label="Payment">{{ o.payment_method }}</td>
-    <td data-label="Total">{{ CURRENCY_SYMBOL }}{{ o.total_amount }}</td>
-    <td class="d-none d-md-table-cell" data-label="Placed">{{ o.created_at|date:"Y-m-d H:i" }}</td>
+    <td class="text-muted small text-uppercase d-none d-sm-table-cell align-middle" data-label="Payment">{{ o.payment_method }}</td>
+    <td data-label="Total" class="align-middle fw-semibold">{{ CURRENCY_SYMBOL }}{{ o.total_amount }}</td>
+    <td class="d-none d-md-table-cell align-middle" data-label="Placed">{{ o.created_at|date:"Y-m-d H:i" }}</td>
   </tr>
 {% empty %}
   <tr><td colspan="6" class="text-muted">No orders yet.</td></tr>

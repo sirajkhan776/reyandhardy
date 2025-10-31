@@ -91,7 +91,7 @@
         <small class="text-muted">incl. GST at checkout</small>
       </div>
 
-      <form method="post" action="/cart/add/{{ product.id }}/">
+      <form method="post" action="/cart/add/{{ product.id }}/" data-no-overlay>
         {% csrf_token %}
         <input type="hidden" name="quantity" value="1" />
         {% if sizes or colors %}
@@ -105,7 +105,7 @@
               <!-- Desktop select (show price next to size) -->
               <select id="sizeSelect" name="size" class="form-select d-none d-md-block" required>
                 {% for s in sizes %}
-                  <option value="{{ s }}">{{ s }} — {{ CURRENCY_SYMBOL }}{{ product.sale_price|default:product.base_price }}</option>
+                  <option value="{{ s }}" {% if qs_size and qs_size == s %}selected{% endif %}>{{ s }} — {{ CURRENCY_SYMBOL }}{{ product.sale_price|default:product.base_price }}</option>
                 {% endfor %}
               </select>
               <div id="sizeStockDesktop" class="form-text small text-muted d-none d-md-block"></div>
@@ -113,7 +113,7 @@
               <div class="option-pills d-md-none" id="sizePills">
                 {% for s in sizes %}
                   <div class="size-option">
-                    <input class="btn-check" type="radio" name="sizeMobile" id="size_{{ forloop.counter }}" value="{{ s }}" {% if forloop.first %}checked{% endif %}>
+                    <input class="btn-check" type="radio" name="sizeMobile" id="size_{{ forloop.counter }}" value="{{ s }}" {% if qs_size == s %}checked{% elif not qs_size and forloop.first %}checked{% endif %}>
                     <label class="btn btn-outline-light size-pill size-pill-vertical text-center" for="size_{{ forloop.counter }}">
                       <span class="size-label">{{ s }}</span>
                       <span class="size-price">{{ CURRENCY_SYMBOL }}{{ product.sale_price|default:product.base_price }}</span>
@@ -132,7 +132,7 @@
               <!-- Desktop select -->
               <select id="colorSelect" name="color" class="form-select d-none d-md-block" required>
                 {% for c in colors %}
-                  <option value="{{ c }}">{{ c }}</option>
+                  <option value="{{ c }}" {% if qs_color and qs_color == c %}selected{% endif %}>{{ c }}</option>
                 {% endfor %}
               </select>
               <!-- Desktop color thumbnails -->
@@ -150,7 +150,7 @@
               <!-- Mobile pills -->
               <div class="option-pills d-md-none" id="colorPills">
                 {% for opt in color_options %}
-                  <input class="btn-check" type="radio" name="colorMobile" id="color_{{ forloop.counter }}" value="{{ opt.name }}" {% if forloop.first %}checked{% endif %}>
+                  <input class="btn-check" type="radio" name="colorMobile" id="color_{{ forloop.counter }}" value="{{ opt.name }}" {% if qs_color == opt.name %}checked{% elif not qs_color and forloop.first %}checked{% endif %}>
                   <label class="btn btn-outline-light btn-sm color-pill d-inline-flex align-items-center justify-content-center" for="color_{{ forloop.counter }}" aria-label="{{ opt.name }}">
                     {% if opt.thumb %}
                       <img src="{{ opt.thumb }}" alt="" class="color-thumb" />
@@ -262,6 +262,21 @@
     document.addEventListener('DOMContentLoaded', function(){
       syncRadiosToSelect('sizeMobile', 'sizeSelect');
       syncRadiosToSelect('colorMobile', 'colorSelect');
+      // Preselect from query params if provided
+      try {
+        var qsSize = '{{ qs_size|escapejs }}';
+        var qsColor = '{{ qs_color|escapejs }}';
+        if (qsColor) {
+          var selC = document.getElementById('colorSelect'); if (selC) selC.value = qsColor;
+          var rc = Array.prototype.find.call(document.getElementsByName('colorMobile')||[], function(r){ return (r.value||'') === qsColor; });
+          if (rc) rc.checked = true;
+        }
+        if (qsSize) {
+          var selS = document.getElementById('sizeSelect'); if (selS) selS.value = qsSize;
+          var rs = Array.prototype.find.call(document.getElementsByName('sizeMobile')||[], function(r){ return (r.value||'') === qsSize; });
+          if (rs) rs.checked = true;
+        }
+      } catch(e){}
       var COLOR_SIZE_MAP = (function(){ try { return JSON.parse('{{ color_size_map_json|escapejs }}'); } catch(e){ return {}; } })();
       var ALL_SIZES = (function(){ try { return JSON.parse('{{ sizes_json|escapejs }}'); } catch(e){ return []; } })();
       var VARIANT_STOCK = (function(){ try { return JSON.parse('{{ variant_stock_map_json|escapejs }}'); } catch(e){ return {}; } })();

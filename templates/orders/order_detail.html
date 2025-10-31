@@ -66,25 +66,25 @@
           
 
           <div class="list-group order-items">
-            {% for it in order.items.all %}
-              <div class="list-group-item d-flex align-items-center justify-content-between">
+            {% for it in items %}
+              <a href="/product/{{ it.product.slug }}/?size={{ it.size|urlencode }}{% if it.color %}&color={{ it.color|urlencode }}{% endif %}"
+                 class="list-group-item d-flex align-items-center justify-content-between text-reset text-decoration-none">
                 <div class="d-flex align-items-center gap-2">
-                  {% with img=it.product.images.all.0 %}
-                    {% if img %}<img src="{{ img.image.url }}" alt="{{ it.product.name }}" class="rounded" style="width:56px; height:56px; object-fit:cover;" />{% endif %}
-                  {% endwith %}
+                  {% if it.img_url %}<img src="{{ it.img_url }}" alt="{{ it.product.name }}" class="rounded" style="width:56px; height:56px; object-fit:cover;" />{% endif %}
                   <div>
                     <div class="fw-semibold">{{ it.product.name }}</div>
-                    <small class="text-muted">{% if it.variant %}{{ it.variant.size }} / {{ it.variant.color }}{% else %}—{% endif %}</small>
+                    <div class="mt-1">
+                      {% if it.size %}<span class="badge bg-dark">Size: {{ it.size }}</span>{% endif %}
+                      {% if it.color %}<span class="badge bg-secondary ms-1">Color: {{ it.color }}</span>{% endif %}
+                      {% if not it.size and not it.color %}<span class="small text-muted">No variant</span>{% endif %}
+                    </div>
                   </div>
                 </div>
                 <div class="text-end">
-                  <div class="small">Qty: {{ it.quantity }}</div>
-                  <div class="text-nowrap">{{ CURRENCY_SYMBOL }}{{ it.line_total }}</div>
-                  {% if order.status == 'delivered' %}
-                    <button class="btn btn-sm btn-outline-light mt-1" data-bs-toggle="modal" data-bs-target="#reviewModal_{{ forloop.counter }}">Write a product review</button>
-                  {% endif %}
+                  <div class="small">Qty: {{ it.qty }}</div>
+                  <div class="text-nowrap">{{ CURRENCY_SYMBOL }}{{ it.obj.line_total }}</div>
                 </div>
-              </div>
+              </a>
 
               {% if order.status == 'delivered' %}
               <!-- Review Modal for this item -->

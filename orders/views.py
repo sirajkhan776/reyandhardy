@@ -67,9 +67,29 @@ def checkout(request):
             return redirect("/")
         bn_variant = None
         v_id = buy_now_data.get("variant_id")
-        if v_id not in (None, "", "None"):
+        if v_id not in (None, "", "None", 0, "0"):
             try:
                 bn_variant = Variant.objects.get(id=int(v_id))
+            except Exception:
+                bn_variant = None
+        # Fallback: if variant id missing, try resolve via size/color saved in session
+        if bn_variant is None:
+            try:
+                sel_size = (buy_now_data.get("size") or "")
+                sel_color = (buy_now_data.get("color") or "")
+                s_norm = sel_size.strip().lower()
+                c_norm = sel_color.strip().lower()
+                if s_norm and c_norm:
+                    # First try direct DB filter (fast path)
+                    bn_variant = Variant.objects.filter(product=bn_product, size=sel_size, color=sel_color).first()
+                    if bn_variant is None:
+                        # Fallback: robust match ignoring case/whitespace
+                        for v in bn_product.variants.all():
+                            vs = (getattr(v, "size", "") or "").strip().lower()
+                            vc = (getattr(v, "color", "") or "").strip().lower()
+                            if vs == s_norm and vc == c_norm:
+                                bn_variant = v
+                                break
             except Exception:
                 bn_variant = None
         bn_qty = max(1, int(buy_now_data.get("quantity", 1)))
@@ -202,6 +222,51 @@ def checkout(request):
 
     total = (discounted_subtotal + gst_amount + shipping).quantize(Decimal("0.01"))
 
+    # Build display items with color-aware thumbnail selection
+    display_items = []
+    try:
+        for prod, var, qty in sources:
+            chosen_color = None
+            if var and getattr(var, "color", None):
+                try:
+                    chosen_color = (var.color or "").strip()
+                except Exception:
+                    chosen_color = None
+            elif buy_now_mode:
+                try:
+                    chosen_color = ((buy_now_data or {}).get("color") or "").strip() or None
+                except Exception:
+                    chosen_color = None
+            img_url = ""
+            try:
+                imgs = list(getattr(prod, "images", None).all()) if getattr(prod, "images", None) else []
+                if chosen_color:
+                    low = chosen_color.strip().lower()
+                    match = None
+                    for im in imgs:
+                        c = (getattr(im, "color", "") or "").strip().lower()
+                        if c == low:
+                            match = im
+                            break
+                    if match and getattr(match, "image", None) and getattr(match.image, "url", None):
+                        img_url = match.image.url
+                if not img_url and imgs:
+                    first = imgs[0]
+                    if getattr(first, "image", None) and getattr(first.image, "url", None):
+                        img_url = first.image.url
+            except Exception:
+                img_url = ""
+            display_items.append({
+                "product": prod,
+                "variant": var,
+                "qty": qty,
+                "img_url": img_url,
+                "color": chosen_color,
+            })
+    except Exception:
+        # Fallback: minimal structures if something goes wrong
+        display_items = [{"product": p, "variant": v, "qty": q, "img_url": "", "color": None} for p, v, q in sources]
+
     if request.method == "POST":
         payment_method = request.POST.get("payment_method")
         if payment_method not in ("razorpay", "cod"):
@@ -284,6 +349,8 @@ def checkout(request):
                 order=order,
                 product=bn_product,
                 variant=bn_variant,
+                variant_size=(getattr(bn_variant, "size", None) or (buy_now_data.get("size") if buy_now_data else "") or ""),
+                variant_color=(getattr(bn_variant, "color", None) or (buy_now_data.get("color") if buy_now_data else "") or ""),
                 quantity=bn_qty,
                 unit_price=bn_product.price(),
                 line_total=(bn_product.price() * bn_qty).quantize(Decimal("0.01")),
@@ -302,6 +369,8 @@ def checkout(request):
                     order=order,
                     product=prod,
                     variant=var,
+                    variant_size=(getattr(var, "size", "") if var else ""),
+                    variant_color=(getattr(var, "color", "") if var else ""),
                     quantity=qty,
                     unit_price=prod.price(),
                     line_total=(prod.price() * qty).quantize(Decimal("0.01")),
@@ -322,6 +391,8 @@ def checkout(request):
                     order=order,
                     product=item.product,
                     variant=item.variant,
+                    variant_size=(getattr(item.variant, "size", "") if item.variant else ""),
+                    variant_color=(getattr(item.variant, "color", "") if item.variant else ""),
                     quantity=item.quantity,
                     unit_price=item.unit_price(),
                     line_total=item.line_total(),
@@ -380,6 +451,9 @@ def checkout(request):
         "orders/checkout.html",
         {
             "cart": cart,
+            "sources": sources,
+            "items": display_items,
+            "buy_now": buy_now_data,
             "subtotal": subtotal,
             "discount_amount": discount_amount,
             "discounted_subtotal": discounted_subtotal,
@@ -398,15 +472,84 @@ def order_list(request):
     orders = (
         Order.objects.filter(user=request.user)
         .order_by("-created_at")
-        .prefetch_related("items__product__images")
+        .prefetch_related("items__product__images", "items__variant")
     )
+    # Enrich orders with first item size/color and a color-aware thumbnail
+    for o in orders:
+        try:
+            it = o.items.select_related("product", "variant").first()
+            if not it:
+                continue
+            size = (getattr(it.variant, "size", None) or getattr(it, "variant_size", "") or "")
+            color = (getattr(it.variant, "color", None) or getattr(it, "variant_color", "") or "")
+            thumb = ""
+            try:
+                imgs = list(getattr(it.product, "images", None).all()) if getattr(it.product, "images", None) else []
+                if color:
+                    low = str(color).strip().lower()
+                    for im in imgs:
+                        c = (getattr(im, "color", "") or "").strip().lower()
+                        if c and c == low and getattr(im, "image", None) and getattr(im.image, "url", None):
+                            thumb = im.image.url
+                            break
+                if not thumb and imgs:
+                    first = imgs[0]
+                    if getattr(first, "image", None) and getattr(first.image, "url", None):
+                        thumb = first.image.url
+            except Exception:
+                thumb = ""
+            o.first_size = size
+            o.first_color = color
+            o.thumb_url = thumb
+        except Exception:
+            o.first_size = ""
+            o.first_color = ""
+            o.thumb_url = ""
     return render(request, "orders/order_list.html", {"orders": orders})
 
 
 @login_required
 def order_detail(request, order_number):
     order = get_object_or_404(Order, user=request.user, order_number=order_number)
-    return render(request, "orders/order_detail.html", {"order": order})
+    # Build color-aware thumbnails for each item
+    items = []
+    try:
+        for it in order.items.select_related("product", "variant").all():
+            # Determine display size/color (prefer variant relation, fallback to snapshot fields)
+            disp_size = (getattr(it.variant, "size", None) or it.variant_size or "")
+            disp_color = (getattr(it.variant, "color", None) or it.variant_color or "")
+            chosen_color = (disp_color or None)
+            img_url = ""
+            try:
+                imgs = list(getattr(it.product, "images", None).all()) if getattr(it.product, "images", None) else []
+                if chosen_color:
+                    low = chosen_color.strip().lower()
+                    match = None
+                    for im in imgs:
+                        c = (getattr(im, "color", "") or "").strip().lower()
+                        if c == low:
+                            match = im
+                            break
+                    if match and getattr(match, "image", None) and getattr(match.image, "url", None):
+                        img_url = match.image.url
+                if not img_url and imgs:
+                    first = imgs[0]
+                    if getattr(first, "image", None) and getattr(first.image, "url", None):
+                        img_url = first.image.url
+            except Exception:
+                img_url = ""
+            items.append({
+                "obj": it,
+                "product": it.product,
+                "variant": it.variant,
+                "size": disp_size,
+                "color": disp_color,
+                "qty": it.quantity,
+                "img_url": img_url,
+            })
+    except Exception:
+        items = [{"obj": it, "product": it.product, "variant": it.variant, "size": (getattr(it.variant, "size", None) or it.variant_size or ""), "color": (getattr(it.variant, "color", None) or it.variant_color or ""), "qty": it.quantity, "img_url": ""} for it in order.items.all()]
+    return render(request, "orders/order_detail.html", {"order": order, "items": items})
 
 
 @login_required

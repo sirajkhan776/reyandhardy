@@ -11,13 +11,11 @@
         <div class="card premium-order-card">
           <div class="card-body d-flex align-items-center">
             <div class="order-thumb me-3">
-              {% with it=o.items.all.0 %}
-                {% if it and it.product.images.all.0 %}
-                  <a href="/order/{{ o.order_number }}/" class="d-inline-block"><img src="{{ it.product.images.all.0.image.url }}" alt="{{ it.product.name }}" class="img-fluid rounded" style="height:64px; width:64px; object-fit:cover;" /></a>
-                {% else %}
-                  <div class="d-flex align-items-center justify-content-center bg-light rounded" style="height:64px; width:64px;">—</div>
-                {% endif %}
-              {% endwith %}
+              {% if o.thumb_url %}
+                <a href="/order/{{ o.order_number }}/" class="d-inline-block"><img src="{{ o.thumb_url }}" alt="" class="img-fluid rounded" style="height:64px; width:64px; object-fit:cover;" /></a>
+              {% else %}
+                <div class="d-flex align-items-center justify-content-center bg-light rounded" style="height:64px; width:64px;">—</div>
+              {% endif %}
             </div>
             <div class="flex-grow-1">
               <div class="order-meta d-flex justify-content-between flex-wrap">
@@ -49,6 +47,10 @@
                   <a href="{% url 'order_return_request' o.order_number %}" class="btn btn-sm btn-outline-secondary">Return / Exchange</a>
                 {% endif %}
                 <a href="{% url 'order_support' o.order_number %}" class="btn btn-sm btn-outline-light">Get help</a>
+              </div>
+              <div class="small mt-2">
+                {% if o.first_size %}<span class="badge bg-dark">Size: {{ o.first_size }}</span>{% endif %}
+                {% if o.first_color %}<span class="badge bg-secondary ms-1">Color: {{ o.first_color }}</span>{% endif %}
               </div>
               {% if o.status == 'delivered' %}
               <div class="order-rate mt-3">

@@ -375,6 +375,14 @@ html[data-theme='light'] .amz-input { background: #fff; color: #111827; border-c
 .amz-search-mobile .amz-input { height: 36px; }
 .amz-search-mobile .amz-cat { font-size: .85rem; min-width: 64px; }
 
+/* Mobile override: some Samsung devices render CSS grid oddly for this layout.
+   Use flex to ensure the input shrinks/expands correctly and stays responsive. */
+@media (max-width: 575.98px){
+  .amz-search-mobile .amz-wrap { display: flex; align-items: stretch; width: 100%; }
+  .amz-search-mobile .amz-input { flex: 1 1 auto; min-width: 0; width: auto; }
+  .amz-search-mobile .amz-tools { right: 48px; }
+}
+
 /* Category rail (Flipkart-like) */
 .cat-rail .cat-rail-thumbs { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px; }
 .cat-rail .cat-rail-thumbs::-webkit-scrollbar { height: 6px; }

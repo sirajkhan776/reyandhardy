@@ -186,18 +186,31 @@ def view_cart(request):
 def add_to_cart(request, product_id):
     is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest" or "application/json" in request.headers.get("Accept", "")
     product = get_object_or_404(Product, id=product_id, is_active=True)
-    size = request.POST.get("size")
-    color = request.POST.get("color")
+    size = (request.POST.get("size") or "").strip()
+    color = (request.POST.get("color") or "").strip()
     variant = None
     if product.variants.exists():
-        variant = get_object_or_404(product.variants, size=size, color=color)
+        # Be tolerant: if both size and color provided, try exact match first.
+        # Otherwise, fall back to whichever attribute is available, then pick first variant.
+        qs = product.variants.all()
+        if size and color:
+            variant = qs.filter(size=size, color=color).first()
+        if not variant and size:
+            variant = qs.filter(size=size).first()
+        if not variant and color:
+            variant = qs.filter(color=color).first()
+        if not variant:
+            variant = qs.first()
 
     qty = int(request.POST.get("quantity", 1))
     # Buy Now flow: skip adding to cart, store as temporary session item
     if request.POST.get("buy_now") == "1":
+        # Store selected variant info for reliable checkout summary
         request.session["buy_now"] = {
             "product_id": product.id,
             "variant_id": (variant.id if variant else None),
+            "size": size,
+            "color": color,
             "quantity": qty,
         }
         request.session.modified = True

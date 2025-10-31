@@ -52,6 +52,47 @@
     </div>
 
     <div class="col-lg-5">
+      <!-- Order Summary -->
+      <div class="card mb-3">
+        <div class="card-header">Order Summary</div>
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            {% for it in items %}
+              <div class="list-group-item d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2">
+                  {% if it.img_url %}
+                    <img src="{{ it.img_url }}" alt="{{ it.product.name }}" class="rounded" style="width:56px; height:56px; object-fit:cover;" />
+                  {% endif %}
+                  <div>
+                    <div class="fw-semibold">{{ it.product.name }}</div>
+                    {% if it.variant %}
+                      <div class="mt-1">
+                        <span class="badge bg-dark">Size: {{ it.variant.size }}</span>
+                        <span class="badge bg-secondary ms-1">Color: {{ it.variant.color }}</span>
+                      </div>
+                    {% else %}
+                      {% if buy_now and buy_now.size and buy_now.color %}
+                        <div class="mt-1">
+                          <span class="badge bg-dark">Size: {{ buy_now.size }}</span>
+                          <span class="badge bg-secondary ms-1">Color: {{ buy_now.color }}</span>
+                        </div>
+                      {% else %}
+                        <div class="small text-muted">No variant</div>
+                      {% endif %}
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="text-end">
+                  <div class="small text-muted">Qty: {{ it.qty }}</div>
+                </div>
+              </div>
+            {% empty %}
+              <div class="p-3 text-muted small">No items found.</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-body">
           <h5 class="card-title">Summary</h5>

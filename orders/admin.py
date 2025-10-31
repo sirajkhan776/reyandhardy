@@ -7,6 +7,18 @@ from .shiprocket import create_shiprocket_shipment
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
+    fields = (
+        "product",
+        "variant",
+        "variant_size",
+        "variant_color",
+        "quantity",
+        "unit_price",
+        "line_total",
+        "unit_cost",
+        "line_cost",
+    )
+    readonly_fields = ("unit_price", "line_total", "unit_cost", "line_cost")
 
 
 @admin.register(Order)

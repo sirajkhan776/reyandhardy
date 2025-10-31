@@ -65,6 +65,9 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
     variant = models.ForeignKey(Variant, null=True, blank=True, on_delete=models.PROTECT)
+    # Snapshot of selected variant attributes for display, even if relation is null/changed later
+    variant_size = models.CharField(max_length=10, blank=True)
+    variant_color = models.CharField(max_length=30, blank=True)
     quantity = models.PositiveIntegerField()
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     line_total = models.DecimalField(max_digits=10, decimal_places=2)

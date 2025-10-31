@@ -197,6 +197,10 @@ def product_detail(request, slug):
         )
         similar_products = list(fallback_qs[:8])
 
+    # Preselect from query params for deep-links
+    qs_size = (request.GET.get("size") or "").strip()
+    qs_color = (request.GET.get("color") or "").strip()
+
     return render(
         request,
         "catalog/product_detail.html",
@@ -219,6 +223,8 @@ def product_detail(request, slug):
             "remaining_media": remaining_media,
             "latest_review": latest_review,
             "similar_products": similar_products,
+            "qs_size": qs_size,
+            "qs_color": qs_color,
         },
     )
 

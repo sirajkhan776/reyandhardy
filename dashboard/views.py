@@ -203,7 +203,60 @@ def orders_list(request):
         qs = qs.order_by("created_at")
     else:
         qs = qs.order_by("-created_at")
-    orders = qs[:50]
+    orders = (
+        qs.select_related("user").prefetch_related("items__product__images", "items__variant")
+    )[:50]
+    # Enrich with first item thumb + size/color
+    for o in orders:
+        try:
+            it = o.items.select_related("product", "variant").first()
+            if not it:
+                o.thumb_url = ""; o.first_size = ""; o.first_color = ""; o.first_item_name = ""; o.item_thumbs = []; o.item_more_count = 0; continue
+            size = (getattr(it.variant, "size", None) or it.variant_size or "")
+            color = (getattr(it.variant, "color", None) or it.variant_color or "")
+            thumb = ""
+            imgs = list(getattr(it.product, "images", None).all()) if getattr(it.product, "images", None) else []
+            if color:
+                low = str(color).strip().lower()
+                for im in imgs:
+                    c = (getattr(im, "color", "") or "").strip().lower()
+                    if c and c == low and getattr(im, "image", None) and getattr(im.image, "url", None):
+                        thumb = im.image.url; break
+            if not thumb and imgs:
+                first = imgs[0]
+                if getattr(first, "image", None) and getattr(first.image, "url", None):
+                    thumb = first.image.url
+            o.thumb_url = thumb
+            o.first_size = size
+            o.first_color = color
+            o.first_item_name = it.product.name
+            # Build up to 3 additional item thumbnails across order items (exclude first item's thumb)
+            thumbs = []
+            for item in o.items.select_related("product", "variant").all():
+                t = ""
+                try:
+                    imlist = list(getattr(item.product, "images", None).all()) if getattr(item.product, "images", None) else []
+                    icol = (getattr(item.variant, "color", None) or item.variant_color or "")
+                    if icol:
+                        lowc = str(icol).strip().lower()
+                        for im in imlist:
+                            cc = (getattr(im, "color", "") or "").strip().lower()
+                            if cc and cc == lowc and getattr(im, "image", None) and getattr(im.image, "url", None):
+                                t = im.image.url; break
+                    if not t and imlist:
+                        fi = imlist[0]
+                        if getattr(fi, "image", None) and getattr(fi.image, "url", None):
+                            t = fi.image.url
+                except Exception:
+                    t = ""
+                if t and t != thumb and t not in thumbs:
+                    thumbs.append(t)
+                if len(thumbs) >= 3:
+                    break
+            o.item_thumbs = thumbs
+            o.item_more_count = max(0, o.items.count() - 1 - len(thumbs))
+        except Exception:
+            o.thumb_url = ""; o.first_size = ""; o.first_color = ""; o.first_item_name = ""; o.item_thumbs = []; o.item_more_count = 0
 
     summary = qs.aggregate(total_amount=Sum("total_amount"))
     total_amount = summary.get("total_amount") or 0
@@ -240,7 +293,58 @@ def orders_partial(request):
     else:
         qs = qs.order_by("-created_at")
 
-    orders = qs[:50]
+    orders = (
+        qs.select_related("user").prefetch_related("items__product__images", "items__variant")
+    )[:50]
+    for o in orders:
+        try:
+            it = o.items.select_related("product", "variant").first()
+            if not it:
+                o.thumb_url = ""; o.first_size = ""; o.first_color = ""; o.first_item_name = ""; o.item_thumbs = []; o.item_more_count = 0; continue
+            size = (getattr(it.variant, "size", None) or it.variant_size or "")
+            color = (getattr(it.variant, "color", None) or it.variant_color or "")
+            thumb = ""
+            imgs = list(getattr(it.product, "images", None).all()) if getattr(it.product, "images", None) else []
+            if color:
+                low = str(color).strip().lower()
+                for im in imgs:
+                    c = (getattr(im, "color", "") or "").strip().lower()
+                    if c and c == low and getattr(im, "image", None) and getattr(im.image, "url", None):
+                        thumb = im.image.url; break
+            if not thumb and imgs:
+                first = imgs[0]
+                if getattr(first, "image", None) and getattr(first.image, "url", None):
+                    thumb = first.image.url
+            o.thumb_url = thumb
+            o.first_size = size
+            o.first_color = color
+            o.first_item_name = it.product.name
+            thumbs = []
+            for item in o.items.select_related("product", "variant").all():
+                t = ""
+                try:
+                    imlist = list(getattr(item.product, "images", None).all()) if getattr(item.product, "images", None) else []
+                    icol = (getattr(item.variant, "color", None) or item.variant_color or "")
+                    if icol:
+                        lowc = str(icol).strip().lower()
+                        for im in imlist:
+                            cc = (getattr(im, "color", "") or "").strip().lower()
+                            if cc and cc == lowc and getattr(im, "image", None) and getattr(im.image, "url", None):
+                                t = im.image.url; break
+                    if not t and imlist:
+                        fi = imlist[0]
+                        if getattr(fi, "image", None) and getattr(fi.image, "url", None):
+                            t = fi.image.url
+                except Exception:
+                    t = ""
+                if t and t != thumb and t not in thumbs:
+                    thumbs.append(t)
+                if len(thumbs) >= 3:
+                    break
+            o.item_thumbs = thumbs
+            o.item_more_count = max(0, o.items.count() - 1 - len(thumbs))
+        except Exception:
+            o.thumb_url = ""; o.first_size = ""; o.first_color = ""; o.first_item_name = ""; o.item_thumbs = []; o.item_more_count = 0
     summary = qs.aggregate(total_amount=Sum("total_amount"))
     total_amount = summary.get("total_amount") or 0
     total_orders = qs.count()
@@ -260,8 +364,42 @@ def orders_partial(request):
 
 @staff_member_required(login_url="/accounts/login/")
 def order_detail_admin(request, pk: int):
-    order = get_object_or_404(Order.objects.select_related("user").prefetch_related("items__product", "items__variant"), pk=pk)
-    return render(request, "dashboard/order_detail.html", {"order": order})
+    order = get_object_or_404(
+        Order.objects.select_related("user").prefetch_related("items__product__images", "items__variant"),
+        pk=pk,
+    )
+    # Build color-aware thumbnails and expose size/color for each item
+    items = []
+    for it in order.items.select_related("product", "variant").all():
+        size = (getattr(it.variant, "size", None) or it.variant_size or "")
+        color = (getattr(it.variant, "color", None) or it.variant_color or "")
+        img_url = ""
+        try:
+            imgs = list(getattr(it.product, "images", None).all()) if getattr(it.product, "images", None) else []
+            if color:
+                low = str(color).strip().lower()
+                for im in imgs:
+                    c = (getattr(im, "color", "") or "").strip().lower()
+                    if c and c == low and getattr(im, "image", None) and getattr(im.image, "url", None):
+                        img_url = im.image.url
+                        break
+            if not img_url and imgs:
+                first = imgs[0]
+                if getattr(first, "image", None) and getattr(first.image, "url", None):
+                    img_url = first.image.url
+        except Exception:
+            img_url = ""
+        items.append({
+            "product": it.product,
+            "variant": it.variant,
+            "size": size,
+            "color": color,
+            "qty": it.quantity,
+            "unit_price": it.unit_price,
+            "line_total": it.line_total,
+            "img_url": img_url,
+        })
+    return render(request, "dashboard/order_detail.html", {"order": order, "items": items})
 
 
 @staff_member_required(login_url="/accounts/login/")

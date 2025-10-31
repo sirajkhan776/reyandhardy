@@ -4,32 +4,57 @@
 <div class="row g-3">
   <div class="col-md-3">{% include "dashboard/_nav.html" %}</div>
   <div class="col-md-9">
-    <div class="d-flex align-items-center justify-content-between mb-2">
-      <h3 class="m-0">Orders</h3>
-      <a href="/dashboard/orders/new/" class="btn btn-primary"><i class="bi bi-plus"></i> New Order</a>
-    </div>
     <div class="d-flex align-items-center mb-2">
-      <form class="ms-auto d-flex align-items-center gap-2" method="get" action="">
-        <label class="text-muted small mb-0" for="statusFilter">Status</label>
-        <select id="statusFilter" name="status" class="form-select form-select-sm" style="width:auto">
-          <option value="all" {% if selected_status == 'all' %}selected{% endif %}>All</option>
-          {% for key,label in status_choices %}
-            <option value="{{ key }}" {% if selected_status == key %}selected{% endif %}>{{ label }}</option>
-          {% endfor %}
-        </select>
-        <label class="text-muted small mb-0" for="sortSelect">Sort</label>
-        <select id="sortSelect" name="sort" class="form-select form-select-sm" style="width:auto">
-          <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Newest</option>
-          <option value="oldest" {% if selected_sort == 'oldest' %}selected{% endif %}>Oldest</option>
-        </select>
-        <input type="search" name="q" value="{{ q }}" placeholder="Search order # or user" class="form-control form-control-sm" />
-        <button class="btn btn-sm btn-outline-secondary" type="submit">Apply</button>
+      <h3 class="m-0">Orders</h3>
+    </div>
+    <div class="mb-2">
+      <form class="orders-filter d-flex flex-wrap gap-2 w-100" method="get" action="">
+        <div class="d-flex align-items-center gap-2">
+          <label class="text-muted small mb-0 d-none d-sm-inline" for="statusFilter">Status</label>
+          <select id="statusFilter" name="status" class="form-select form-select-sm" style="min-width:140px">
+            <option value="all" {% if selected_status == 'all' %}selected{% endif %}>All</option>
+            {% for key,label in status_choices %}
+              <option value="{{ key }}" {% if selected_status == key %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <label class="text-muted small mb-0 d-none d-sm-inline" for="sortSelect">Sort</label>
+          <select id="sortSelect" name="sort" class="form-select form-select-sm" style="min-width:140px">
+            <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Newest</option>
+            <option value="oldest" {% if selected_sort == 'oldest' %}selected{% endif %}>Oldest</option>
+          </select>
+        </div>
+        <div class="flex-grow-1">
+          <input type="search" name="q" value="{{ q }}" placeholder="Search order # or user" class="form-control form-control-sm w-100" />
+        </div>
+        <div>
+          <button class="btn btn-sm btn-outline-secondary w-100" type="submit">Apply</button>
+        </div>
       </form>
     </div>
     <div class="mb-2 text-muted small" id="ordersSummary">Showing {{ summary_total_orders }} orders • Total {{ CURRENCY_SYMBOL }}{{ summary_total_amount|floatformat:2 }}</div>
-    <div class="card">
+    <div class="card dash-orders">
+      <style>
+        .dash-orders .table { border-collapse: separate; border-spacing: 0 10px; }
+        .dash-orders .table thead th { border-bottom: none !important; }
+        .dash-orders .table tbody tr { background: var(--bs-card-bg, #fff); box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+        .dash-orders .table tbody td { border: none !important; }
+        .dash-orders .table tbody td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+        .dash-orders .table tbody td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+        /* Mobile-friendly filter layout */
+        @media (max-width: 575.98px){
+          .orders-filter { gap: 8px; }
+          .orders-filter select { flex: 0 0 calc(50% - 8px); min-width: 0 !important; }
+          .orders-filter input[type="search"] { flex: 1 0 100%; }
+          .orders-filter button { flex: 1 0 100%; }
+          /* Ensure select text is visible on dark backgrounds */
+          .orders-filter select { color: #ffffff; background-color: #1e1e1e; border-color: #3a3a3a; }
+          .orders-filter select option { color: #ffffff; background-color: #1e1e1e; }
+        }
+      </style>
       <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0 dash-table">
+        <table class="table table-hover table-borderless align-middle mb-0 dash-table">
           <thead class="table-light"><tr><th>#</th><th>User</th><th>Status</th><th class="d-none d-sm-table-cell">Payment</th><th>Total</th><th class="d-none d-md-table-cell">Placed</th></tr></thead>
           <tbody id="ordersTbody">
             {% include "dashboard/_orders_rows.html" with orders=orders status_choices=status_choices %}

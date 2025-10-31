@@ -45,13 +45,25 @@
     <div class="card">
       <div class="table-responsive">
         <table class="table table-sm align-middle mb-0">
-          <thead class="table-light"><tr><th>Product</th><th>Variant</th><th>Qty</th><th>Unit</th><th>Line</th></tr></thead>
+          <thead class="table-light"><tr><th>Item</th><th>Variant</th><th>Qty</th><th>Unit</th><th>Line</th></tr></thead>
           <tbody>
-            {% for it in order.items.all %}
-              <tr>
-                <td>{{ it.product.name }}</td>
-                <td>{% if it.variant %}{{ it.variant.size }} / {{ it.variant.color }}{% else %}-{% endif %}</td>
-                <td>{{ it.quantity }}</td>
+            {% for it in items %}
+              <tr onclick="location.href='/product/{{ it.product.slug }}/?size={{ it.size|urlencode }}{% if it.color %}&color={{ it.color|urlencode }}{% endif %}'" style="cursor:pointer;">
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    {% if it.img_url %}<img src="{{ it.img_url }}" alt="" class="rounded" style="width:44px; height:44px; object-fit:cover;" />{% endif %}
+                    <a href="/product/{{ it.product.slug }}/?size={{ it.size|urlencode }}{% if it.color %}&color={{ it.color|urlencode }}{% endif %}"
+                       class="text-decoration-none" onclick="event.stopPropagation();">{{ it.product.name }}</a>
+                  </div>
+                </td>
+                <td>
+                  {% if it.variant %}
+                    {{ it.variant.size }}{% if it.variant.size and it.variant.color %} / {% endif %}{{ it.variant.color }}
+                  {% elif it.size or it.color %}
+                    {{ it.size }}{% if it.size and it.color %} / {% endif %}{{ it.color }}
+                  {% else %}-{% endif %}
+                </td>
+                <td>{{ it.qty }}</td>
                 <td>{{ CURRENCY_SYMBOL }}{{ it.unit_price|floatformat:2 }}</td>
                 <td>{{ CURRENCY_SYMBOL }}{{ it.line_total|floatformat:2 }}</td>
               </tr>
@@ -63,4 +75,3 @@
   </div>
 </div>
 {% endblock %}
-
