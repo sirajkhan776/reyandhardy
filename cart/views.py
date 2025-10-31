@@ -30,11 +30,28 @@ def view_cart(request):
         cart = _get_user_cart(request.user)
         db_items = list(cart.items.select_related("product", "variant"))
         cart_items = []
+        def _thumb_for(product, color: str):
+            try:
+                imgs = list(getattr(product, "images", None).all()) if getattr(product, "images", None) else []
+                if color:
+                    low = str(color).strip().lower()
+                    for im in imgs:
+                        c = (getattr(im, "color", "") or "").strip().lower()
+                        if c and c == low and getattr(im, "image", None) and getattr(im.image, "url", None):
+                            return im.image.url
+                if imgs:
+                    im0 = imgs[0]
+                    if getattr(im0, "image", None) and getattr(im0.image, "url", None):
+                        return im0.image.url
+            except Exception:
+                return ""
+            return ""
         for it in db_items:
             try:
                 size_options = list({v.size for v in it.product.variants.all()})
             except Exception:
                 size_options = []
+            color = (getattr(it.variant, "color", None) or "") if it.variant else ""
             cart_items.append({
                 "db_item_id": it.id,
                 "product": it.product,
@@ -43,6 +60,7 @@ def view_cart(request):
                 "unit_price": it.unit_price(),
                 "line_total": it.line_total(),
                 "size_options": size_options,
+                "thumb_url": _thumb_for(it.product, color),
             })
         subtotal = cart.subtotal()
     else:
@@ -53,6 +71,7 @@ def view_cart(request):
                 size_options = list({v.size for v in it.product.variants.all()})
             except Exception:
                 size_options = []
+            color = (getattr(it.variant, "color", None) or "") if it.variant else ""
             cart_items.append({
                 "db_item_id": None,
                 "product": it.product,
@@ -61,6 +80,7 @@ def view_cart(request):
                 "unit_price": it.unit_price(),
                 "line_total": it.line_total(),
                 "size_options": size_options,
+                "thumb_url": _thumb_for(it.product, color),
             })
         subtotal = sum((it["line_total"] for it in cart_items), Decimal("0.00"))
     # Coupon application

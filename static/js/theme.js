@@ -230,9 +230,34 @@ wireImageSearchCameraFirst('imageSearchBtnMobileTop', 'imageSearchFormMobileTop'
     if (!form) return;
     const input = form.querySelector('input[name="quantity"]');
     if (!input) return;
+    // Find available stock from closest cart row
+    let avail = Infinity;
+    try {
+      const row = form.closest('.cart-row');
+      if (row && row.dataset && row.dataset.avail){
+        avail = parseInt(row.dataset.avail || '0', 10);
+        if (isNaN(avail)) avail = Infinity;
+      }
+    } catch(_){}
     let v = parseInt(input.value || '1', 10);
     if (isNaN(v) || v < 1) v = 1;
-    v = inc ? v + 1 : Math.max(1, v - 1);
+    if (inc){
+      if (v >= avail){
+        // Toast: No more quantity available
+        try {
+          let t = document.getElementById('miniToast');
+          if (!t){ t = document.createElement('div'); t.id='miniToast'; document.body.appendChild(t); }
+          t.style.cssText = 'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:#111;color:#fff;padding:8px 12px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.25);z-index:1080;';
+          t.textContent = 'No more quantity available.';
+          t.style.display = 'block';
+          clearTimeout(t._hideTimer); t._hideTimer = setTimeout(()=>{ t.style.display='none'; }, 1500);
+        } catch(_){}
+        return;
+      }
+      v = v + 1;
+    } else {
+      v = Math.max(1, v - 1);
+    }
     input.value = v;
     // Trigger the same auto-submit debounce as manual input
     input.dispatchEvent(new Event('input', { bubbles: true }));

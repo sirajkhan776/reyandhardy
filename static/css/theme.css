@@ -191,6 +191,45 @@ label.form-label { font-weight: 600; }
 /* Wishlist */
 .wish-btn { border-radius: 999px; }
 
+/* Cart swatches (variant color indicator) */
+.cart-swatch { width: 44px; height: 44px; border-radius: 8px; border: 1px solid var(--rh-border); flex: 0 0 44px; }
+.swatch-black{ background:#111; }
+.swatch-white{ background:#fff; border-color:#e5e7eb; }
+.swatch-grey{ background:#6b7280; }
+.swatch-gray{ background:#6b7280; }
+.swatch-red{ background:#ef4444; }
+.swatch-blue{ background:#2563eb; }
+.swatch-navy-blue{ background:#1e3a8a; }
+.swatch-green{ background:#10b981; }
+.swatch-olive{ background:#556b2f; }
+.swatch-yellow{ background:#f59e0b; }
+.swatch-orange{ background:#f97316; }
+.swatch-pink{ background:#ec4899; }
+.swatch-purple{ background:#8b5cf6; }
+.swatch-brown{ background:#7c4a33; }
+.swatch-maroon{ background:#7f1d1d; }
+.swatch-beige{ background:#f5f5dc; border-color:#d1d5db; }
+/* Small product thumbnail for cart */
+.cart-thumb-sm { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; border: 1px solid var(--rh-border); flex: 0 0 44px; }
+.cart-thumb-ph { display:inline-block; width: 44px; height: 44px; border-radius: 8px; background: var(--g2); border: 1px solid var(--rh-border); }
+
+/* Cart quantity stepper - improve visibility, touch targets */
+.qty-stepper { display: inline-flex; align-items: center; gap: 6px; }
+.qty-stepper .btn { width: 34px; height: 34px; padding: 0; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; }
+.qty-stepper .btn i { font-size: 18px; line-height: 1; }
+.cart-qty-input { width: 60px; height: 34px; padding: 0 6px; text-align: center; }
+
+/* Dark theme legibility */
+html[data-theme='dark'] .qty-stepper .btn.btn-outline-secondary { color: #e5e7eb; border-color: #52525b; }
+html[data-theme='dark'] .cart-qty-input { color: #e5e7eb; background: #1f2937; border-color: #374151; }
+
+/* Mobile: slightly larger buttons */
+@media (max-width: 575.98px){
+  .qty-stepper .btn { width: 38px; height: 38px; border-radius: 10px; }
+  .qty-stepper .btn i { font-size: 20px; }
+  .cart-qty-input { width: 66px; height: 38px; }
+}
+
 /* Auth pages */
 .auth-card { border: 0; border-radius: 14px; }
 .auth-card .btn { padding: .6rem .9rem; }
