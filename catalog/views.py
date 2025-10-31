@@ -173,8 +173,10 @@ def product_detail(request, slug):
     total_media_count = ReviewMedia.objects.filter(review__product=product).count()
     remaining_media = max(0, total_media_count - len(recent_media))
 
-    # Latest review
-    latest_review = product.reviews.select_related("user").prefetch_related("media").order_by("-created_at").first()
+    # Latest review and preview list of all reviews (product-wide, not variant-specific)
+    review_qs = product.reviews.select_related("user").prefetch_related("media").order_by("-created_at")
+    latest_review = review_qs.first()
+    reviews_preview = list(review_qs[:10])
 
     # Similar products from same category
     similar_qs = (
@@ -222,6 +224,7 @@ def product_detail(request, slug):
             "recent_media": recent_media,
             "remaining_media": remaining_media,
             "latest_review": latest_review,
+            "reviews_preview": reviews_preview,
             "similar_products": similar_products,
             "qs_size": qs_size,
             "qs_color": qs_color,
