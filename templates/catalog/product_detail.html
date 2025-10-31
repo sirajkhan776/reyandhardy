@@ -865,8 +865,13 @@
       var csrf = (form.querySelector('input[name="csrfmiddlewaretoken"]') || {}).value || '';
       fetch(url, { method:'POST', body: fd, headers:{ 'X-Requested-With':'XMLHttpRequest','Accept':'application/json','X-CSRFToken':csrf }, credentials:'same-origin' })
         .then(function(r){ return r.json().catch(function(){ return {}; }); })
-        .then(function(data){ if (btn){ btn.disabled=false; btn.textContent = btn.dataset._label || 'Add to Cart'; } if (data && typeof data.cart_count!=='undefined'){ updateCartBadges(parseInt(data.cart_count||0,10)); } showToast((data&&data.message)||'Added to cart'); })
-        .catch(function(){ if (btn){ btn.disabled=false; btn.textContent = btn.dataset._label || 'Add to Cart'; } showToast('Added to cart'); });
+        .then(function(data){
+          if (btn){ btn.disabled=false; btn.textContent = btn.dataset._label || 'Add to Cart'; }
+          if (data && data.ok === false){ showToast(data.message || 'There are not enough items in stock.'); return; }
+          if (data && typeof data.cart_count!=='undefined'){ updateCartBadges(parseInt(data.cart_count||0,10)); }
+          showToast((data&&data.message)||'Added to cart');
+        })
+        .catch(function(){ if (btn){ btn.disabled=false; btn.textContent = btn.dataset._label || 'Add to Cart'; } showToast('There are not enough items in stock.'); });
     }
 
     var sizeModalEl = document.getElementById('simSizeModal');

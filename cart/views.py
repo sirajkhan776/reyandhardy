@@ -203,6 +203,41 @@ def add_to_cart(request, product_id):
             variant = qs.first()
 
     qty = int(request.POST.get("quantity", 1))
+
+    # Enforce stock availability for variants
+    if variant:
+        try:
+            available = int(getattr(variant, "stock", 0) or 0)
+            # Include any existing quantity of this variant in cart
+            existing_qty = 0
+            if request.user.is_authenticated:
+                try:
+                    cart_obj = _get_user_cart(request.user)
+                    existing = cart_obj.items.filter(product=product, variant=variant).first()
+                    existing_qty = existing.quantity if existing else 0
+                except Exception:
+                    existing_qty = 0
+            else:
+                # Check session cart
+                try:
+                    from .utils import _get_session_cart
+                    sesi = _get_session_cart(request)
+                    for it in sesi.get("items", []):
+                        if it.get("product_id") == product.id and it.get("variant_id") == variant.id:
+                            existing_qty = int(it.get("quantity", 0) or 0)
+                            break
+                except Exception:
+                    existing_qty = 0
+            desired_total = existing_qty + qty
+            if desired_total > available:
+                msg = "There are not enough items in stock."
+                if is_ajax:
+                    return JsonResponse({"ok": False, "error": "out_of_stock", "message": msg, "available": available}, status=400)
+                messages.error(request, msg)
+                # Redirect back to product page
+                return redirect("product_detail", slug=product.slug)
+        except Exception:
+            pass
     # Buy Now flow: skip adding to cart, store as temporary session item
     if request.POST.get("buy_now") == "1":
         # Store selected variant info for reliable checkout summary
@@ -263,6 +298,14 @@ def update_cart_item(request, item_id):
     if request.user.is_authenticated:
         try:
             item = CartItem.objects.get(id=item_id, cart__user=request.user)
+            # Stock check for variant
+            var = getattr(item, "variant", None)
+            if var and qty > int(getattr(var, "stock", 0) or 0):
+                msg = "There are not enough items in stock."
+                if is_ajax:
+                    return JsonResponse({"ok": False, "error": "out_of_stock", "message": msg, "available": int(getattr(var, 'stock', 0) or 0)}, status=400)
+                messages.error(request, msg)
+                return redirect("view_cart")
             item.quantity = qty
             item.save()
             product = item.product
@@ -277,6 +320,19 @@ def update_cart_item(request, item_id):
             pid = int(request.POST.get("product_id"))
             vid_raw = request.POST.get("variant_id")
             vid = int(vid_raw) if vid_raw not in (None, "", "None") else None
+            # Stock check for session item
+            if vid:
+                from catalog.models import Variant
+                try:
+                    vobj = Variant.objects.get(id=vid)
+                    if qty > int(getattr(vobj, "stock", 0) or 0):
+                        msg = "There are not enough items in stock."
+                        if is_ajax:
+                            return JsonResponse({"ok": False, "error": "out_of_stock", "message": msg, "available": int(getattr(vobj, 'stock', 0) or 0)}, status=400)
+                        messages.error(request, msg)
+                        return redirect("view_cart")
+                except Variant.DoesNotExist:
+                    pass
             update_session_item_session(request, pid, vid, qty)
             product = get_object_or_404(Product, id=pid)
             variant = Variant.objects.filter(id=vid).first() if vid else None
@@ -286,6 +342,19 @@ def update_cart_item(request, item_id):
         pid = int(request.POST.get("product_id"))
         vid_raw = request.POST.get("variant_id")
         vid = int(vid_raw) if vid_raw not in (None, "", "None") else None
+        # For guest updates via session
+        if vid:
+            from catalog.models import Variant
+            try:
+                vobj = Variant.objects.get(id=vid)
+                if qty > int(getattr(vobj, "stock", 0) or 0):
+                    msg = "There are not enough items in stock."
+                    if is_ajax:
+                        return JsonResponse({"ok": False, "error": "out_of_stock", "message": msg, "available": int(getattr(vobj, 'stock', 0) or 0)}, status=400)
+                    messages.error(request, msg)
+                    return redirect("view_cart")
+            except Variant.DoesNotExist:
+                pass
         update_session_item_session(request, pid, vid, qty)
         product = get_object_or_404(Product, id=pid)
         variant = Variant.objects.filter(id=vid).first() if vid else None

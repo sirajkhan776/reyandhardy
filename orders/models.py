@@ -56,6 +56,8 @@ class Order(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    # Whether stock has been decremented for this order (upon 'packed' status)
+    stock_debited = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Order {self.order_number} ({self.user})"

@@ -936,8 +936,29 @@ def update_order_status(request, pk: int):
             return JsonResponse({"ok": False, "error": "invalid_status"}, status=400)
         messages.error(request, "Invalid status selected")
         return redirect("dashboard_orders")
+    prev_status = order.status
     order.status = new_status
     order.save(update_fields=["status", "updated_at"])
+    # When moving into 'packed', decrement stock once
+    try:
+        if new_status == "packed" and not order.stock_debited:
+            for it in order.items.select_related("variant").all():
+                var = getattr(it, "variant", None)
+                if not var:
+                    continue
+                try:
+                    current = int(getattr(var, "stock", 0) or 0)
+                    new_val = max(0, current - int(it.quantity))
+                    if new_val != current:
+                        var.stock = new_val
+                        var.save(update_fields=["stock"])
+                except Exception:
+                    continue
+            order.stock_debited = True
+            order.save(update_fields=["stock_debited", "updated_at"])
+    except Exception:
+        # Do not break status update if stock debit fails
+        pass
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
         return JsonResponse({"ok": True, "status": order.status, "status_display": order.get_status_display()})
     messages.success(request, f"Order {order.order_number} status updated to {order.get_status_display()}")
