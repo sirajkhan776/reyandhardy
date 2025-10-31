@@ -7,6 +7,7 @@ try:
 except Exception:
     Banner = None
 from django.db.models import Q, F, DecimalField, ExpressionWrapper, Avg, Count
+from reviews.models import ReviewMedia
 import json
 from PIL import Image
 import io
@@ -142,6 +143,60 @@ def product_detail(request, slug):
         order = {s: i for i, s in enumerate(sizes)}
         return [s for s in sizes if s in szs]
     color_size_map = {c: _order_sizes(szs) for c, szs in c2s.items()}
+
+    # Build nested stock map: color -> size -> stock
+    stock_map = {}
+    try:
+        for v in product.variants.all():
+            c = (v.color or "").strip()
+            s = (v.size or "").strip()
+            if not c or not s:
+                continue
+            stock_map.setdefault(c, {})[s] = int(getattr(v, "stock", 0) or 0)
+    except Exception:
+        stock_map = {}
+    # Ratings & Reviews summary
+    try:
+        stats = product.reviews.aggregate(avg_rating=Avg("rating"), rating_count=Count("id"))
+        avg_rating = float(stats.get("avg_rating") or 0.0)
+        # one decimal place for display
+        avg_rating_disp = round(avg_rating + 1e-8, 1)
+        rating_count = int(stats.get("rating_count") or 0)
+        review_count = rating_count
+    except Exception:
+        avg_rating_disp = 0.0
+        rating_count = 0
+        review_count = 0
+
+    # Recent review media (images/videos)
+    recent_media = list(ReviewMedia.objects.filter(review__product=product).order_by("-created_at")[0:4])
+    total_media_count = ReviewMedia.objects.filter(review__product=product).count()
+    remaining_media = max(0, total_media_count - len(recent_media))
+
+    # Latest review
+    latest_review = product.reviews.select_related("user").prefetch_related("media").order_by("-created_at").first()
+
+    # Similar products from same category
+    similar_qs = (
+        Product.objects.filter(is_active=True, category=product.category)
+        .exclude(id=product.id)
+        .annotate(avg_rating=Avg("reviews__rating"), review_count=Count("reviews"))
+        .filter(review_count__gt=0)
+        .prefetch_related("images")
+        .order_by("-avg_rating", "-review_count", "-created_at")
+    )
+    similar_products = list(similar_qs[:8])
+    if not similar_products:
+        fallback_qs = (
+            Product.objects.filter(is_active=True)
+            .exclude(id=product.id)
+            .annotate(avg_rating=Avg("reviews__rating"), review_count=Count("reviews"))
+            .filter(review_count__gt=0)
+            .prefetch_related("images")
+            .order_by("-avg_rating", "-review_count", "-created_at")
+        )
+        similar_products = list(fallback_qs[:8])
+
     return render(
         request,
         "catalog/product_detail.html",
@@ -155,6 +210,15 @@ def product_detail(request, slug):
             "images": images,
             "color_size_map_json": json.dumps(color_size_map),
             "sizes_json": json.dumps(list(sizes)),
+            "variant_stock_map_json": json.dumps(stock_map),
+            # review summary
+            "avg_rating": avg_rating_disp,
+            "rating_count": rating_count,
+            "review_count": review_count,
+            "recent_media": recent_media,
+            "remaining_media": remaining_media,
+            "latest_review": latest_review,
+            "similar_products": similar_products,
         },
     )
 

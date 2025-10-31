@@ -50,6 +50,31 @@
                 {% endif %}
                 <a href="{% url 'order_support' o.order_number %}" class="btn btn-sm btn-outline-light">Get help</a>
               </div>
+              {% if o.status == 'delivered' %}
+              <div class="order-rate mt-3">
+                <style>
+                  .rh-stars .star { background:none; border:0; padding:0 2px; line-height:1; }
+                  .rh-stars .star i { font-size: 1.25rem; }
+                </style>
+                {% for it in o.items.all %}
+                  <form class="rate-form mb-2" data-product-id="{{ it.product.id }}" data-next-url="{% url 'order_list' %}">
+                    <input type="hidden" name="rating" value="0" />
+                    <div class="d-flex align-items-center justify-content-start">
+                      <div class="rh-stars" aria-label="Rate this product">
+                        <button type="button" class="star" data-val="1" aria-label="1 star"><i class="bi bi-star"></i></button>
+                        <button type="button" class="star" data-val="2" aria-label="2 stars"><i class="bi bi-star"></i></button>
+                        <button type="button" class="star" data-val="3" aria-label="3 stars"><i class="bi bi-star"></i></button>
+                        <button type="button" class="star" data-val="4" aria-label="4 stars"><i class="bi bi-star"></i></button>
+                        <button type="button" class="star" data-val="5" aria-label="5 stars"><i class="bi bi-star"></i></button>
+                      </div>
+                    </div>
+                    <div class="mt-2">
+                      <a class="btn btn-primary btn-sm d-none review-link" href="#">Write a Review</a>
+                    </div>
+                  </form>
+                {% endfor %}
+              </div>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -62,4 +87,37 @@
       <a href="/" class="btn btn-primary mt-2">Start Shopping</a>
     </div>
   {% endif %}
+{% endblock %}
+{% block scripts %}
+<script>
+  // Inline rating behavior: after selecting stars, show a button to open dedicated review page
+  (function(){
+    document.addEventListener('click', function(e){
+      var btn = e.target.closest('.rate-form .star');
+      if (!btn) return;
+      e.preventDefault();
+      var form = btn.closest('.rate-form');
+      if (!form) return;
+      var val = parseInt(btn.getAttribute('data-val') || '0', 10);
+      if (!val) return;
+      var input = form.querySelector('input[name="rating"]');
+      if (input) input.value = String(val);
+      // Update star icons
+      form.querySelectorAll('.star').forEach(function(st){
+        var v = parseInt(st.getAttribute('data-val') || '0', 10);
+        var i = st.querySelector('i');
+        if (!i) return;
+        i.className = (v <= val) ? 'bi bi-star-fill text-warning' : 'bi bi-star';
+      });
+      var link = form.querySelector('.review-link');
+      if (!link) return;
+      var pid = form.getAttribute('data-product-id');
+      var next = form.getAttribute('data-next-url') || '';
+      var url = '/reviews/write/' + encodeURIComponent(pid) + '/?rating=' + encodeURIComponent(String(val));
+      if (next) url += '&next=' + encodeURIComponent(next);
+      link.href = url;
+      link.classList.remove('d-none');
+    });
+  })();
+</script>
 {% endblock %}

@@ -1,4 +1,50 @@
 {% extends "base.html" %}
+{% block head %}
+<style>
+  /* Enhanced size button UI: slightly smaller text, more spacing, better states */
+  .option-pills .size-pill {
+    font-weight: 600;
+    font-size: .82rem;                 /* smaller text only */
+    padding: .72rem 1.05rem;           /* more padding */
+    min-width: 70px;                   /* a bit wider */
+    border-width: 2px;
+    border-radius: 14px;
+    margin-right: 0;
+    margin-bottom: 0;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    transition: all .15s ease-in-out;
+  }
+  /* Wrapper so each size option stacks its stock text under the pill */
+  .option-pills .size-option { display:inline-flex; flex-direction:column; align-items:center; margin-right:.5rem; margin-bottom:.5rem; }
+  .option-pills .size-pill-vertical { display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1.1; }
+  .option-pills .size-pill:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,.08); }
+  .option-pills .btn-check:checked + .size-pill {
+    border-color: var(--bs-primary);
+    color: var(--bs-primary);
+    background-color: rgba(var(--bs-primary-rgb, 13,110,253), .08);
+  }
+  .option-pills .btn-check:disabled + .size-pill { opacity: .6; }
+  /* Make the size text (M, L, XL) slightly smaller without changing button size */
+  .option-pills .size-label { font-size: .78rem; }
+  .option-pills .size-price { font-weight: 600; font-size: .72rem; opacity: .85; }
+  .option-pills .size-stock { font-size: .68rem; line-height: 1.1; }
+  .option-pills .size-pill + .size-stock { margin-top: .3rem; }
+  @media (min-width: 768px){
+    /* keep desktop selects tidy */
+    #sizeStockDesktop { margin-top: .25rem; }
+  }
+  /* Similar products horizontal scroller */
+  .rh-similar { display:flex; gap:12px; overflow-x:auto; padding-bottom:6px; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }
+  .rh-similar .sim-item { min-width: 170px; max-width: 170px; scroll-snap-align: start; }
+  .rh-similar .sim-card { border:1px solid var(--rh-border, rgba(0,0,0,.1)); }
+  .rh-similar .sim-card .card-img-top { height: 170px; object-fit: cover; }
+  /* Mini toast */
+  .mini-toast { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); background: #111; color: #fff; padding: 8px 12px; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.25); z-index: 1080; display: none; }
+  /* Wishlist heart hover */
+  #wishlistToggle:hover #wishlistIcon { color: var(--rh-gold, #d4af37); }
+</style>
+{% endblock %}
+
 {% block content %}
   <div class="row">
     <div class="col-md-6">
@@ -47,6 +93,7 @@
 
       <form method="post" action="/cart/add/{{ product.id }}/">
         {% csrf_token %}
+        <input type="hidden" name="quantity" value="1" />
         {% if sizes or colors %}
           <div class="row g-2">
             {% if sizes %}
@@ -55,17 +102,24 @@
                 <label class="form-label m-0">Size</label>
                 <a href="#sizeChartModal" data-bs-toggle="modal" class="small text-decoration-underline">Size chart</a>
               </div>
-              <!-- Desktop select -->
+              <!-- Desktop select (show price next to size) -->
               <select id="sizeSelect" name="size" class="form-select d-none d-md-block" required>
                 {% for s in sizes %}
-                  <option value="{{ s }}">{{ s }}</option>
+                  <option value="{{ s }}">{{ s }} — {{ CURRENCY_SYMBOL }}{{ product.sale_price|default:product.base_price }}</option>
                 {% endfor %}
               </select>
+              <div id="sizeStockDesktop" class="form-text small text-muted d-none d-md-block"></div>
               <!-- Mobile pills -->
               <div class="option-pills d-md-none" id="sizePills">
                 {% for s in sizes %}
-                  <input class="btn-check" type="radio" name="sizeMobile" id="size_{{ forloop.counter }}" value="{{ s }}" {% if forloop.first %}checked{% endif %}>
-                  <label class="btn btn-outline-light btn-sm size-pill" for="size_{{ forloop.counter }}">{{ s }}</label>
+                  <div class="size-option">
+                    <input class="btn-check" type="radio" name="sizeMobile" id="size_{{ forloop.counter }}" value="{{ s }}" {% if forloop.first %}checked{% endif %}>
+                    <label class="btn btn-outline-light size-pill size-pill-vertical text-center" for="size_{{ forloop.counter }}">
+                      <span class="size-label">{{ s }}</span>
+                      <span class="size-price">{{ CURRENCY_SYMBOL }}{{ product.sale_price|default:product.base_price }}</span>
+                    </label>
+                    <div class="size-stock text-muted text-center" data-size="{{ s }}"></div>
+                  </div>
                 {% endfor %}
               </div>
             </div>
@@ -110,21 +164,17 @@
             {% endif %}
           </div>
         {% endif %}
-        <div class="mt-2">
-          <label class="form-label">Quantity</label>
-          <input type="number" name="quantity" value="1" min="1" class="form-control" style="max-width:120px" />
-        </div>
-        <div class="mt-3 d-flex gap-2">
+        <div id="variantStock" class="mt-2 small text-muted" role="status" aria-live="polite"></div>
+        <div class="mt-3 d-flex gap-2 align-items-center">
           <button type="submit" class="btn btn-gradient">Add to Cart</button>
           <button type="submit" name="buy_now" value="1" class="btn btn-primary">Buy Now</button>
+          <button type="button" id="wishlistToggle" class="btn btn-outline-light d-inline-flex align-items-center justify-content-center" style="width:40px;height:40px;border-radius:999px;"
+            data-auth="{% if user.is_authenticated %}1{% else %}0{% endif %}"
+            aria-label="Wishlist"
+            aria-pressed="{% if user.is_authenticated and product.id in wishlist %}true{% else %}false{% endif %}">
+            <i id="wishlistIcon" class="bi {% if user.is_authenticated and product.id in wishlist %}bi-heart-fill text-danger{% else %}bi-heart{% endif %}"></i>
+          </button>
         </div>
-        {% if user.is_authenticated %}
-          {% if product.id in wishlist %}
-            <a href="/wishlist/remove/{{ product.id }}/" class="btn btn-outline-secondary mt-3">Remove from Wishlist</a>
-          {% else %}
-            <a href="/wishlist/add/{{ product.id }}/" class="btn btn-outline-secondary mt-3">Add to Wishlist</a>
-          {% endif %}
-        {% endif %}
       </form>
     </div>
   </div>
@@ -214,6 +264,7 @@
       syncRadiosToSelect('colorMobile', 'colorSelect');
       var COLOR_SIZE_MAP = (function(){ try { return JSON.parse('{{ color_size_map_json|escapejs }}'); } catch(e){ return {}; } })();
       var ALL_SIZES = (function(){ try { return JSON.parse('{{ sizes_json|escapejs }}'); } catch(e){ return []; } })();
+      var VARIANT_STOCK = (function(){ try { return JSON.parse('{{ variant_stock_map_json|escapejs }}'); } catch(e){ return {}; } })();
       var mediaTimer = null;
       function cacheOriginal(containerId){
         var cont = document.getElementById(containerId);
@@ -249,6 +300,8 @@
           var lab = document.querySelector('label[for="'+r.id+'"]');
           r.disabled = !ok;
           if (lab) lab.classList.toggle('d-none', !ok);
+          var stockDiv = document.querySelector('.size-stock[data-size="'+r.value+'"]');
+          if (stockDiv) stockDiv.classList.toggle('d-none', !ok);
           if (ok && !first) first = r;
         });
         var current = Array.prototype.find.call(radios, function(r){ return r.checked; });
@@ -257,6 +310,103 @@
           // sync to select
           if (sel) sel.value = first.value;
         }
+        updateVariantStock();
+        updateSizeListStocks();
+      }
+      function currentSelection(){
+        var color = (document.querySelector('input[name="colorMobile"]:checked') || {}).value || (document.getElementById('colorSelect') || {}).value || '';
+        var size = (document.querySelector('input[name="sizeMobile"]:checked') || {}).value || (document.getElementById('sizeSelect') || {}).value || '';
+        return { color: color, size: size };
+      }
+      function updateVariantStock(){
+        try {
+          var sel = currentSelection();
+          var stock = 0;
+          if (sel.color && sel.size && VARIANT_STOCK[sel.color] && typeof VARIANT_STOCK[sel.color][sel.size] !== 'undefined'){
+            stock = parseInt(VARIANT_STOCK[sel.color][sel.size] || 0, 10);
+          }
+          var el = document.getElementById('variantStock');
+          if (el){
+            if (sel.color && sel.size){
+              if (stock > 0 && stock <= 10){
+                el.classList.remove('text-muted');
+                el.classList.add('text-danger');
+              }
+              else if (stock <= 0) {
+                el.textContent = 'Out of stock for this selection';
+                el.classList.remove('text-danger');
+                el.classList.add('text-muted');
+              }
+              else {
+                el.textContent = '';
+                el.classList.remove('text-danger');
+                el.classList.add('text-muted');
+              }
+            } else {
+              el.textContent = '';
+              el.classList.remove('text-danger');
+              el.classList.add('text-muted');
+            }
+          }
+          var qty = document.querySelector('input[name="quantity"]');
+          if (qty){
+            qty.max = stock > 0 ? String(stock) : '';
+          }
+          var desk = document.getElementById('sizeStockDesktop');
+          if (desk){
+            if (sel.color && sel.size){
+              if (stock > 0 && stock <= 10){
+                desk.textContent = stock + ' left for ' + sel.size + ' (' + sel.color + ')';
+                desk.classList.remove('text-muted');
+                desk.classList.add('text-danger');
+              }
+              else if (stock <= 0){
+                desk.textContent = sel.size + ' (' + sel.color + ') is out of stock';
+                desk.classList.remove('text-danger');
+                desk.classList.add('text-muted');
+              }
+              else {
+                desk.textContent = '';
+                desk.classList.remove('text-danger');
+                desk.classList.add('text-muted');
+              }
+            } else {
+              desk.textContent = '';
+              desk.classList.remove('text-danger');
+              desk.classList.add('text-muted');
+            }
+          }
+        } catch(e){}
+      }
+      function updateSizeListStocks(){
+        try {
+          var color = (document.querySelector('input[name="colorMobile"]:checked') || {}).value || (document.getElementById('colorSelect') || {}).value || '';
+          var radios = document.getElementsByName('sizeMobile');
+          Array.prototype.forEach.call(radios, function(r){
+            var stockDiv = document.querySelector('.size-stock[data-size="'+r.value+'"]');
+            if (!stockDiv) return;
+            var stock = 0;
+            if (color && VARIANT_STOCK[color] && typeof VARIANT_STOCK[color][r.value] !== 'undefined'){
+              stock = parseInt(VARIANT_STOCK[color][r.value] || 0, 10);
+            }
+            if (r.disabled){ stockDiv.textContent = ''; stockDiv.classList.remove('text-danger'); stockDiv.classList.add('text-muted'); return; }
+            if (stock <= 0){
+              stockDiv.textContent = 'Out of stock';
+              stockDiv.classList.remove('text-danger');
+              stockDiv.classList.add('text-muted');
+            }
+            else if (stock <= 10){
+              stockDiv.textContent = stock + ' left';
+              stockDiv.classList.remove('text-muted');
+              stockDiv.classList.add('text-danger');
+            }
+            else {
+              stockDiv.textContent = '';
+              stockDiv.classList.remove('text-danger');
+              stockDiv.classList.add('text-muted');
+            }
+          });
+        } catch(e){}
       }
       function filterByColor(){
         var color = (document.querySelector('input[name="colorMobile"]:checked') || {}).value || (document.getElementById('colorSelect') || {}).value || '';
@@ -307,6 +457,7 @@
           b.classList.toggle('active', c === (color || '').toLowerCase());
         });
         updateSizesByColor();
+        updateVariantStock();
       }
       // Thumbnail click -> navigate carousel
       function updateThumbActive(idx){
@@ -346,48 +497,158 @@
           filterByColor();
         });
       })();
-      document.querySelectorAll('input[name="colorMobile"]').forEach(function(r){ r.addEventListener('change', filterByColor); });
-      var cs = document.getElementById('colorSelect'); if (cs) cs.addEventListener('change', filterByColor);
+      document.querySelectorAll('input[name="colorMobile"]').forEach(function(r){ r.addEventListener('change', function(){ filterByColor(); updateSizeListStocks(); }); });
+      var cs = document.getElementById('colorSelect'); if (cs) cs.addEventListener('change', function(){ filterByColor(); updateSizeListStocks(); });
+      document.querySelectorAll('input[name="sizeMobile"]').forEach(function(r){ r.addEventListener('change', function(){ updateVariantStock(); updateSizeListStocks(); }); });
+      var ss = document.getElementById('sizeSelect'); if (ss) ss.addEventListener('change', function(){ updateVariantStock(); });
       filterByColor();
       updateSizesByColor();
+      updateVariantStock();
+      updateSizeListStocks();
     });
   })();
-</script>
-  <hr />
-  <div class="row mt-3">
-    <div class="col-md-6">
-      <h5>Customer Reviews</h5>
-      {% for r in product.reviews.all %}
-        <div class="border rounded p-2 mb-2">
-          <div>{{ r.rating }} / 5</div>
-          <div class="fw-bold">{{ r.title }}</div>
-          <div>{{ r.body }}</div>
-          <small class="text-muted">by {{ r.user.username }} on {{ r.created_at }}</small>
+ </script>
+
+  <!-- Similar Products (Horizontal Scroll) -->
+  {% if similar_products %}
+  <div class="mt-4">
+    <h5>Similar Products</h5>
+    <div class="rh-similar">
+      {% for p in similar_products %}
+        <div class="sim-item">
+          <a href="/product/{{ p.slug }}/" class="card sim-card text-decoration-none text-reset">
+            {% with img=p.images.all.0 %}
+              {% if img %}
+                <img src="{{ img.image.url }}" alt="{{ p.name }}" class="card-img-top" />
+              {% else %}
+                <div class="card-img-top d-flex align-items-center justify-content-center bg-light">—</div>
+              {% endif %}
+            {% endwith %}
+            <div class="card-body p-2">
+              <div class="d-flex align-items-center justify-content-between mb-1">
+                {% if p.avg_rating %}
+                  <span class="badge bg-warning text-dark">{{ p.avg_rating|floatformat:1 }} <i class="bi bi-star-fill"></i></span>
+                {% endif %}
+                <span class="small text-muted">{{ p.review_count|default:0 }} reviews</span>
+              </div>
+              <div class="fw-semibold small text-truncate" title="{{ p.name }}">{{ p.name }}</div>
+              <div class="small mt-1">
+                {% if p.sale_price %}
+                  <strong>{{ CURRENCY_SYMBOL }}{{ p.sale_price }}</strong>
+                  <span class="text-muted text-decoration-line-through">{{ CURRENCY_SYMBOL }}{{ p.base_price }}</span>
+                {% else %}
+                  <strong>{{ CURRENCY_SYMBOL }}{{ p.base_price }}</strong>
+                {% endif %}
+              </div>
+            </div>
+          </a>
+          <!-- Hidden variants map for JS (size -> first color) -->
+          <div class="sim-variants d-none">
+            {% for v in p.variants.all %}
+              <span data-size="{{ v.size }}" data-color="{{ v.color }}"></span>
+            {% endfor %}
+          </div>
+          <form method="post" action="/cart/add/{{ p.id }}/" class="mt-2 sim-add" data-product-id="{{ p.id }}" data-no-overlay>
+            {% csrf_token %}
+            <input type="hidden" name="quantity" value="1" />
+            {% with v=p.variants.all.0 %}
+              {% if v %}
+                <input type="hidden" name="size" value="{{ v.size }}" />
+                <input type="hidden" name="color" value="{{ v.color }}" />
+              {% endif %}
+            {% endwith %}
+            <button class="btn btn-sm btn-primary w-100" type="submit">Add to Cart</button>
+          </form>
         </div>
-      {% empty %}
-        <p>No reviews yet.</p>
       {% endfor %}
     </div>
-    <div class="col-md-6">
-      {% if user.is_authenticated %}
-        <h5>Write a Review</h5>
-        <form method="post" action="/reviews/add/{{ product.id }}/">
-          {% csrf_token %}
-          <div class="mb-2"><label class="form-label">Rating</label>
-            <select name="rating" class="form-select" required>
-              <option value="">Select</option>
-              <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
-            </select>
+  </div>
+  {% endif %}
+  <hr />
+  <div class="row mt-3">
+    <div class="col-12">
+      <h5>Ratings & Reviews</h5>
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <span class="badge bg-warning text-dark">
+          {{ avg_rating|default:0 }} <i class="bi bi-star-fill"></i>
+        </span>
+        <span class="text-muted small">{{ rating_count|default:0 }} ratings | {{ review_count|default:0 }} reviews</span>
+      </div>
+      {% if recent_media %}
+      <div id="pdReviewMedia" class="d-flex flex-wrap gap-2 mb-3">
+        {% for m in recent_media %}
+          {% if forloop.counter == 4 and remaining_media and remaining_media > 0 %}
+            <a href="{% url 'product_media' product.slug %}" class="position-relative d-inline-block" style="width:96px;height:72px;border-radius:8px;overflow:hidden;">
+              {% if m.is_image %}
+                <img src="{{ m.file.url }}" alt="" style="width:100%;height:100%;object-fit:cover;filter:blur(2px) brightness(.8);" />
+              {% else %}
+                <video preload="metadata" style="width:100%;height:100%;object-fit:cover;filter:blur(2px) brightness(.8);">
+                  <source src="{{ m.file.url }}" />
+                </video>
+              {% endif %}
+              <span class="position-absolute top-50 start-50 translate-middle badge bg-dark text-light">+{{ remaining_media }}</span>
+            </a>
+          {% else %}
+            {% if m.is_image %}
+              <a href="{% url 'product_media' product.slug %}" class="d-inline-block" style="width:96px;height:72px;overflow:hidden;border-radius:8px;border:1px solid var(--rh-border);">
+                <img src="{{ m.file.url }}" alt="Review image" style="width:100%;height:100%;object-fit:cover;display:block;" />
+              </a>
+            {% else %}
+              <a href="{% url 'product_media' product.slug %}" class="d-inline-block" style="width:96px;height:72px;overflow:hidden;border-radius:8px;border:1px solid var(--rh-border);position:relative;">
+                <video preload="metadata" style="width:100%;height:100%;object-fit:cover;display:block;"><source src="{{ m.file.url }}" /></video>
+                <i class="bi bi-play-circle-fill position-absolute" style="right:6px;bottom:6px;color:white;"></i>
+              </a>
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="fw-semibold mb-2">Customer Reviews ({{ review_count|default:0 }})</div>
+      {% if latest_review %}
+      <div class="border rounded p-3 mb-2">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <span class="badge bg-warning text-dark">{{ latest_review.rating }} <i class="bi bi-star-fill"></i></span>
+          <small class="text-muted">{{ latest_review.created_at|timesince }} ago</small>
+        </div>
+        {% if latest_review.title %}<div class="fw-semibold">{{ latest_review.title }}</div>{% endif %}
+        {% if latest_review.body %}
+        <div class="review-body clamp-4">{{ latest_review.body }}</div>
+        <a href="#" class="small text-decoration-underline review-toggle d-none">Read more</a>
+        {% endif %}
+        {% with items=latest_review.media.all %}
+          {% if items|length %}
+          <div class="mt-2 d-flex flex-wrap gap-2">
+            {% for m in items %}
+              {% if m.is_image %}
+                <a href="{{ m.file.url }}" target="_blank" class="d-inline-block" style="width:96px;height:72px;overflow:hidden;border-radius:8px;border:1px solid var(--rh-border);">
+                  <img src="{{ m.file.url }}" alt="Review image" style="width:100%;height:100%;object-fit:cover;display:block;" />
+                </a>
+              {% else %}
+                <video controls preload="metadata" style="width:140px;height:80px;border-radius:8px;border:1px solid var(--rh-border);object-fit:cover;">
+                  <source src="{{ m.file.url }}" />
+                </video>
+              {% endif %}
+            {% endfor %}
           </div>
-          <div class="mb-2"><label class="form-label">Title</label><input name="title" class="form-control" /></div>
-          <div class="mb-2"><label class="form-label">Review</label><textarea name="body" class="form-control" rows="3"></textarea></div>
-          <button class="btn btn-outline-primary">Submit</button>
-        </form>
+          {% endif %}
+        {% endwith %}
+        <div class="mt-2 small text-muted">Helpful?
+          <a href="#" class="me-2" aria-label="Helpful"><i class="bi bi-hand-thumbs-up"></i></a>
+          <a href="#" aria-label="Not helpful"><i class="bi bi-hand-thumbs-down"></i></a>
+        </div>
+      </div>
+      <div><a href="{% url 'product_reviews' product.slug %}">View all {{ review_count|default:0 }} reviews</a></div>
       {% else %}
-        <p><a href="/accounts/login/">Login</a> to write a review.</p>
+        <p class="text-muted">No reviews yet.</p>
       {% endif %}
     </div>
   </div>
+
+  <style>
+    .review-body { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+    .review-body.expanded { -webkit-line-clamp: initial; display:block; }
+  </style>
 {% endblock %}
 
 {% block scripts %}
@@ -421,6 +682,192 @@
         if (target) { target.focus(); }
         else { document.body.focus(); }
       } catch(e){}
+    });
+  })();
+</script>
+<script>
+  // Read more toggle for latest review
+  (function(){
+    // Only show the toggle link if the text is actually truncated
+    document.addEventListener('DOMContentLoaded', function(){
+      document.querySelectorAll('.review-body').forEach(function(body){
+        var link = body.nextElementSibling;
+        if (!link || !link.classList || !link.classList.contains('review-toggle')) return;
+        try {
+          var needsToggle = body.scrollHeight > body.clientHeight + 1;
+          if (needsToggle) link.classList.remove('d-none');
+          else link.classList.add('d-none');
+        } catch(_){}
+      });
+    });
+    document.addEventListener('click', function(e){
+      var a = e.target.closest('.review-toggle');
+      if (!a) return;
+      e.preventDefault();
+      var body = a.previousElementSibling;
+      if (!body) return;
+      if (body.classList.contains('expanded')){
+        body.classList.remove('expanded');
+        a.textContent = 'Read more';
+      } else {
+        body.classList.add('expanded');
+        a.textContent = 'Read less';
+      }
+    });
+  })();
+</script>
+<script>
+  // Wishlist heart toggle (icon only)
+  (function(){
+    function ensureToast(){
+      var t = document.getElementById('miniToast');
+      if (!t){ t = document.createElement('div'); t.id = 'miniToast'; t.className = 'mini-toast'; document.body.appendChild(t); }
+      return t;
+    }
+    function showToast(msg){ var t = ensureToast(); t.textContent = msg || 'Saved'; t.style.display='block'; clearTimeout(t._hideTimer); t._hideTimer=setTimeout(function(){ t.style.display='none'; }, 1500); }
+    var btn = document.getElementById('wishlistToggle');
+    if (!btn) return;
+    btn.addEventListener('click', function(){
+      var authed = btn.getAttribute('data-auth') === '1';
+      if (!authed){ window.location.href = '/accounts/login/?next=' + encodeURIComponent(window.location.pathname); return; }
+      var pressed = btn.getAttribute('aria-pressed') === 'true';
+      var pid = '{{ product.id }}';
+      var url = pressed ? ('/wishlist/remove/' + pid + '/') : ('/wishlist/add/' + pid + '/');
+      fetch(url, { method: 'GET', credentials: 'same-origin', headers: { 'X-Requested-With':'XMLHttpRequest' } })
+        .then(function(){
+          var icon = document.getElementById('wishlistIcon');
+          if (pressed){ icon.className = 'bi bi-heart'; btn.setAttribute('aria-pressed','false'); showToast('Removed from wishlist'); }
+          else { icon.className = 'bi bi-heart-fill text-danger'; btn.setAttribute('aria-pressed','true'); showToast('Added to wishlist'); }
+        })
+        .catch(function(){ /* fallback: optimistic UI already toggled via then */ });
+    });
+  })();
+</script>
+<!-- Size picker modal for similar products -->
+<div class="modal fade" id="simSizeModal" tabindex="-1" aria-labelledby="simSizeLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="simSizeLabel">Select Size</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="simSizeOptions" class="d-flex flex-wrap gap-2"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="simSizeDone">Done</button>
+      </div>
+    </div>
+  </div>
+  </div>
+<script>
+  // AJAX add-to-cart for similar product forms + mini toast + size picker
+  (function(){
+    function showToast(msg){
+      var t = document.getElementById('miniToast');
+      if (!t){
+        t = document.createElement('div');
+        t.id = 'miniToast';
+        t.className = 'mini-toast';
+        document.body.appendChild(t);
+      }
+      t.textContent = msg || 'Added to cart';
+      t.style.display = 'block';
+      clearTimeout(t._hideTimer);
+      t._hideTimer = setTimeout(function(){ t.style.display = 'none'; }, 1800);
+    }
+    function updateCartBadges(count){
+      try {
+        var navCart = document.querySelector('.navbar .nav-link[href="/cart/"]');
+        if (navCart){
+          var b = navCart.querySelector('.badge');
+          if (!b && count > 0){
+            b = document.createElement('span');
+            b.className = 'badge rounded-pill bg-danger ms-1';
+            navCart.appendChild(b);
+          }
+          if (b){
+            if (count > 0){ b.textContent = String(count); b.style.display = 'inline-block'; }
+            else { b.remove(); }
+          }
+        }
+        var mobileAnchor = document.querySelector('.mobile-bottom-nav .mobile-nav-item[href="/cart/"]');
+        if (mobileAnchor){
+          var mb = mobileAnchor.querySelector('.mobile-badge');
+          if (!mb && count > 0){
+            mb = document.createElement('span');
+            mb.className = 'badge rounded-pill bg-danger mobile-badge';
+            mobileAnchor.appendChild(mb);
+          }
+          if (mb){
+            if (count > 0){ mb.textContent = String(count); mb.style.display = 'inline-block'; }
+            else { mb.remove(); }
+          }
+        }
+      } catch(_){}
+    }
+    function doAdd(form){
+      var fd = new FormData(form);
+      var url = form.getAttribute('action');
+      var btn = form.querySelector('button[type="submit"]');
+      if (btn){ btn.disabled = true; btn.dataset._label = btn.textContent; btn.textContent = 'Adding...'; }
+      var csrf = (form.querySelector('input[name="csrfmiddlewaretoken"]') || {}).value || '';
+      fetch(url, { method:'POST', body: fd, headers:{ 'X-Requested-With':'XMLHttpRequest','Accept':'application/json','X-CSRFToken':csrf }, credentials:'same-origin' })
+        .then(function(r){ return r.json().catch(function(){ return {}; }); })
+        .then(function(data){ if (btn){ btn.disabled=false; btn.textContent = btn.dataset._label || 'Add to Cart'; } if (data && typeof data.cart_count!=='undefined'){ updateCartBadges(parseInt(data.cart_count||0,10)); } showToast((data&&data.message)||'Added to cart'); })
+        .catch(function(){ if (btn){ btn.disabled=false; btn.textContent = btn.dataset._label || 'Add to Cart'; } showToast('Added to cart'); });
+    }
+
+    var sizeModalEl = document.getElementById('simSizeModal');
+    var sizeModal = sizeModalEl && window.bootstrap ? bootstrap.Modal.getOrCreateInstance(sizeModalEl) : null;
+    var sizeOpts = document.getElementById('simSizeOptions');
+    var pendingForm = null;
+    var sizeMap = {};
+    document.addEventListener('submit', function(e){
+      var form = e.target.closest('form.sim-add');
+      if (!form) return;
+      e.preventDefault();
+      // If this product has variant sizes, show picker first
+      var holder = form.previousElementSibling; // sim-variants div
+      var spans = holder ? holder.querySelectorAll('[data-size]') : [];
+      var sizes = [];
+      sizeMap = {};
+      Array.prototype.forEach.call(spans, function(sp){
+        var s = sp.getAttribute('data-size') || '';
+        var c = sp.getAttribute('data-color') || '';
+        if (!s) return;
+        if (typeof sizeMap[s] === 'undefined'){ sizeMap[s] = c; sizes.push(s); }
+      });
+      if (sizes.length){
+        pendingForm = form;
+        // Render radios
+        if (sizeOpts){ sizeOpts.innerHTML = ''; }
+        sizes.forEach(function(s, idx){
+          var id = 'simSize_' + s + '_' + String(Math.random()).slice(2,7);
+          var w = document.createElement('div'); w.className = 'form-check form-check-inline';
+          var inp = document.createElement('input'); inp.type='radio'; inp.name='simSizePick'; inp.id=id; inp.value=s; inp.className='form-check-input'; if (idx===0) inp.checked=true;
+          var lab = document.createElement('label'); lab.htmlFor=id; lab.className='form-check-label'; lab.textContent = s;
+          w.appendChild(inp); w.appendChild(lab); sizeOpts.appendChild(w);
+        });
+        if (sizeModal) sizeModal.show();
+      } else {
+        // No variants -> add straight away
+        doAdd(form);
+      }
+    });
+    document.getElementById('simSizeDone')?.addEventListener('click', function(){
+      if (!pendingForm) return;
+      var picked = (document.querySelector('input[name="simSizePick"]:checked') || {}).value || '';
+      if (!picked) return;
+      // Update hidden inputs on the form
+      var sIn = pendingForm.querySelector('input[name="size"]'); if (!sIn){ sIn = document.createElement('input'); sIn.type='hidden'; sIn.name='size'; pendingForm.appendChild(sIn); }
+      var cIn = pendingForm.querySelector('input[name="color"]'); if (!cIn){ cIn = document.createElement('input'); cIn.type='hidden'; cIn.name='color'; pendingForm.appendChild(cIn); }
+      sIn.value = picked;
+      cIn.value = sizeMap[picked] || '';
+      if (sizeModal) sizeModal.hide();
+      doAdd(pendingForm);
+      pendingForm = null; sizeMap = {};
     });
   })();
 </script>

@@ -80,9 +80,49 @@
                 <div class="text-end">
                   <div class="small">Qty: {{ it.quantity }}</div>
                   <div class="text-nowrap">{{ CURRENCY_SYMBOL }}{{ it.line_total }}</div>
-                  <a class="btn btn-sm btn-outline-light mt-1" href="/product/{{ it.product.slug }}/">Write a product review</a>
+                  {% if order.status == 'delivered' %}
+                    <button class="btn btn-sm btn-outline-light mt-1" data-bs-toggle="modal" data-bs-target="#reviewModal_{{ forloop.counter }}">Write a product review</button>
+                  {% endif %}
                 </div>
               </div>
+
+              {% if order.status == 'delivered' %}
+              <!-- Review Modal for this item -->
+              <div class="modal fade" id="reviewModal_{{ forloop.counter }}" tabindex="-1" aria-labelledby="reviewLabel_{{ forloop.counter }}" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="reviewLabel_{{ forloop.counter }}">Review: {{ it.product.name }}</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="post" action="/reviews/add/{{ it.product.id }}/" enctype="multipart/form-data">
+                      {% csrf_token %}
+                      <input type="hidden" name="next" value="{% url 'order_detail' order.order_number %}" />
+                      <div class="modal-body">
+                        <div class="mb-2">
+                          <label class="form-label">Rating</label>
+                          <select name="rating" class="form-select" required>
+                            <option value="">Select</option>
+                            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+                          </select>
+                        </div>
+                        <div class="mb-2"><label class="form-label">Title</label><input name="title" class="form-control" /></div>
+                        <div class="mb-2"><label class="form-label">Review</label><textarea name="body" class="form-control" rows="3"></textarea></div>
+                        <div class="mb-2">
+                          <label class="form-label">Add photos or videos</label>
+                          <input type="file" name="media" accept="image/*,video/*" multiple class="form-control" />
+                          <div class="form-text">Up to 6 files. Images or short videos only.</div>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn btn-primary">Submit Review</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              {% endif %}
             {% endfor %}
           </div>
         </div>

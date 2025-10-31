@@ -184,6 +184,7 @@ def view_cart(request):
 
 
 def add_to_cart(request, product_id):
+    is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest" or "application/json" in request.headers.get("Accept", "")
     product = get_object_or_404(Product, id=product_id, is_active=True)
     size = request.POST.get("size")
     color = request.POST.get("color")
@@ -222,6 +223,19 @@ def add_to_cart(request, product_id):
         request.session.modified = True
     except Exception:
         pass
+    # Build quick response
+    def _cart_count():
+        try:
+            if request.user.is_authenticated and hasattr(request.user, "cart"):
+                return sum((it.quantity for it in request.user.cart.items.all()), 0)
+            else:
+                ses_items = get_session_items(request)
+                return sum((it.quantity for it in ses_items), 0)
+        except Exception:
+            return 0
+
+    if is_ajax:
+        return JsonResponse({"ok": True, "message": "Added to cart", "cart_count": _cart_count()})
     messages.success(request, "Added to cart")
     return redirect("view_cart")
 

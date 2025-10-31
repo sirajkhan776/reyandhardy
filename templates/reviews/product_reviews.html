@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="container py-3">
+    <h4>All Reviews — {{ product.name }}</h4>
+    <div class="text-muted small mb-2">{{ count }} review{% if count != 1 %}s{% endif %}</div>
+    {% if reviews %}
+      {% for r in reviews %}
+        <div class="border rounded p-3 mb-2">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge bg-warning text-dark">{{ r.rating }} <i class="bi bi-star-fill"></i></span>
+            <small class="text-muted">{{ r.created_at|timesince }} ago</small>
+            <small class="text-muted ms-auto">by {{ r.user.username }}</small>
+          </div>
+          {% if r.title %}<div class="fw-semibold">{{ r.title }}</div>{% endif %}
+          {% if r.body %}<div class="mt-1">{{ r.body }}</div>{% endif %}
+          {% with items=r.media.all %}
+            {% if items|length %}
+            <div class="mt-2 d-flex flex-wrap gap-2">
+              {% for m in items %}
+                {% if m.is_image %}
+                  <a href="{{ m.file.url }}" target="_blank" class="d-inline-block" style="width:96px;height:72px;overflow:hidden;border-radius:8px;border:1px solid var(--rh-border);">
+                    <img src="{{ m.file.url }}" alt="Review image" style="width:100%;height:100%;object-fit:cover;display:block;" />
+                  </a>
+                {% else %}
+                  <video controls preload="metadata" style="width:140px;height:80px;border-radius:8px;border:1px solid var(--rh-border);object-fit:cover;">
+                    <source src="{{ m.file.url }}" />
+                  </video>
+                {% endif %}
+              {% endfor %}
+            </div>
+            {% endif %}
+          {% endwith %}
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="text-muted">No reviews yet.</p>
+    {% endif %}
+  </div>
+{% endblock %}

@@ -1,0 +1,4367 @@
+[
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$YjQvuxr9hjwWr1LmKPLVRi$STR//ojZcwxtjbT2z+SYplLdj9DZjVJUV6oXohX46dA=",
+    "last_login": "2025-10-31T00:24:12.652Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-10-27T17:02:36.476Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 2,
+  "fields": {
+    "password": "",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "alice",
+    "first_name": "",
+    "last_name": "",
+    "email": "alice@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-27T17:06:33.954Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 3,
+  "fields": {
+    "password": "",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "bob",
+    "first_name": "",
+    "last_name": "",
+    "email": "bob@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-27T17:06:33.977Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 4,
+  "fields": {
+    "password": "",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "charlie",
+    "first_name": "",
+    "last_name": "",
+    "email": "charlie@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-27T17:06:33.996Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 5,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$v5IvcbQSsK0xLNeI6FgEFj$2d+EGVbMscCNT08O/iWYUZXC8XMEMRVWu04RTOJHeEI=",
+    "last_login": "2025-10-27T17:48:06Z",
+    "is_superuser": false,
+    "username": "rihan",
+    "first_name": "",
+    "last_name": "",
+    "email": "harshitamotla24@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-27T17:47:15Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 6,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$uD7v68QzNGTOY8gVZIfup5$Sw+PriGbBwkr02jW+WbHogb0c5q2eE2J2qBfY3iGHrM=",
+    "last_login": "2025-10-27T19:38:00.497Z",
+    "is_superuser": false,
+    "username": "sirajkhan",
+    "first_name": "",
+    "last_name": "",
+    "email": "siraj.m@datagainservices.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-27T19:37:03.895Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 7,
+  "fields": {
+    "password": "pbkdf2_sha256$600000$r5tPr5TiwRIaul8XWDMe4D$k1eK8bb+UlSFG4WniV/JiGCgFvKYoHXpozZe/h6rQnk=",
+    "last_login": "2025-10-29T19:01:47.214Z",
+    "is_superuser": false,
+    "username": "siraj",
+    "first_name": "",
+    "last_name": "",
+    "email": "sirajkhan0886@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-10-29T19:01:46.488Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "7tjvfepzl80sawravsm2284wlvbkoeol",
+  "fields": {
+    "session_data": ".eJxVjDsOgzAQBe-ydWSx2E5syvQ5QRShXa8dyAckbCrE3RMkGto3M2-BQFOBZoG-xG-G5v5YT9DSXLp2znFqe4EGEA4bU3jHYQPyouE5qjAOZepZbYraaVa3UeLnuruHg45y96-Tdtawj8Rik67FOi94NsZVVFvx5BCT1RdtkqHkg9EYmBHZsqvYJw3rD5luPnY:1vDWwc:ECEnWN2KpFU2TkZBUFBP9VtSvXZioiuyJHmBT5WqgQU",
+    "expire_date": "2025-11-10T23:48:10.924Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "f706fwi6h4c4bqptd53uys7obz464f72",
+  "fields": {
+    "session_data": ".eJxVj70OgzAQg9_lZoQ4LiUhY_c-QVWhSy4t9AckErog3r1QsTDa_mzJM3geE9gZuhQ-Eez1tmTQ8JTaZophbDoBCwgHz7F_hX4L5Mn9Y8j90Kexc_mG5Hsa88sg4X3e2cNAy7Fd21SQoK-0JofKn5SwYRE0gagsayEtXuGdGE1dmNob5xxKoZTSPmgit46-Oabmy2PH_f8FIlgsTQYKrK4yqFZZYAYEVlXL8gN8A0pg:1vEeGB:w6AWe-AW76mIJMSVE-d5paQeD8SMthS1266WcQr2YRQ",
+    "expire_date": "2025-11-14T01:48:59.251Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "hezsvyt23jor8w4bl4d5otuycwpzd07r",
+  "fields": {
+    "session_data": ".eJxVkM1ugzAQhN9lzwhhbIPNsfc8QRWh9V9xW-zINmoixLsXt7nkttqZ_bQzO6DWcQtlxq0sNhSvsfgY5tWWJZoM0_sO_zNMcMOcf2Iy0AAWmMg4EC6ZHHhLR0EI7xvYsk0BV3u60aw-wHFt4A8-V2n2lUPgZadQf9lQBfOJ4SO2OoaSvGqrpX2qub1EY7_fnt4XwIJ5Oa8dFZwpaVEZ7mhvuJCGDIyJDntuJJ4vOk5HyhxDJzWjRCtFiOJKdEo6WqHZ5lzz2_vNpwdMXQMa0xl2B1_sWgu5HscvBadmxg:1vDTKn:xUivlTemJhOavghH-LGexb9SecXvJfcthWC9v7yHIyI",
+    "expire_date": "2025-11-10T19:56:53.969Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "ja9e15tn3cdqq4oz7wuap7tfxlnm8f6h",
+  "fields": {
+    "session_data": ".eJxVj0FOxDAMRe_idVUlTTpJu2TPCdCocmJDAzQZNakAVb07DcxmJC8s__ef5B08rgXGHULhJcP4cj0aQO_TFsuEW5k5luCxhBSnhcucqEI7_O8wwg1z_korwVk7RdJcztF9r9p-sKIbGtgyrxEXPmGkJUQ4rg38uacaTaFqJDzcHPoPjjWgd4xvqfUpljW4tiLtPc3tcyL-fLqzD4IZ83y2lVAk_cUY5aT2vSa0SCQtK9V1AylDXstXhdIOwg7eOuckCa218WyUclWaOef6Pn_fwvoDozh-AbxPZlU:1vEBRJ:3wOblV7NciTZrSp2LO2sWMVNg2q3X6-kQfODLoIwmxk",
+    "expire_date": "2025-11-12T19:02:33.636Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "pu9ksncy0nfcks6th17b2l8x86wgldi0",
+  "fields": {
+    "session_data": ".eJxVj0FOxDAMRe_idVUl47RJu2TPCdCocuJAAzQZNakAVb07Dcxmdpb_-0_2Do7WAuMOofglw_hyPRog59IWy0RbmX0swVEJKU6LL3PiCu3wP8MIN8r5K60MZ-0USd3L3mA3YCsECuy6Brbs10iLP2niJUQ4rg38yacaTaF6JDzsLLkPH2vA7xTfUutSLGuwbUXae5rb58T-8-nOPghmyvPZPk9g6Xqt0UrlOsVkiFkaj3i5DIyanZKvSNIMwgzOWGslC6WUdl4j2irNPuf6v_--hfUHRnH8AvnVZng:1vDqNV:UhEvNbO5aqNVsfc5Lhaw-STyBV7jfdqtoN2KriOFQE0",
+    "expire_date": "2025-11-11T20:33:13.036Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "tpf357nmhypta00hbr6ax0ev6mftyysw",
+  "fields": {
+    "session_data": "eyJjYXJ0Ijp7Iml0ZW1zIjpbeyJwcm9kdWN0X2lkIjo4LCJ2YXJpYW50X2lkIjoxMjIsInF1YW50aXR5IjoxfV19fQ:1vE6KV:sYtT8zpt1aMsqovj1utkm_yATlAmk9TQld94aY6mTrk",
+    "expire_date": "2025-11-12T13:35:11.103Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "yo92xxzv9hhr2qi6cbyhjabvz0frk5xj",
+  "fields": {
+    "session_data": ".eJxVj0FOxDAMRe_idVXV49CkXbKfE6BR5cSBBmgyalIBqubuNDCb2Vn_v_8k7-B4LTDuEIpfMowvl1sD7FzaYpl4K7OPJTguIcVp8WVOUqEd_m8Y4co5f6VV4JgdItQ99gOiphZ7UspQA1v2a-TFHzTLEiLcLg38yadaTaF6EB4yy-7Dx1rIO8e31LoUyxpsW5H23ub2nMR_Pt_ZB8HMeT7W1JGg67Umi8o9KWHDImg80ek0CGlxCl-J0QydGZyx1qJ0SintvCayVZp9zvV__30N6w-M3e0X_sRmfg:1vDsLl:YW_gg_ExhyTDbX5IttpSOBUQXEDuJckHOeqqTTjhlLY",
+    "expire_date": "2025-11-11T22:39:33.201Z"
+  }
+},
+{
+  "model": "sites.site",
+  "pk": 1,
+  "fields": {
+    "domain": "reyandhardy.com",
+    "name": "Rey&Hardy"
+  }
+},
+{
+  "model": "account.emailaddress",
+  "pk": 1,
+  "fields": {
+    "user": 5,
+    "email": "rihan@gmail.com",
+    "verified": false,
+    "primary": true
+  }
+},
+{
+  "model": "account.emailaddress",
+  "pk": 2,
+  "fields": {
+    "user": 6,
+    "email": "siraj.m@datagainservices.com",
+    "verified": false,
+    "primary": true
+  }
+},
+{
+  "model": "account.emailaddress",
+  "pk": 3,
+  "fields": {
+    "user": 7,
+    "email": "sirajkhan0886@gmail.com",
+    "verified": false,
+    "primary": true
+  }
+},
+{
+  "model": "account.emailaddress",
+  "pk": 4,
+  "fields": {
+    "user": 5,
+    "email": "harshitamotla24@gmail.com",
+    "verified": false,
+    "primary": false
+  }
+},
+{
+  "model": "core.banner",
+  "pk": 5,
+  "fields": {
+    "title": "Rey&Hardy Peremium Tees",
+    "subtitle": "New arrivals • Limited time pricing",
+    "image": "",
+    "video": "banners/videos/853800-hd_1920_1080_25fps_oUAMsbO.mp4",
+    "link_url": "",
+    "button_text": "Get it now",
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2025-10-27T23:09:04.913Z"
+  }
+},
+{
+  "model": "core.banner",
+  "pk": 6,
+  "fields": {
+    "title": "Rey&Hardy Best Collections",
+    "subtitle": "",
+    "image": "",
+    "video": "banners/videos/5822804-hd_1920_1080_25fps_1.mp4",
+    "link_url": "",
+    "button_text": "Shop now",
+    "is_active": true,
+    "sort_order": 0,
+    "created_at": "2025-10-30T20:12:13.283Z"
+  }
+},
+{
+  "model": "accounts.userprofile",
+  "pk": 1,
+  "fields": {
+    "user": 1,
+    "avatar": "avatars/jeansthumb.jpg",
+    "phone": "",
+    "address_line1": "",
+    "address_line2": "",
+    "city": "",
+    "state": "",
+    "postal_code": "",
+    "country": "India",
+    "interests": ""
+  }
+},
+{
+  "model": "accounts.address",
+  "pk": 1,
+  "fields": {
+    "user": 1,
+    "full_name": "Mohd Siraj",
+    "phone": "+918920513970",
+    "address_line1": "delhi",
+    "address_line2": "delhi",
+    "city": "delhi",
+    "state": "delhi",
+    "postal_code": "10094",
+    "country": "India",
+    "is_default": true,
+    "created_at": "2025-10-27T23:36:46.124Z",
+    "updated_at": "2025-10-28T17:44:55.647Z"
+  }
+},
+{
+  "model": "accounts.address",
+  "pk": 2,
+  "fields": {
+    "user": 1,
+    "full_name": "Arbaz",
+    "phone": "8920021012",
+    "address_line1": "mumbai",
+    "address_line2": "",
+    "city": "mumbai",
+    "state": "maharashtra",
+    "postal_code": "40001",
+    "country": "India",
+    "is_default": false,
+    "created_at": "2025-10-27T23:37:24.214Z",
+    "updated_at": "2025-10-28T17:44:51.240Z"
+  }
+},
+{
+  "model": "accounts.notification",
+  "pk": 1,
+  "fields": {
+    "user": null,
+    "title": "New arrival: T-shirt",
+    "message": "Check it out before it sells out!",
+    "link_url": "/product/t-shirt/",
+    "level": "promo",
+    "created_at": "2025-10-30T21:29:38.500Z",
+    "is_active": true
+  }
+},
+{
+  "model": "accounts.notification",
+  "pk": 2,
+  "fields": {
+    "user": null,
+    "title": "New arrival: Men’s Slim Fit Cotton Stretch Pants",
+    "message": "Check it out before it sells out!",
+    "link_url": "/product/mens-slim-fit-cotton-stretch-pants/",
+    "level": "promo",
+    "created_at": "2025-10-30T22:26:13.574Z",
+    "is_active": true
+  }
+},
+{
+  "model": "accounts.notification",
+  "pk": 3,
+  "fields": {
+    "user": null,
+    "title": "On sale: Men’s Slim Fit Cotton Stretch Pants",
+    "message": "Limited time offer.",
+    "link_url": "/product/mens-slim-fit-cotton-stretch-pants/",
+    "level": "promo",
+    "created_at": "2025-10-30T22:34:07.882Z",
+    "is_active": true
+  }
+},
+{
+  "model": "accounts.notification",
+  "pk": 4,
+  "fields": {
+    "user": null,
+    "title": "On sale: Men’s Slim Fit Cotton Stretch Pants",
+    "message": "Limited time offer.",
+    "link_url": "/product/mens-slim-fit-cotton-stretch-pants/",
+    "level": "promo",
+    "created_at": "2025-10-30T22:51:55.592Z",
+    "is_active": true
+  }
+},
+{
+  "model": "accounts.notification",
+  "pk": 5,
+  "fields": {
+    "user": null,
+    "title": "On sale: Men’s Slim Fit Cotton Stretch Pants",
+    "message": "Limited time offer.",
+    "link_url": "/product/mens-slim-fit-cotton-stretch-pants/",
+    "level": "promo",
+    "created_at": "2025-10-30T22:55:46.536Z",
+    "is_active": true
+  }
+},
+{
+  "model": "accounts.notification",
+  "pk": 6,
+  "fields": {
+    "user": null,
+    "title": "On sale: Men’s Slim Fit Cotton Stretch Pants",
+    "message": "Limited time offer.",
+    "link_url": "/product/mens-slim-fit-cotton-stretch-pants/",
+    "level": "promo",
+    "created_at": "2025-10-30T23:09:27.062Z",
+    "is_active": true
+  }
+},
+{
+  "model": "accounts.notification",
+  "pk": 7,
+  "fields": {
+    "user": null,
+    "title": "On sale: Men’s Slim Fit Cotton Stretch Pants",
+    "message": "Limited time offer.",
+    "link_url": "/product/mens-slim-fit-cotton-stretch-pants/",
+    "level": "promo",
+    "created_at": "2025-10-30T23:57:37.780Z",
+    "is_active": true
+  }
+},
+{
+  "model": "accounts.notification",
+  "pk": 8,
+  "fields": {
+    "user": null,
+    "title": "On sale: Men’s Slim Fit Cotton Stretch Pants",
+    "message": "Limited time offer.",
+    "link_url": "/product/mens-slim-fit-cotton-stretch-pants/",
+    "level": "promo",
+    "created_at": "2025-10-31T00:24:37.254Z",
+    "is_active": true
+  }
+},
+{
+  "model": "accounts.notification",
+  "pk": 9,
+  "fields": {
+    "user": null,
+    "title": "On sale: Men’s Slim Fit Cotton Stretch Pants",
+    "message": "Limited time offer.",
+    "link_url": "/product/mens-slim-fit-cotton-stretch-pants/",
+    "level": "promo",
+    "created_at": "2025-10-31T00:28:58.029Z",
+    "is_active": true
+  }
+},
+{
+  "model": "catalog.category",
+  "pk": 1,
+  "fields": {
+    "name": "T-shirts",
+    "slug": "t-shirts",
+    "is_display": true,
+    "thumbnail": "categories/tshirtthumb_za71tRS.jpg",
+    "thumbnail_url": ""
+  }
+},
+{
+  "model": "catalog.category",
+  "pk": 2,
+  "fields": {
+    "name": "Oversized T-shirts",
+    "slug": "oversized-t-shirts",
+    "is_display": false,
+    "thumbnail": "",
+    "thumbnail_url": ""
+  }
+},
+{
+  "model": "catalog.category",
+  "pk": 3,
+  "fields": {
+    "name": "Shirts",
+    "slug": "shirts",
+    "is_display": true,
+    "thumbnail": "categories/shirtthumb_TmSszwy.jpg",
+    "thumbnail_url": ""
+  }
+},
+{
+  "model": "catalog.category",
+  "pk": 4,
+  "fields": {
+    "name": "Wedding",
+    "slug": "wedding",
+    "is_display": true,
+    "thumbnail": "categories/weddingthumb.jpeg",
+    "thumbnail_url": ""
+  }
+},
+{
+  "model": "catalog.category",
+  "pk": 5,
+  "fields": {
+    "name": "Jeans",
+    "slug": "jeans",
+    "is_display": true,
+    "thumbnail": "categories/jeansthumb_lh0Hdwg.jpg",
+    "thumbnail_url": ""
+  }
+},
+{
+  "model": "catalog.category",
+  "pk": 6,
+  "fields": {
+    "name": "sweatshirts",
+    "slug": "sweatshirts",
+    "is_display": true,
+    "thumbnail": "categories/sweatshirtthumb.jpg",
+    "thumbnail_url": ""
+  }
+},
+{
+  "model": "catalog.category",
+  "pk": 7,
+  "fields": {
+    "name": "Formal Wear",
+    "slug": "formal-wear",
+    "is_display": true,
+    "thumbnail": "categories/formalwear_thumb_RgMup0u.jpg",
+    "thumbnail_url": ""
+  }
+},
+{
+  "model": "catalog.category",
+  "pk": 8,
+  "fields": {
+    "name": "Jackets",
+    "slug": "jackets",
+    "is_display": true,
+    "thumbnail": "categories/jacketthumb_zh1eI4F.jpg",
+    "thumbnail_url": ""
+  }
+},
+{
+  "model": "catalog.category",
+  "pk": 9,
+  "fields": {
+    "name": "Kids",
+    "slug": "kids",
+    "is_display": true,
+    "thumbnail": "categories/mens-fashion-background-adasabzf66m607uj.jpg",
+    "thumbnail_url": ""
+  }
+},
+{
+  "model": "catalog.category",
+  "pk": 10,
+  "fields": {
+    "name": "Uniqlo Tshirt",
+    "slug": "uniqlo-tshirt",
+    "is_display": false,
+    "thumbnail": "categories/tshirtthumb_NwUzlmZ.jpg",
+    "thumbnail_url": ""
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": 1,
+  "fields": {
+    "name": "Rey&Hardy Classic Cotton Tee",
+    "slug": "reyhardy-classic-cotton-tee",
+    "category": 1,
+    "description": "100% cotton. Breathable everyday T‑shirt.\n\nDetails:\n- Fabric: 100% Cotton\n- Fit: Regular / Oversized\n- Care: Machine wash cold, dry in shade\n- Made in India\n",
+    "base_price": "499.00",
+    "sale_price": "449.00",
+    "is_active": true,
+    "is_best_seller": false,
+    "notify_users": false,
+    "created_at": "2025-10-27T16:59:57.097Z",
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": 2,
+  "fields": {
+    "name": "Rey&Hardy Graphic Street Tee",
+    "slug": "reyhardy-graphic-street-tee",
+    "category": 1,
+    "description": "Soft cotton with bold front graphic. Street style.\n\nDetails:\n- Fabric: 100% Cotton\n- Fit: Regular / Oversized\n- Care: Machine wash cold, dry in shade\n- Made in India\n",
+    "base_price": "599.00",
+    "sale_price": "499.00",
+    "is_active": true,
+    "is_best_seller": false,
+    "notify_users": false,
+    "created_at": "2025-10-27T17:00:48.690Z",
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": 3,
+  "fields": {
+    "name": "Rey&Hardy Essential Pocket Tee",
+    "slug": "reyhardy-essential-pocket-tee",
+    "category": 1,
+    "description": "Minimal tee with chest pocket. Everyday essential.\n\nDetails:\n- Fabric: 100% Cotton\n- Fit: Regular / Oversized\n- Care: Machine wash cold, dry in shade\n- Made in India\n",
+    "base_price": "549.00",
+    "sale_price": null,
+    "is_active": true,
+    "is_best_seller": false,
+    "notify_users": false,
+    "created_at": "2025-10-27T17:06:31.370Z",
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": 4,
+  "fields": {
+    "name": "Rey&Hardy Oversized Drop Shoulder",
+    "slug": "reyhardy-oversized-drop-shoulder",
+    "category": 2,
+    "description": "Relaxed fit, drop shoulder oversized tee.\r\n\r\nDetails:\r\n- Fabric: 100% Cotton\r\n- Fit: Regular / Oversized\r\n- Care: Machine wash cold, dry in shade\r\n- Made in India",
+    "base_price": "699.00",
+    "sale_price": "599.00",
+    "is_active": true,
+    "is_best_seller": false,
+    "notify_users": false,
+    "created_at": "2025-10-27T17:06:32.099Z",
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": 5,
+  "fields": {
+    "name": "Rey&Hardy Oversized Heavyweight",
+    "slug": "reyhardy-oversized-heavyweight",
+    "category": 2,
+    "description": "Heavyweight fabric for premium drape.\r\n\r\nDetails:\r\n- Fabric: 100% Cotton\r\n- Fit: Regular / Oversized\r\n- Care: Machine wash cold, dry in shade\r\n- Made in India",
+    "base_price": "799.00",
+    "sale_price": "699.00",
+    "is_active": true,
+    "is_best_seller": false,
+    "notify_users": false,
+    "created_at": "2025-10-27T17:06:32.728Z",
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": 6,
+  "fields": {
+    "name": "Rey&Hardy Oversized Retro Print",
+    "slug": "reyhardy-oversized-retro-print",
+    "category": 2,
+    "description": "Retro inspired print, soft hand‑feel.\r\n\r\nDetails:\r\n- Fabric: 100% Cotton\r\n- Fit: Regular / Oversized\r\n- Care: Machine wash cold, dry in shade\r\n- Made in India",
+    "base_price": "749.00",
+    "sale_price": "649.00",
+    "is_active": true,
+    "is_best_seller": false,
+    "notify_users": false,
+    "created_at": "2025-10-27T17:06:33.392Z",
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": 7,
+  "fields": {
+    "name": "shirt",
+    "slug": "shirt-new",
+    "category": 3,
+    "description": "abajsdbjasdhsd",
+    "base_price": "1000.00",
+    "sale_price": "200.00",
+    "is_active": true,
+    "is_best_seller": true,
+    "notify_users": false,
+    "created_at": "2025-10-27T17:27:43.263Z",
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": 8,
+  "fields": {
+    "name": "Jeans",
+    "slug": "jeans",
+    "category": 5,
+    "description": "Best Fabric jeans",
+    "base_price": "1000.00",
+    "sale_price": "299.00",
+    "is_active": true,
+    "is_best_seller": true,
+    "notify_users": false,
+    "created_at": "2025-10-28T20:39:07.113Z",
+    "weight_kg": "2.000",
+    "length_cm": 100,
+    "breadth_cm": 100,
+    "height_cm": 100
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": 9,
+  "fields": {
+    "name": "Uniqlo Tshirt",
+    "slug": "uniqlo-tshirt",
+    "category": 1,
+    "description": "Best fabrict tshirt original uniqlo product at cheapest price",
+    "base_price": "1499.00",
+    "sale_price": "499.00",
+    "is_active": true,
+    "is_best_seller": false,
+    "notify_users": false,
+    "created_at": "2025-10-29T19:26:09.353Z",
+    "weight_kg": "0.200",
+    "length_cm": 2,
+    "breadth_cm": 2,
+    "height_cm": 2
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": 10,
+  "fields": {
+    "name": "T-shirt",
+    "slug": "t-shirt",
+    "category": 1,
+    "description": "",
+    "base_price": "2000.00",
+    "sale_price": "1500.00",
+    "is_active": true,
+    "is_best_seller": false,
+    "notify_users": true,
+    "created_at": "2025-10-30T21:29:38.499Z",
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": 11,
+  "fields": {
+    "name": "Men’s Slim Fit Cotton Stretch Pants",
+    "slug": "mens-slim-fit-cotton-stretch-pants",
+    "category": 7,
+    "description": "These slim-fit cotton stretch pants offer a perfect blend of comfort and style. Made from premium breathable fabric, they’re ideal for casual outings, office wear, or semi-formal events. Pair them with shirts or t-shirts for a smart look.",
+    "base_price": "1000.00",
+    "sale_price": "499.00",
+    "is_active": true,
+    "is_best_seller": false,
+    "notify_users": true,
+    "created_at": "2025-10-30T22:26:13.571Z",
+    "weight_kg": "0.200",
+    "length_cm": 2,
+    "breadth_cm": 2,
+    "height_cm": 2
+  }
+},
+{
+  "model": "catalog.productimage",
+  "pk": 1,
+  "fields": {
+    "product": 1,
+    "image": "products/reyhardy-classic-cotton-tee.jpg",
+    "alt_text": "Rey&Hardy Classic Cotton Tee",
+    "is_primary": true,
+    "color": ""
+  }
+},
+{
+  "model": "catalog.productimage",
+  "pk": 2,
+  "fields": {
+    "product": 2,
+    "image": "products/reyhardy-graphic-street-tee.jpg",
+    "alt_text": "Rey&Hardy Graphic Street Tee",
+    "is_primary": true,
+    "color": ""
+  }
+},
+{
+  "model": "catalog.productimage",
+  "pk": 3,
+  "fields": {
+    "product": 3,
+    "image": "products/reyhardy-essential-pocket-tee.jpg",
+    "alt_text": "Rey&Hardy Essential Pocket Tee",
+    "is_primary": true,
+    "color": ""
+  }
+},
+{
+  "model": "catalog.productimage",
+  "pk": 4,
+  "fields": {
+    "product": 4,
+    "image": "products/pant2.jpg",
+    "alt_text": "Rey&Hardy Oversized Drop Shoulder",
+    "is_primary": true,
+    "color": ""
+  }
+},
+{
+  "model": "catalog.productimage",
+  "pk": 5,
+  "fields": {
+    "product": 5,
+    "image": "products/pant1.avif",
+    "alt_text": "Rey&Hardy Oversized Heavyweight",
+    "is_primary": true,
+    "color": ""
+  }
+},
+{
+  "model": "catalog.productimage",
+  "pk": 6,
+  "fields": {
+    "product": 6,
+    "image": "products/Pant.jpg",
+    "alt_text": "Rey&Hardy Oversized Retro Print",
+    "is_primary": true,
+    "color": ""
+  }
+},
+{
+  "model": "catalog.productimage",
+  "pk": 7,
+  "fields": {
+    "product": 7,
+    "image": "products/vertical-shot-concentrated-businessman-listening-carefully-with-crossed-hands_1_oYBlN5i.jpg",
+    "alt_text": "",
+    "is_primary": false,
+    "color": ""
+  }
+},
+{
+  "model": "catalog.productimage",
+  "pk": 8,
+  "fields": {
+    "product": 7,
+    "image": "products/images.jpg",
+    "alt_text": "",
+    "is_primary": false,
+    "color": ""
+  }
+},
+{
+  "model": "catalog.productimage",
+  "pk": 9,
+  "fields": {
+    "product": 8,
+    "image": "products/jeansthumb.jpg",
+    "alt_text": "",
+    "is_primary": false,
+    "color": ""
+  }
+},
+{
+  "model": "catalog.productimage",
+  "pk": 10,
+  "fields": {
+    "product": 9,
+    "image": "products/tshirtthumb.jpg",
+    "alt_text": "",
+    "is_primary": false,
+    "color": ""
+  }
+},
+{
+  "model": "catalog.productimage",
+  "pk": 11,
+  "fields": {
+    "product": 10,
+    "image": "products/tshirtthumb_PYidMDA.jpg",
+    "alt_text": "",
+    "is_primary": true,
+    "color": ""
+  }
+},
+{
+  "model": "catalog.productimage",
+  "pk": 12,
+  "fields": {
+    "product": 11,
+    "image": "products/blackcolorpant.jpg",
+    "alt_text": "",
+    "is_primary": true,
+    "color": "Black"
+  }
+},
+{
+  "model": "catalog.productimage",
+  "pk": 13,
+  "fields": {
+    "product": 11,
+    "image": "products/beigecolorpant.avif",
+    "alt_text": "",
+    "is_primary": false,
+    "color": "Beige"
+  }
+},
+{
+  "model": "catalog.productimage",
+  "pk": 14,
+  "fields": {
+    "product": 11,
+    "image": "products/navybluepant.webp",
+    "alt_text": "",
+    "is_primary": false,
+    "color": "Navy Blue"
+  }
+},
+{
+  "model": "catalog.productimage",
+  "pk": 15,
+  "fields": {
+    "product": 11,
+    "image": "products/black-2.jpg",
+    "alt_text": "",
+    "is_primary": false,
+    "color": "Black"
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 1,
+  "fields": {
+    "product": 1,
+    "size": "M",
+    "color": "Red",
+    "sku": "REYHARDY-M-RE",
+    "stock": 46,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 2,
+  "fields": {
+    "product": 1,
+    "size": "M",
+    "color": "Black",
+    "sku": "REYHARDY-M-BL",
+    "stock": 15,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 3,
+  "fields": {
+    "product": 1,
+    "size": "M",
+    "color": "Navy Blue",
+    "sku": "REYHARDY-M-NA",
+    "stock": 46,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 4,
+  "fields": {
+    "product": 1,
+    "size": "M",
+    "color": "White",
+    "sku": "REYHARDY-M-WH",
+    "stock": 15,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 5,
+  "fields": {
+    "product": 1,
+    "size": "M",
+    "color": "Grey",
+    "sku": "REYHARDY-M-GR",
+    "stock": 28,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 6,
+  "fields": {
+    "product": 1,
+    "size": "L",
+    "color": "Red",
+    "sku": "REYHARDY-L-RE",
+    "stock": 38,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 7,
+  "fields": {
+    "product": 1,
+    "size": "L",
+    "color": "Black",
+    "sku": "REYHARDY-L-BL",
+    "stock": 16,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 8,
+  "fields": {
+    "product": 1,
+    "size": "L",
+    "color": "Navy Blue",
+    "sku": "REYHARDY-L-NA",
+    "stock": 14,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 9,
+  "fields": {
+    "product": 1,
+    "size": "L",
+    "color": "White",
+    "sku": "REYHARDY-L-WH",
+    "stock": 27,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 10,
+  "fields": {
+    "product": 1,
+    "size": "L",
+    "color": "Grey",
+    "sku": "REYHARDY-L-GR",
+    "stock": 73,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 11,
+  "fields": {
+    "product": 1,
+    "size": "XL",
+    "color": "Red",
+    "sku": "REYHARDY-XL-RE",
+    "stock": 69,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 12,
+  "fields": {
+    "product": 1,
+    "size": "XL",
+    "color": "Black",
+    "sku": "REYHARDY-XL-BL",
+    "stock": 69,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 13,
+  "fields": {
+    "product": 1,
+    "size": "XL",
+    "color": "Navy Blue",
+    "sku": "REYHARDY-XL-NA",
+    "stock": 55,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 14,
+  "fields": {
+    "product": 1,
+    "size": "XL",
+    "color": "White",
+    "sku": "REYHARDY-XL-WH",
+    "stock": 24,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 15,
+  "fields": {
+    "product": 1,
+    "size": "XL",
+    "color": "Grey",
+    "sku": "REYHARDY-XL-GR",
+    "stock": 11,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 16,
+  "fields": {
+    "product": 1,
+    "size": "XXL",
+    "color": "Red",
+    "sku": "REYHARDY-XXL-RE",
+    "stock": 15,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 17,
+  "fields": {
+    "product": 1,
+    "size": "XXL",
+    "color": "Black",
+    "sku": "REYHARDY-XXL-BL",
+    "stock": 54,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 18,
+  "fields": {
+    "product": 1,
+    "size": "XXL",
+    "color": "Navy Blue",
+    "sku": "REYHARDY-XXL-NA",
+    "stock": 77,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 19,
+  "fields": {
+    "product": 1,
+    "size": "XXL",
+    "color": "White",
+    "sku": "REYHARDY-XXL-WH",
+    "stock": 17,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 20,
+  "fields": {
+    "product": 1,
+    "size": "XXL",
+    "color": "Grey",
+    "sku": "REYHARDY-XXL-GR",
+    "stock": 23,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 21,
+  "fields": {
+    "product": 2,
+    "size": "M",
+    "color": "Red",
+    "sku": "RH2-REYHAR-M-RE",
+    "stock": 38,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 22,
+  "fields": {
+    "product": 2,
+    "size": "M",
+    "color": "Black",
+    "sku": "RH2-REYHAR-M-BL",
+    "stock": 71,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 23,
+  "fields": {
+    "product": 2,
+    "size": "M",
+    "color": "Navy Blue",
+    "sku": "RH2-REYHAR-M-NA",
+    "stock": 13,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 24,
+  "fields": {
+    "product": 2,
+    "size": "M",
+    "color": "White",
+    "sku": "RH2-REYHAR-M-WH",
+    "stock": 80,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 25,
+  "fields": {
+    "product": 2,
+    "size": "M",
+    "color": "Grey",
+    "sku": "RH2-REYHAR-M-GR",
+    "stock": 47,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 26,
+  "fields": {
+    "product": 2,
+    "size": "L",
+    "color": "Red",
+    "sku": "RH2-REYHAR-L-RE",
+    "stock": 18,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 27,
+  "fields": {
+    "product": 2,
+    "size": "L",
+    "color": "Black",
+    "sku": "RH2-REYHAR-L-BL",
+    "stock": 79,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 28,
+  "fields": {
+    "product": 2,
+    "size": "L",
+    "color": "Navy Blue",
+    "sku": "RH2-REYHAR-L-NA",
+    "stock": 14,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 29,
+  "fields": {
+    "product": 2,
+    "size": "L",
+    "color": "White",
+    "sku": "RH2-REYHAR-L-WH",
+    "stock": 23,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 30,
+  "fields": {
+    "product": 2,
+    "size": "L",
+    "color": "Grey",
+    "sku": "RH2-REYHAR-L-GR",
+    "stock": 38,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 31,
+  "fields": {
+    "product": 2,
+    "size": "XL",
+    "color": "Red",
+    "sku": "RH2-REYHAR-XL-RE",
+    "stock": 74,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 32,
+  "fields": {
+    "product": 2,
+    "size": "XL",
+    "color": "Black",
+    "sku": "RH2-REYHAR-XL-BL",
+    "stock": 30,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 33,
+  "fields": {
+    "product": 2,
+    "size": "XL",
+    "color": "Navy Blue",
+    "sku": "RH2-REYHAR-XL-NA",
+    "stock": 34,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 34,
+  "fields": {
+    "product": 2,
+    "size": "XL",
+    "color": "White",
+    "sku": "RH2-REYHAR-XL-WH",
+    "stock": 25,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 35,
+  "fields": {
+    "product": 2,
+    "size": "XL",
+    "color": "Grey",
+    "sku": "RH2-REYHAR-XL-GR",
+    "stock": 68,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 36,
+  "fields": {
+    "product": 2,
+    "size": "XXL",
+    "color": "Red",
+    "sku": "RH2-REYHAR-XXL-RE",
+    "stock": 50,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 37,
+  "fields": {
+    "product": 2,
+    "size": "XXL",
+    "color": "Black",
+    "sku": "RH2-REYHAR-XXL-BL",
+    "stock": 21,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 38,
+  "fields": {
+    "product": 2,
+    "size": "XXL",
+    "color": "Navy Blue",
+    "sku": "RH2-REYHAR-XXL-NA",
+    "stock": 79,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 39,
+  "fields": {
+    "product": 2,
+    "size": "XXL",
+    "color": "White",
+    "sku": "RH2-REYHAR-XXL-WH",
+    "stock": 58,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 40,
+  "fields": {
+    "product": 2,
+    "size": "XXL",
+    "color": "Grey",
+    "sku": "RH2-REYHAR-XXL-GR",
+    "stock": 52,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 41,
+  "fields": {
+    "product": 3,
+    "size": "M",
+    "color": "Red",
+    "sku": "RH3-REYHAR-M-RE",
+    "stock": 53,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 42,
+  "fields": {
+    "product": 3,
+    "size": "M",
+    "color": "Black",
+    "sku": "RH3-REYHAR-M-BL",
+    "stock": 28,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 43,
+  "fields": {
+    "product": 3,
+    "size": "M",
+    "color": "Navy Blue",
+    "sku": "RH3-REYHAR-M-NA",
+    "stock": 40,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 44,
+  "fields": {
+    "product": 3,
+    "size": "M",
+    "color": "White",
+    "sku": "RH3-REYHAR-M-WH",
+    "stock": 13,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 45,
+  "fields": {
+    "product": 3,
+    "size": "M",
+    "color": "Grey",
+    "sku": "RH3-REYHAR-M-GR",
+    "stock": 15,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 46,
+  "fields": {
+    "product": 3,
+    "size": "L",
+    "color": "Red",
+    "sku": "RH3-REYHAR-L-RE",
+    "stock": 80,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 47,
+  "fields": {
+    "product": 3,
+    "size": "L",
+    "color": "Black",
+    "sku": "RH3-REYHAR-L-BL",
+    "stock": 47,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 48,
+  "fields": {
+    "product": 3,
+    "size": "L",
+    "color": "Navy Blue",
+    "sku": "RH3-REYHAR-L-NA",
+    "stock": 17,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 49,
+  "fields": {
+    "product": 3,
+    "size": "L",
+    "color": "White",
+    "sku": "RH3-REYHAR-L-WH",
+    "stock": 42,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 50,
+  "fields": {
+    "product": 3,
+    "size": "L",
+    "color": "Grey",
+    "sku": "RH3-REYHAR-L-GR",
+    "stock": 59,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 51,
+  "fields": {
+    "product": 3,
+    "size": "XL",
+    "color": "Red",
+    "sku": "RH3-REYHAR-XL-RE",
+    "stock": 60,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 52,
+  "fields": {
+    "product": 3,
+    "size": "XL",
+    "color": "Black",
+    "sku": "RH3-REYHAR-XL-BL",
+    "stock": 10,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 53,
+  "fields": {
+    "product": 3,
+    "size": "XL",
+    "color": "Navy Blue",
+    "sku": "RH3-REYHAR-XL-NA",
+    "stock": 19,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 54,
+  "fields": {
+    "product": 3,
+    "size": "XL",
+    "color": "White",
+    "sku": "RH3-REYHAR-XL-WH",
+    "stock": 13,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 55,
+  "fields": {
+    "product": 3,
+    "size": "XL",
+    "color": "Grey",
+    "sku": "RH3-REYHAR-XL-GR",
+    "stock": 32,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 56,
+  "fields": {
+    "product": 3,
+    "size": "XXL",
+    "color": "Red",
+    "sku": "RH3-REYHAR-XXL-RE",
+    "stock": 65,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 57,
+  "fields": {
+    "product": 3,
+    "size": "XXL",
+    "color": "Black",
+    "sku": "RH3-REYHAR-XXL-BL",
+    "stock": 66,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 58,
+  "fields": {
+    "product": 3,
+    "size": "XXL",
+    "color": "Navy Blue",
+    "sku": "RH3-REYHAR-XXL-NA",
+    "stock": 73,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 59,
+  "fields": {
+    "product": 3,
+    "size": "XXL",
+    "color": "White",
+    "sku": "RH3-REYHAR-XXL-WH",
+    "stock": 62,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 60,
+  "fields": {
+    "product": 3,
+    "size": "XXL",
+    "color": "Grey",
+    "sku": "RH3-REYHAR-XXL-GR",
+    "stock": 11,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 61,
+  "fields": {
+    "product": 4,
+    "size": "M",
+    "color": "Red",
+    "sku": "RH4-REYHAR-M-RE",
+    "stock": 43,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 62,
+  "fields": {
+    "product": 4,
+    "size": "M",
+    "color": "Black",
+    "sku": "RH4-REYHAR-M-BL",
+    "stock": 18,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 63,
+  "fields": {
+    "product": 4,
+    "size": "M",
+    "color": "Navy Blue",
+    "sku": "RH4-REYHAR-M-NA",
+    "stock": 62,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 64,
+  "fields": {
+    "product": 4,
+    "size": "M",
+    "color": "White",
+    "sku": "RH4-REYHAR-M-WH",
+    "stock": 27,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 65,
+  "fields": {
+    "product": 4,
+    "size": "M",
+    "color": "Grey",
+    "sku": "RH4-REYHAR-M-GR",
+    "stock": 57,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 66,
+  "fields": {
+    "product": 4,
+    "size": "L",
+    "color": "Red",
+    "sku": "RH4-REYHAR-L-RE",
+    "stock": 17,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 67,
+  "fields": {
+    "product": 4,
+    "size": "L",
+    "color": "Black",
+    "sku": "RH4-REYHAR-L-BL",
+    "stock": 43,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 68,
+  "fields": {
+    "product": 4,
+    "size": "L",
+    "color": "Navy Blue",
+    "sku": "RH4-REYHAR-L-NA",
+    "stock": 28,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 69,
+  "fields": {
+    "product": 4,
+    "size": "L",
+    "color": "White",
+    "sku": "RH4-REYHAR-L-WH",
+    "stock": 47,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 70,
+  "fields": {
+    "product": 4,
+    "size": "L",
+    "color": "Grey",
+    "sku": "RH4-REYHAR-L-GR",
+    "stock": 41,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 71,
+  "fields": {
+    "product": 4,
+    "size": "XL",
+    "color": "Red",
+    "sku": "RH4-REYHAR-XL-RE",
+    "stock": 28,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 72,
+  "fields": {
+    "product": 4,
+    "size": "XL",
+    "color": "Black",
+    "sku": "RH4-REYHAR-XL-BL",
+    "stock": 51,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 73,
+  "fields": {
+    "product": 4,
+    "size": "XL",
+    "color": "Navy Blue",
+    "sku": "RH4-REYHAR-XL-NA",
+    "stock": 16,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 74,
+  "fields": {
+    "product": 4,
+    "size": "XL",
+    "color": "White",
+    "sku": "RH4-REYHAR-XL-WH",
+    "stock": 29,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 75,
+  "fields": {
+    "product": 4,
+    "size": "XL",
+    "color": "Grey",
+    "sku": "RH4-REYHAR-XL-GR",
+    "stock": 16,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 76,
+  "fields": {
+    "product": 4,
+    "size": "XXL",
+    "color": "Red",
+    "sku": "RH4-REYHAR-XXL-RE",
+    "stock": 49,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 77,
+  "fields": {
+    "product": 4,
+    "size": "XXL",
+    "color": "Black",
+    "sku": "RH4-REYHAR-XXL-BL",
+    "stock": 22,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 78,
+  "fields": {
+    "product": 4,
+    "size": "XXL",
+    "color": "Navy Blue",
+    "sku": "RH4-REYHAR-XXL-NA",
+    "stock": 10,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 79,
+  "fields": {
+    "product": 4,
+    "size": "XXL",
+    "color": "White",
+    "sku": "RH4-REYHAR-XXL-WH",
+    "stock": 71,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 80,
+  "fields": {
+    "product": 4,
+    "size": "XXL",
+    "color": "Grey",
+    "sku": "RH4-REYHAR-XXL-GR",
+    "stock": 14,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 81,
+  "fields": {
+    "product": 5,
+    "size": "M",
+    "color": "Red",
+    "sku": "RH5-REYHAR-M-RE",
+    "stock": 70,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 82,
+  "fields": {
+    "product": 5,
+    "size": "M",
+    "color": "Black",
+    "sku": "RH5-REYHAR-M-BL",
+    "stock": 70,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 83,
+  "fields": {
+    "product": 5,
+    "size": "M",
+    "color": "Navy Blue",
+    "sku": "RH5-REYHAR-M-NA",
+    "stock": 46,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 84,
+  "fields": {
+    "product": 5,
+    "size": "M",
+    "color": "White",
+    "sku": "RH5-REYHAR-M-WH",
+    "stock": 64,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 85,
+  "fields": {
+    "product": 5,
+    "size": "M",
+    "color": "Grey",
+    "sku": "RH5-REYHAR-M-GR",
+    "stock": 72,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 86,
+  "fields": {
+    "product": 5,
+    "size": "L",
+    "color": "Red",
+    "sku": "RH5-REYHAR-L-RE",
+    "stock": 46,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 87,
+  "fields": {
+    "product": 5,
+    "size": "L",
+    "color": "Black",
+    "sku": "RH5-REYHAR-L-BL",
+    "stock": 32,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 88,
+  "fields": {
+    "product": 5,
+    "size": "L",
+    "color": "Navy Blue",
+    "sku": "RH5-REYHAR-L-NA",
+    "stock": 34,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 89,
+  "fields": {
+    "product": 5,
+    "size": "L",
+    "color": "White",
+    "sku": "RH5-REYHAR-L-WH",
+    "stock": 80,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 90,
+  "fields": {
+    "product": 5,
+    "size": "L",
+    "color": "Grey",
+    "sku": "RH5-REYHAR-L-GR",
+    "stock": 77,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 91,
+  "fields": {
+    "product": 5,
+    "size": "XL",
+    "color": "Red",
+    "sku": "RH5-REYHAR-XL-RE",
+    "stock": 45,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 92,
+  "fields": {
+    "product": 5,
+    "size": "XL",
+    "color": "Black",
+    "sku": "RH5-REYHAR-XL-BL",
+    "stock": 68,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 93,
+  "fields": {
+    "product": 5,
+    "size": "XL",
+    "color": "Navy Blue",
+    "sku": "RH5-REYHAR-XL-NA",
+    "stock": 51,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 94,
+  "fields": {
+    "product": 5,
+    "size": "XL",
+    "color": "White",
+    "sku": "RH5-REYHAR-XL-WH",
+    "stock": 37,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 95,
+  "fields": {
+    "product": 5,
+    "size": "XL",
+    "color": "Grey",
+    "sku": "RH5-REYHAR-XL-GR",
+    "stock": 50,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 96,
+  "fields": {
+    "product": 5,
+    "size": "XXL",
+    "color": "Red",
+    "sku": "RH5-REYHAR-XXL-RE",
+    "stock": 14,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 97,
+  "fields": {
+    "product": 5,
+    "size": "XXL",
+    "color": "Black",
+    "sku": "RH5-REYHAR-XXL-BL",
+    "stock": 24,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 98,
+  "fields": {
+    "product": 5,
+    "size": "XXL",
+    "color": "Navy Blue",
+    "sku": "RH5-REYHAR-XXL-NA",
+    "stock": 64,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 99,
+  "fields": {
+    "product": 5,
+    "size": "XXL",
+    "color": "White",
+    "sku": "RH5-REYHAR-XXL-WH",
+    "stock": 59,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 100,
+  "fields": {
+    "product": 5,
+    "size": "XXL",
+    "color": "Grey",
+    "sku": "RH5-REYHAR-XXL-GR",
+    "stock": 80,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 101,
+  "fields": {
+    "product": 6,
+    "size": "M",
+    "color": "Red",
+    "sku": "RH6-REYHAR-M-RE",
+    "stock": 31,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 102,
+  "fields": {
+    "product": 6,
+    "size": "M",
+    "color": "Black",
+    "sku": "RH6-REYHAR-M-BL",
+    "stock": 56,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 103,
+  "fields": {
+    "product": 6,
+    "size": "M",
+    "color": "Navy Blue",
+    "sku": "RH6-REYHAR-M-NA",
+    "stock": 35,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 104,
+  "fields": {
+    "product": 6,
+    "size": "M",
+    "color": "White",
+    "sku": "RH6-REYHAR-M-WH",
+    "stock": 10,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 105,
+  "fields": {
+    "product": 6,
+    "size": "M",
+    "color": "Grey",
+    "sku": "RH6-REYHAR-M-GR",
+    "stock": 77,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 106,
+  "fields": {
+    "product": 6,
+    "size": "L",
+    "color": "Red",
+    "sku": "RH6-REYHAR-L-RE",
+    "stock": 47,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 107,
+  "fields": {
+    "product": 6,
+    "size": "L",
+    "color": "Black",
+    "sku": "RH6-REYHAR-L-BL",
+    "stock": 26,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 108,
+  "fields": {
+    "product": 6,
+    "size": "L",
+    "color": "Navy Blue",
+    "sku": "RH6-REYHAR-L-NA",
+    "stock": 18,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 109,
+  "fields": {
+    "product": 6,
+    "size": "L",
+    "color": "White",
+    "sku": "RH6-REYHAR-L-WH",
+    "stock": 44,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 110,
+  "fields": {
+    "product": 6,
+    "size": "L",
+    "color": "Grey",
+    "sku": "RH6-REYHAR-L-GR",
+    "stock": 48,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 111,
+  "fields": {
+    "product": 6,
+    "size": "XL",
+    "color": "Red",
+    "sku": "RH6-REYHAR-XL-RE",
+    "stock": 36,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 112,
+  "fields": {
+    "product": 6,
+    "size": "XL",
+    "color": "Black",
+    "sku": "RH6-REYHAR-XL-BL",
+    "stock": 77,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 113,
+  "fields": {
+    "product": 6,
+    "size": "XL",
+    "color": "Navy Blue",
+    "sku": "RH6-REYHAR-XL-NA",
+    "stock": 63,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 114,
+  "fields": {
+    "product": 6,
+    "size": "XL",
+    "color": "White",
+    "sku": "RH6-REYHAR-XL-WH",
+    "stock": 22,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 115,
+  "fields": {
+    "product": 6,
+    "size": "XL",
+    "color": "Grey",
+    "sku": "RH6-REYHAR-XL-GR",
+    "stock": 32,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 116,
+  "fields": {
+    "product": 6,
+    "size": "XXL",
+    "color": "Red",
+    "sku": "RH6-REYHAR-XXL-RE",
+    "stock": 41,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 117,
+  "fields": {
+    "product": 6,
+    "size": "XXL",
+    "color": "Black",
+    "sku": "RH6-REYHAR-XXL-BL",
+    "stock": 48,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 118,
+  "fields": {
+    "product": 6,
+    "size": "XXL",
+    "color": "Navy Blue",
+    "sku": "RH6-REYHAR-XXL-NA",
+    "stock": 19,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 119,
+  "fields": {
+    "product": 6,
+    "size": "XXL",
+    "color": "White",
+    "sku": "RH6-REYHAR-XXL-WH",
+    "stock": 59,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 120,
+  "fields": {
+    "product": 6,
+    "size": "XXL",
+    "color": "Grey",
+    "sku": "RH6-REYHAR-XXL-GR",
+    "stock": 67,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 121,
+  "fields": {
+    "product": 7,
+    "size": "M",
+    "color": "Navy Blue",
+    "sku": "newow",
+    "stock": 100,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 122,
+  "fields": {
+    "product": 8,
+    "size": "M",
+    "color": "Black",
+    "sku": "jeans",
+    "stock": 3,
+    "cost_price": null,
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 123,
+  "fields": {
+    "product": 9,
+    "size": "M",
+    "color": "Red",
+    "sku": "tshirt",
+    "stock": 10,
+    "cost_price": null,
+    "weight_kg": "0.200",
+    "length_cm": 2,
+    "breadth_cm": 2,
+    "height_cm": 2
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 124,
+  "fields": {
+    "product": 11,
+    "size": "L",
+    "color": "Navy Blue",
+    "sku": "navyblue",
+    "stock": 11,
+    "cost_price": "599.00",
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 125,
+  "fields": {
+    "product": 11,
+    "size": "M",
+    "color": "Navy Blue",
+    "sku": "navybluem",
+    "stock": 11,
+    "cost_price": "599.00",
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 126,
+  "fields": {
+    "product": 11,
+    "size": "XL",
+    "color": "Navy Blue",
+    "sku": "navybluexl",
+    "stock": 10,
+    "cost_price": "599.00",
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 127,
+  "fields": {
+    "product": 11,
+    "size": "XXL",
+    "color": "Navy Blue",
+    "sku": "navybluexxl",
+    "stock": 10,
+    "cost_price": "599.00",
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 128,
+  "fields": {
+    "product": 11,
+    "size": "M",
+    "color": "Black",
+    "sku": "blackm",
+    "stock": 10,
+    "cost_price": "499.00",
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 129,
+  "fields": {
+    "product": 11,
+    "size": "L",
+    "color": "Black",
+    "sku": "blackl",
+    "stock": 11,
+    "cost_price": "499.00",
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 130,
+  "fields": {
+    "product": 11,
+    "size": "XL",
+    "color": "Black",
+    "sku": "blackxl",
+    "stock": 10,
+    "cost_price": "499.00",
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 132,
+  "fields": {
+    "product": 11,
+    "size": "M",
+    "color": "Beige",
+    "sku": "beigem",
+    "stock": 10,
+    "cost_price": "499.00",
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 133,
+  "fields": {
+    "product": 11,
+    "size": "L",
+    "color": "Beige",
+    "sku": "beigel",
+    "stock": 11,
+    "cost_price": "499.00",
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 134,
+  "fields": {
+    "product": 11,
+    "size": "XL",
+    "color": "Beige",
+    "sku": "beigexl",
+    "stock": 2,
+    "cost_price": "499.00",
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.variant",
+  "pk": 135,
+  "fields": {
+    "product": 11,
+    "size": "XXL",
+    "color": "Beige",
+    "sku": "beigexxl",
+    "stock": 11,
+    "cost_price": "699.00",
+    "weight_kg": null,
+    "length_cm": null,
+    "breadth_cm": null,
+    "height_cm": null
+  }
+},
+{
+  "model": "catalog.wishlistitem",
+  "pk": 5,
+  "fields": {
+    "user": 1,
+    "product": 7,
+    "added_at": "2025-10-28T22:40:01.340Z"
+  }
+},
+{
+  "model": "catalog.wishlistitem",
+  "pk": 6,
+  "fields": {
+    "user": 1,
+    "product": 6,
+    "added_at": "2025-10-30T11:49:01.947Z"
+  }
+},
+{
+  "model": "catalog.wishlistitem",
+  "pk": 7,
+  "fields": {
+    "user": 1,
+    "product": 9,
+    "added_at": "2025-10-30T11:56:05.714Z"
+  }
+},
+{
+  "model": "catalog.productvideo",
+  "pk": 1,
+  "fields": {
+    "product": 7,
+    "video": "products/videos/14572386_1080_1920_24fps.mp4",
+    "created_at": "2025-10-27T21:25:34.505Z"
+  }
+},
+{
+  "model": "catalog.productvideo",
+  "pk": 2,
+  "fields": {
+    "product": 6,
+    "video": "products/videos/3755538-uhd_2160_4096_25fps.mp4",
+    "created_at": "2025-10-27T21:36:42.658Z"
+  }
+},
+{
+  "model": "catalog.productvideo",
+  "pk": 3,
+  "fields": {
+    "product": 9,
+    "video": "products/videos/853800-hd_1920_1080_25fps.mp4",
+    "created_at": "2025-10-29T19:26:09.401Z"
+  }
+},
+{
+  "model": "catalog.productvideo",
+  "pk": 4,
+  "fields": {
+    "product": 9,
+    "video": "products/videos/853800-hd_1920_1080_25fps_9uUiQ4H.mp4",
+    "created_at": "2025-10-30T12:48:20.331Z"
+  }
+},
+{
+  "model": "cart.cart",
+  "pk": 1,
+  "fields": {
+    "user": 1,
+    "updated_at": "2025-10-27T17:12:09.592Z"
+  }
+},
+{
+  "model": "cart.cart",
+  "pk": 2,
+  "fields": {
+    "user": 5,
+    "updated_at": "2025-10-27T17:48:11.830Z"
+  }
+},
+{
+  "model": "cart.cartitem",
+  "pk": 27,
+  "fields": {
+    "cart": 1,
+    "product": 4,
+    "variant": 76,
+    "quantity": 1
+  }
+},
+{
+  "model": "cart.cartitem",
+  "pk": 28,
+  "fields": {
+    "cart": 1,
+    "product": 3,
+    "variant": 46,
+    "quantity": 1
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 1,
+  "fields": {
+    "user": 1,
+    "order_number": "B92C2E19A8",
+    "status": "created",
+    "payment_method": "cod",
+    "razorpay_order_id": "",
+    "razorpay_payment_id": "",
+    "razorpay_signature": "",
+    "subtotal": "699.00",
+    "gst_amount": "125.82",
+    "shipping_amount": "0.00",
+    "total_amount": "824.82",
+    "coupon_code": "",
+    "discount_amount": "0.00",
+    "shipping_name": "mohd siraj",
+    "shipping_phone": "89520054545",
+    "address_line1": "delhi",
+    "address_line2": "delhi",
+    "city": "delhi",
+    "state": "delhi",
+    "postal_code": "10094",
+    "country": "India",
+    "shipping_provider": "Shiprocket",
+    "tracking_number": "",
+    "created_at": "2025-10-27T17:18:50.465Z",
+    "updated_at": "2025-10-27T17:18:50.505Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 2,
+  "fields": {
+    "user": 1,
+    "order_number": "ABA0EEFA2C",
+    "status": "created",
+    "payment_method": "razorpay",
+    "razorpay_order_id": "",
+    "razorpay_payment_id": "",
+    "razorpay_signature": "",
+    "subtotal": "1298.00",
+    "gst_amount": "233.64",
+    "shipping_amount": "0.00",
+    "total_amount": "1531.64",
+    "coupon_code": "",
+    "discount_amount": "0.00",
+    "shipping_name": "mohd siraj",
+    "shipping_phone": "89520054545",
+    "address_line1": "delhi",
+    "address_line2": "delhi",
+    "city": "delhi",
+    "state": "delhi",
+    "postal_code": "10094",
+    "country": "India",
+    "shipping_provider": "Shiprocket",
+    "tracking_number": "",
+    "created_at": "2025-10-27T19:57:17.510Z",
+    "updated_at": "2025-10-27T19:57:17.510Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 3,
+  "fields": {
+    "user": 1,
+    "order_number": "2FD09603A4",
+    "status": "created",
+    "payment_method": "cod",
+    "razorpay_order_id": "",
+    "razorpay_payment_id": "",
+    "razorpay_signature": "",
+    "subtotal": "200.00",
+    "gst_amount": "36.00",
+    "shipping_amount": "49.00",
+    "total_amount": "285.00",
+    "coupon_code": "",
+    "discount_amount": "0.00",
+    "shipping_name": "Arbaz",
+    "shipping_phone": "8920021012",
+    "address_line1": "mumbai",
+    "address_line2": "",
+    "city": "mumbai",
+    "state": "maharashtra",
+    "postal_code": "40001",
+    "country": "India",
+    "shipping_provider": "Shiprocket",
+    "tracking_number": "",
+    "created_at": "2025-10-27T23:48:10.722Z",
+    "updated_at": "2025-10-27T23:48:10.895Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 4,
+  "fields": {
+    "user": 1,
+    "order_number": "5E7C58B8D5",
+    "status": "created",
+    "payment_method": "razorpay",
+    "razorpay_order_id": "",
+    "razorpay_payment_id": "",
+    "razorpay_signature": "",
+    "subtotal": "649.00",
+    "gst_amount": "116.82",
+    "shipping_amount": "0.00",
+    "total_amount": "765.82",
+    "coupon_code": "",
+    "discount_amount": "0.00",
+    "shipping_name": "Mohd Siraj",
+    "shipping_phone": "+918920513970",
+    "address_line1": "delhi",
+    "address_line2": "delhi",
+    "city": "delhi",
+    "state": "delhi",
+    "postal_code": "10094",
+    "country": "India",
+    "shipping_provider": "Shiprocket",
+    "tracking_number": "",
+    "created_at": "2025-10-28T00:09:27.592Z",
+    "updated_at": "2025-10-28T00:09:27.592Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 5,
+  "fields": {
+    "user": 1,
+    "order_number": "C2F2E4FBAB",
+    "status": "created",
+    "payment_method": "razorpay",
+    "razorpay_order_id": "order_RYzrqljyjVZorV",
+    "razorpay_payment_id": "",
+    "razorpay_signature": "",
+    "subtotal": "849.00",
+    "gst_amount": "152.82",
+    "shipping_amount": "0.00",
+    "total_amount": "1001.82",
+    "coupon_code": "",
+    "discount_amount": "0.00",
+    "shipping_name": "Mohd Siraj",
+    "shipping_phone": "+918920513970",
+    "address_line1": "delhi",
+    "address_line2": "delhi",
+    "city": "delhi",
+    "state": "delhi",
+    "postal_code": "10094",
+    "country": "India",
+    "shipping_provider": "Shiprocket",
+    "tracking_number": "",
+    "created_at": "2025-10-28T18:46:16.191Z",
+    "updated_at": "2025-10-28T18:46:17.588Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 6,
+  "fields": {
+    "user": 1,
+    "order_number": "81F9951AC8",
+    "status": "created",
+    "payment_method": "razorpay",
+    "razorpay_order_id": "order_RYzt4puZ0wxyCe",
+    "razorpay_payment_id": "",
+    "razorpay_signature": "",
+    "subtotal": "200.00",
+    "gst_amount": "36.00",
+    "shipping_amount": "49.00",
+    "total_amount": "285.00",
+    "coupon_code": "",
+    "discount_amount": "0.00",
+    "shipping_name": "Mohd Siraj",
+    "shipping_phone": "+918920513970",
+    "address_line1": "delhi",
+    "address_line2": "delhi",
+    "city": "delhi",
+    "state": "delhi",
+    "postal_code": "10094",
+    "country": "India",
+    "shipping_provider": "Shiprocket",
+    "tracking_number": "",
+    "created_at": "2025-10-28T18:47:26.857Z",
+    "updated_at": "2025-10-28T18:47:27.256Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 7,
+  "fields": {
+    "user": 1,
+    "order_number": "7D9B5AA8D9",
+    "status": "delivered",
+    "payment_method": "razorpay",
+    "razorpay_order_id": "order_RYzuOaCInjLfHQ",
+    "razorpay_payment_id": "",
+    "razorpay_signature": "",
+    "subtotal": "200.00",
+    "gst_amount": "36.00",
+    "shipping_amount": "49.00",
+    "total_amount": "285.00",
+    "coupon_code": "",
+    "discount_amount": "0.00",
+    "shipping_name": "Mohd Siraj",
+    "shipping_phone": "+918920513970",
+    "address_line1": "delhi",
+    "address_line2": "delhi",
+    "city": "delhi",
+    "state": "delhi",
+    "postal_code": "10094",
+    "country": "India",
+    "shipping_provider": "Shiprocket",
+    "tracking_number": "",
+    "created_at": "2025-10-28T18:48:41.746Z",
+    "updated_at": "2025-10-29T20:02:42.241Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 8,
+  "fields": {
+    "user": 1,
+    "order_number": "656468EAE0",
+    "status": "delivered",
+    "payment_method": "razorpay",
+    "razorpay_order_id": "order_RZ05YeTb7Nq1lq",
+    "razorpay_payment_id": "",
+    "razorpay_signature": "",
+    "subtotal": "200.00",
+    "gst_amount": "36.00",
+    "shipping_amount": "49.00",
+    "total_amount": "285.00",
+    "coupon_code": "",
+    "discount_amount": "0.00",
+    "shipping_name": "Mohd Siraj",
+    "shipping_phone": "+918920513970",
+    "address_line1": "delhi",
+    "address_line2": "delhi",
+    "city": "delhi",
+    "state": "delhi",
+    "postal_code": "10094",
+    "country": "India",
+    "shipping_provider": "Shiprocket",
+    "tracking_number": "",
+    "created_at": "2025-10-28T18:59:15.885Z",
+    "updated_at": "2025-10-29T20:02:46.166Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 9,
+  "fields": {
+    "user": 1,
+    "order_number": "DA2F8471ED",
+    "status": "delivered",
+    "payment_method": "razorpay",
+    "razorpay_order_id": "order_RZ07EJimAq1u21",
+    "razorpay_payment_id": "",
+    "razorpay_signature": "",
+    "subtotal": "200.00",
+    "gst_amount": "36.00",
+    "shipping_amount": "49.00",
+    "total_amount": "285.00",
+    "coupon_code": "",
+    "discount_amount": "0.00",
+    "shipping_name": "Mohd Siraj",
+    "shipping_phone": "+918920513970",
+    "address_line1": "delhi",
+    "address_line2": "delhi",
+    "city": "delhi",
+    "state": "delhi",
+    "postal_code": "10094",
+    "country": "India",
+    "shipping_provider": "Shiprocket",
+    "tracking_number": "",
+    "created_at": "2025-10-28T19:00:50.915Z",
+    "updated_at": "2025-10-29T19:49:44.848Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 10,
+  "fields": {
+    "user": 1,
+    "order_number": "218B134362",
+    "status": "delivered",
+    "payment_method": "razorpay",
+    "razorpay_order_id": "order_RZ1WJEtBD7zKFB",
+    "razorpay_payment_id": "",
+    "razorpay_signature": "",
+    "subtotal": "200.00",
+    "gst_amount": "36.00",
+    "shipping_amount": "49.00",
+    "total_amount": "285.00",
+    "coupon_code": "",
+    "discount_amount": "0.00",
+    "shipping_name": "Mohd Siraj",
+    "shipping_phone": "+918920513970",
+    "address_line1": "delhi",
+    "address_line2": "delhi",
+    "city": "delhi",
+    "state": "delhi",
+    "postal_code": "10094",
+    "country": "India",
+    "shipping_provider": "Shiprocket",
+    "tracking_number": "",
+    "created_at": "2025-10-28T20:23:16.347Z",
+    "updated_at": "2025-10-29T19:42:39.340Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 11,
+  "fields": {
+    "user": 1,
+    "order_number": "50460DB0A0",
+    "status": "delivered",
+    "payment_method": "razorpay",
+    "razorpay_order_id": "order_RZ3bTNp9T0URGV",
+    "razorpay_payment_id": "pay_RZ3eDyJhuTsgnH",
+    "razorpay_signature": "18c7f5673e90754a0417f82e409282d9c6ee6e55d5cee7b5ec6a881233b5acf3",
+    "subtotal": "299.00",
+    "gst_amount": "53.82",
+    "shipping_amount": "49.00",
+    "total_amount": "401.82",
+    "coupon_code": "",
+    "discount_amount": "0.00",
+    "shipping_name": "Mohd Siraj",
+    "shipping_phone": "+918920513970",
+    "address_line1": "delhi",
+    "address_line2": "delhi",
+    "city": "delhi",
+    "state": "delhi",
+    "postal_code": "10094",
+    "country": "India",
+    "shipping_provider": "Shiprocket",
+    "tracking_number": "",
+    "created_at": "2025-10-28T22:25:32.647Z",
+    "updated_at": "2025-10-28T23:12:43.358Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 12,
+  "fields": {
+    "user": 1,
+    "order_number": "167E8965B9",
+    "status": "created",
+    "payment_method": "cod",
+    "razorpay_order_id": "",
+    "razorpay_payment_id": "",
+    "razorpay_signature": "",
+    "subtotal": "499.00",
+    "gst_amount": "89.82",
+    "shipping_amount": "0.00",
+    "total_amount": "588.82",
+    "coupon_code": "",
+    "discount_amount": "0.00",
+    "shipping_name": "Mohd Siraj",
+    "shipping_phone": "+918920513970",
+    "address_line1": "delhi",
+    "address_line2": "delhi",
+    "city": "delhi",
+    "state": "delhi",
+    "postal_code": "10094",
+    "country": "India",
+    "shipping_provider": "Shiprocket",
+    "tracking_number": "",
+    "created_at": "2025-10-30T11:07:18.731Z",
+    "updated_at": "2025-10-30T11:07:18.785Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 13,
+  "fields": {
+    "user": 1,
+    "order_number": "7F494B50EC",
+    "status": "created",
+    "payment_method": "cod",
+    "razorpay_order_id": "",
+    "razorpay_payment_id": "",
+    "razorpay_signature": "",
+    "subtotal": "1896.00",
+    "gst_amount": "341.28",
+    "shipping_amount": "0.00",
+    "total_amount": "2237.28",
+    "coupon_code": "",
+    "discount_amount": "0.00",
+    "shipping_name": "Mohd Siraj",
+    "shipping_phone": "+918920513970",
+    "address_line1": "delhi",
+    "address_line2": "delhi",
+    "city": "delhi",
+    "state": "delhi",
+    "postal_code": "10094",
+    "country": "India",
+    "shipping_provider": "Shiprocket",
+    "tracking_number": "",
+    "created_at": "2025-10-30T19:56:43.296Z",
+    "updated_at": "2025-10-30T19:56:50.078Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 14,
+  "fields": {
+    "user": 1,
+    "order_number": "71E2595280",
+    "status": "created",
+    "payment_method": "cod",
+    "razorpay_order_id": "",
+    "razorpay_payment_id": "",
+    "razorpay_signature": "",
+    "subtotal": "299.00",
+    "gst_amount": "53.82",
+    "shipping_amount": "49.00",
+    "total_amount": "401.82",
+    "coupon_code": "",
+    "discount_amount": "0.00",
+    "shipping_name": "Mohd Siraj",
+    "shipping_phone": "+918920513970",
+    "address_line1": "delhi",
+    "address_line2": "delhi",
+    "city": "delhi",
+    "state": "delhi",
+    "postal_code": "10094",
+    "country": "India",
+    "shipping_provider": "Shiprocket",
+    "tracking_number": "",
+    "created_at": "2025-10-30T20:00:42.762Z",
+    "updated_at": "2025-10-30T20:00:49.575Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 15,
+  "fields": {
+    "user": 1,
+    "order_number": "2711D37A8E",
+    "status": "delivered",
+    "payment_method": "cod",
+    "razorpay_order_id": "",
+    "razorpay_payment_id": "",
+    "razorpay_signature": "",
+    "subtotal": "499.00",
+    "gst_amount": "89.82",
+    "shipping_amount": "0.00",
+    "total_amount": "588.82",
+    "coupon_code": "",
+    "discount_amount": "0.00",
+    "shipping_name": "Mohd Siraj",
+    "shipping_phone": "+918920513970",
+    "address_line1": "delhi",
+    "address_line2": "delhi",
+    "city": "delhi",
+    "state": "delhi",
+    "postal_code": "10094",
+    "country": "India",
+    "shipping_provider": "Shiprocket",
+    "tracking_number": "",
+    "created_at": "2025-10-31T01:14:12.349Z",
+    "updated_at": "2025-10-31T01:14:38.145Z"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 1,
+  "fields": {
+    "order": 1,
+    "product": 5,
+    "variant": 87,
+    "quantity": 1,
+    "unit_price": "699.00",
+    "line_total": "699.00",
+    "unit_cost": "0.00",
+    "line_cost": "0.00"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 2,
+  "fields": {
+    "order": 2,
+    "product": 4,
+    "variant": 67,
+    "quantity": 1,
+    "unit_price": "599.00",
+    "line_total": "599.00",
+    "unit_cost": "0.00",
+    "line_cost": "0.00"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 3,
+  "fields": {
+    "order": 2,
+    "product": 5,
+    "variant": 87,
+    "quantity": 1,
+    "unit_price": "699.00",
+    "line_total": "699.00",
+    "unit_cost": "0.00",
+    "line_cost": "0.00"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 4,
+  "fields": {
+    "order": 3,
+    "product": 7,
+    "variant": 121,
+    "quantity": 1,
+    "unit_price": "200.00",
+    "line_total": "200.00",
+    "unit_cost": "0.00",
+    "line_cost": "0.00"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 5,
+  "fields": {
+    "order": 4,
+    "product": 6,
+    "variant": 101,
+    "quantity": 1,
+    "unit_price": "649.00",
+    "line_total": "649.00",
+    "unit_cost": "0.00",
+    "line_cost": "0.00"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 6,
+  "fields": {
+    "order": 5,
+    "product": 6,
+    "variant": 101,
+    "quantity": 1,
+    "unit_price": "649.00",
+    "line_total": "649.00",
+    "unit_cost": "0.00",
+    "line_cost": "0.00"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 7,
+  "fields": {
+    "order": 5,
+    "product": 7,
+    "variant": 121,
+    "quantity": 1,
+    "unit_price": "200.00",
+    "line_total": "200.00",
+    "unit_cost": "0.00",
+    "line_cost": "0.00"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 8,
+  "fields": {
+    "order": 6,
+    "product": 7,
+    "variant": 121,
+    "quantity": 1,
+    "unit_price": "200.00",
+    "line_total": "200.00",
+    "unit_cost": "0.00",
+    "line_cost": "0.00"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 9,
+  "fields": {
+    "order": 7,
+    "product": 7,
+    "variant": 121,
+    "quantity": 1,
+    "unit_price": "200.00",
+    "line_total": "200.00",
+    "unit_cost": "0.00",
+    "line_cost": "0.00"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 10,
+  "fields": {
+    "order": 8,
+    "product": 7,
+    "variant": 121,
+    "quantity": 1,
+    "unit_price": "200.00",
+    "line_total": "200.00",
+    "unit_cost": "0.00",
+    "line_cost": "0.00"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 11,
+  "fields": {
+    "order": 9,
+    "product": 7,
+    "variant": 121,
+    "quantity": 1,
+    "unit_price": "200.00",
+    "line_total": "200.00",
+    "unit_cost": "0.00",
+    "line_cost": "0.00"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 12,
+  "fields": {
+    "order": 10,
+    "product": 7,
+    "variant": 121,
+    "quantity": 1,
+    "unit_price": "200.00",
+    "line_total": "200.00",
+    "unit_cost": "0.00",
+    "line_cost": "0.00"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 13,
+  "fields": {
+    "order": 11,
+    "product": 8,
+    "variant": 122,
+    "quantity": 1,
+    "unit_price": "299.00",
+    "line_total": "299.00",
+    "unit_cost": "0.00",
+    "line_cost": "0.00"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 14,
+  "fields": {
+    "order": 12,
+    "product": 9,
+    "variant": 123,
+    "quantity": 1,
+    "unit_price": "499.00",
+    "line_total": "499.00",
+    "unit_cost": "0.00",
+    "line_cost": "0.00"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 15,
+  "fields": {
+    "order": 13,
+    "product": 8,
+    "variant": 122,
+    "quantity": 2,
+    "unit_price": "299.00",
+    "line_total": "598.00",
+    "unit_cost": "0.00",
+    "line_cost": "0.00"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 16,
+  "fields": {
+    "order": 13,
+    "product": 6,
+    "variant": 101,
+    "quantity": 2,
+    "unit_price": "649.00",
+    "line_total": "1298.00",
+    "unit_cost": "0.00",
+    "line_cost": "0.00"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 17,
+  "fields": {
+    "order": 14,
+    "product": 8,
+    "variant": 122,
+    "quantity": 1,
+    "unit_price": "299.00",
+    "line_total": "299.00",
+    "unit_cost": "0.00",
+    "line_cost": "0.00"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 18,
+  "fields": {
+    "order": 15,
+    "product": 11,
+    "variant": 128,
+    "quantity": 1,
+    "unit_price": "499.00",
+    "line_total": "499.00",
+    "unit_cost": "499.00",
+    "line_cost": "499.00"
+  }
+},
+{
+  "model": "orders.returnrequest",
+  "pk": 1,
+  "fields": {
+    "order": 11,
+    "user": 1,
+    "type": "return",
+    "reason": "",
+    "status": "requested",
+    "awb_code": "",
+    "notes": "",
+    "created_at": "2025-10-28T23:14:35.614Z",
+    "updated_at": "2025-10-28T23:14:35.614Z"
+  }
+},
+{
+  "model": "orders.returnrequest",
+  "pk": 2,
+  "fields": {
+    "order": 11,
+    "user": 1,
+    "type": "return",
+    "reason": "Quick return",
+    "status": "requested",
+    "awb_code": "",
+    "notes": "",
+    "created_at": "2025-10-28T23:15:26.352Z",
+    "updated_at": "2025-10-28T23:15:26.352Z"
+  }
+},
+{
+  "model": "orders.returnrequest",
+  "pk": 3,
+  "fields": {
+    "order": 11,
+    "user": 1,
+    "type": "return",
+    "reason": "Quick return",
+    "status": "requested",
+    "awb_code": "",
+    "notes": "",
+    "created_at": "2025-10-28T23:19:32.272Z",
+    "updated_at": "2025-10-28T23:19:32.272Z"
+  }
+},
+{
+  "model": "orders.returnitem",
+  "pk": 1,
+  "fields": {
+    "request": 1,
+    "order_item": 13,
+    "quantity": 1,
+    "exchange_variant": null
+  }
+},
+{
+  "model": "orders.returnitem",
+  "pk": 2,
+  "fields": {
+    "request": 2,
+    "order_item": 13,
+    "quantity": 1,
+    "exchange_variant": null
+  }
+},
+{
+  "model": "orders.returnitem",
+  "pk": 3,
+  "fields": {
+    "request": 3,
+    "order_item": 13,
+    "quantity": 1,
+    "exchange_variant": null
+  }
+},
+{
+  "model": "reviews.review",
+  "pk": 1,
+  "fields": {
+    "product": 1,
+    "user": 2,
+    "rating": 4,
+    "title": "Premium feel",
+    "body": "Nice oversized look, perfect for casual wear.",
+    "created_at": "2025-10-27T17:06:34.014Z"
+  }
+},
+{
+  "model": "reviews.review",
+  "pk": 2,
+  "fields": {
+    "product": 1,
+    "user": 3,
+    "rating": 5,
+    "title": "Awesome Tee",
+    "body": "Quality is top notch, loved the print.",
+    "created_at": "2025-10-27T17:06:34.043Z"
+  }
+},
+{
+  "model": "reviews.review",
+  "pk": 3,
+  "fields": {
+    "product": 1,
+    "user": 4,
+    "rating": 5,
+    "title": "Awesome Tee",
+    "body": "Nice oversized look, perfect for casual wear.",
+    "created_at": "2025-10-27T17:06:34.062Z"
+  }
+},
+{
+  "model": "reviews.review",
+  "pk": 4,
+  "fields": {
+    "product": 2,
+    "user": 2,
+    "rating": 5,
+    "title": "Loved it",
+    "body": "Quality is top notch, loved the print.",
+    "created_at": "2025-10-27T17:06:34.099Z"
+  }
+},
+{
+  "model": "reviews.review",
+  "pk": 5,
+  "fields": {
+    "product": 2,
+    "user": 3,
+    "rating": 4,
+    "title": "Great Quality",
+    "body": "Great fabric and fit. Will buy again!",
+    "created_at": "2025-10-27T17:06:34.129Z"
+  }
+},
+{
+  "model": "reviews.review",
+  "pk": 6,
+  "fields": {
+    "product": 2,
+    "user": 4,
+    "rating": 4,
+    "title": "Great Quality",
+    "body": "Comfortable and looks premium.",
+    "created_at": "2025-10-27T17:06:34.149Z"
+  }
+},
+{
+  "model": "reviews.review",
+  "pk": 7,
+  "fields": {
+    "product": 3,
+    "user": 2,
+    "rating": 5,
+    "title": "Great Quality",
+    "body": "Quality is top notch, loved the print.",
+    "created_at": "2025-10-27T17:06:34.164Z"
+  }
+},
+{
+  "model": "reviews.review",
+  "pk": 8,
+  "fields": {
+    "product": 3,
+    "user": 3,
+    "rating": 5,
+    "title": "Premium feel",
+    "body": "Nice oversized look, perfect for casual wear.",
+    "created_at": "2025-10-27T17:06:34.182Z"
+  }
+},
+{
+  "model": "reviews.review",
+  "pk": 9,
+  "fields": {
+    "product": 3,
+    "user": 4,
+    "rating": 4,
+    "title": "Awesome Tee",
+    "body": "Nice oversized look, perfect for casual wear.",
+    "created_at": "2025-10-27T17:06:34.198Z"
+  }
+},
+{
+  "model": "reviews.review",
+  "pk": 10,
+  "fields": {
+    "product": 4,
+    "user": 2,
+    "rating": 4,
+    "title": "Premium feel",
+    "body": "Comfortable and looks premium.",
+    "created_at": "2025-10-27T17:06:34.214Z"
+  }
+},
+{
+  "model": "reviews.review",
+  "pk": 11,
+  "fields": {
+    "product": 4,
+    "user": 3,
+    "rating": 5,
+    "title": "Great Quality",
+    "body": "Comfortable and looks premium.",
+    "created_at": "2025-10-27T17:06:34.245Z"
+  }
+},
+{
+  "model": "reviews.review",
+  "pk": 12,
+  "fields": {
+    "product": 4,
+    "user": 4,
+    "rating": 5,
+    "title": "Great Quality",
+    "body": "Comfortable and looks premium.",
+    "created_at": "2025-10-27T17:06:34.280Z"
+  }
+},
+{
+  "model": "reviews.review",
+  "pk": 13,
+  "fields": {
+    "product": 5,
+    "user": 2,
+    "rating": 4,
+    "title": "Loved it",
+    "body": "Great fabric and fit. Will buy again!",
+    "created_at": "2025-10-27T17:06:34.309Z"
+  }
+},
+{
+  "model": "reviews.review",
+  "pk": 14,
+  "fields": {
+    "product": 5,
+    "user": 3,
+    "rating": 4,
+    "title": "Great Quality",
+    "body": "Great fabric and fit. Will buy again!",
+    "created_at": "2025-10-27T17:06:34.326Z"
+  }
+},
+{
+  "model": "reviews.review",
+  "pk": 15,
+  "fields": {
+    "product": 5,
+    "user": 4,
+    "rating": 5,
+    "title": "Premium feel",
+    "body": "Comfortable and looks premium.",
+    "created_at": "2025-10-27T17:06:34.342Z"
+  }
+},
+{
+  "model": "reviews.review",
+  "pk": 16,
+  "fields": {
+    "product": 6,
+    "user": 2,
+    "rating": 5,
+    "title": "Premium feel",
+    "body": "Comfortable and looks premium.",
+    "created_at": "2025-10-27T17:06:34.360Z"
+  }
+},
+{
+  "model": "reviews.review",
+  "pk": 17,
+  "fields": {
+    "product": 6,
+    "user": 3,
+    "rating": 4,
+    "title": "Great Quality",
+    "body": "Great fabric and fit. Will buy again!",
+    "created_at": "2025-10-27T17:06:34.376Z"
+  }
+},
+{
+  "model": "reviews.review",
+  "pk": 18,
+  "fields": {
+    "product": 6,
+    "user": 4,
+    "rating": 4,
+    "title": "Great Quality",
+    "body": "Nice oversized look, perfect for casual wear.",
+    "created_at": "2025-10-27T17:06:34.397Z"
+  }
+},
+{
+  "model": "reviews.review",
+  "pk": 19,
+  "fields": {
+    "product": 7,
+    "user": 5,
+    "rating": 5,
+    "title": "best seller ever",
+    "body": "",
+    "created_at": "2025-10-27T21:52:18.817Z"
+  }
+},
+{
+  "model": "reviews.review",
+  "pk": 20,
+  "fields": {
+    "product": 7,
+    "user": 1,
+    "rating": 3,
+    "title": "Best fabric",
+    "body": "I loved it",
+    "created_at": "2025-10-31T00:45:22.611Z"
+  }
+},
+{
+  "model": "reviews.review",
+  "pk": 21,
+  "fields": {
+    "product": 8,
+    "user": 1,
+    "rating": 2,
+    "title": "",
+    "body": "",
+    "created_at": "2025-10-31T00:47:31.198Z"
+  }
+},
+{
+  "model": "reviews.review",
+  "pk": 22,
+  "fields": {
+    "product": 11,
+    "user": 1,
+    "rating": 4,
+    "title": "Loveed it",
+    "body": "Best quality ever",
+    "created_at": "2025-10-31T01:16:56.382Z"
+  }
+},
+{
+  "model": "reviews.reviewmedia",
+  "pk": 1,
+  "fields": {
+    "review": 20,
+    "file": "reviews/2025/10/31/khakhicolorpant.webp",
+    "kind": "image",
+    "created_at": "2025-10-31T00:45:22.625Z"
+  }
+},
+{
+  "model": "reviews.reviewmedia",
+  "pk": 2,
+  "fields": {
+    "review": 20,
+    "file": "reviews/2025/10/31/khakhicolorpant_LVqGmod.webp",
+    "kind": "image",
+    "created_at": "2025-10-31T01:05:22.050Z"
+  }
+},
+{
+  "model": "reviews.reviewmedia",
+  "pk": 3,
+  "fields": {
+    "review": 20,
+    "file": "reviews/2025/10/31/beigecolorpant.avif",
+    "kind": "image",
+    "created_at": "2025-10-31T01:05:22.058Z"
+  }
+},
+{
+  "model": "reviews.reviewmedia",
+  "pk": 4,
+  "fields": {
+    "review": 20,
+    "file": "reviews/2025/10/31/blackcolorpant.jpg",
+    "kind": "image",
+    "created_at": "2025-10-31T01:05:22.076Z"
+  }
+},
+{
+  "model": "reviews.reviewmedia",
+  "pk": 5,
+  "fields": {
+    "review": 20,
+    "file": "reviews/2025/10/31/camelcolorpant.webp",
+    "kind": "image",
+    "created_at": "2025-10-31T01:05:22.086Z"
+  }
+},
+{
+  "model": "reviews.reviewmedia",
+  "pk": 6,
+  "fields": {
+    "review": 20,
+    "file": "reviews/2025/10/31/5822804-hd_1920_1080_25fps_1.mp4",
+    "kind": "video",
+    "created_at": "2025-10-31T01:05:22.095Z"
+  }
+},
+{
+  "model": "reviews.reviewmedia",
+  "pk": 7,
+  "fields": {
+    "review": 22,
+    "file": "reviews/2025/10/31/reviewimag.jpg",
+    "kind": "image",
+    "created_at": "2025-10-31T01:16:56.395Z"
+  }
+},
+{
+  "model": "reviews.reviewmedia",
+  "pk": 8,
+  "fields": {
+    "review": 22,
+    "file": "reviews/2025/10/31/beigecolorpant_evdyKoa.avif",
+    "kind": "image",
+    "created_at": "2025-10-31T01:16:56.404Z"
+  }
+},
+{
+  "model": "reviews.reviewmedia",
+  "pk": 9,
+  "fields": {
+    "review": 22,
+    "file": "reviews/2025/10/31/camelcolorpant_XrhSdWs.webp",
+    "kind": "image",
+    "created_at": "2025-10-31T01:16:56.414Z"
+  }
+},
+{
+  "model": "coupons.coupon",
+  "pk": 1,
+  "fields": {
+    "code": "WELCOME10",
+    "description": "10% off for new users",
+    "discount_percent": 10,
+    "active": true,
+    "notify_users": false,
+    "valid_from": null,
+    "valid_to": null
+  }
+},
+{
+  "model": "coupons.coupon",
+  "pk": 2,
+  "fields": {
+    "code": "FESTIVE20",
+    "description": "Festive sale 20% off",
+    "discount_percent": 20,
+    "active": true,
+    "notify_users": false,
+    "valid_from": null,
+    "valid_to": null
+  }
+},
+{
+  "model": "coupons.coupon",
+  "pk": 3,
+  "fields": {
+    "code": "CLEARANCE25",
+    "description": "Clearance 25% off",
+    "discount_percent": 25,
+    "active": true,
+    "notify_users": false,
+    "valid_from": "2025-10-28T20:06:00Z",
+    "valid_to": "2025-10-31T20:07:00Z"
+  }
+},
+{
+  "model": "coupons.coupon",
+  "pk": 4,
+  "fields": {
+    "code": "REYANDHARDY25",
+    "description": "",
+    "discount_percent": 25,
+    "active": true,
+    "notify_users": false,
+    "valid_from": "2025-10-29T20:17:00Z",
+    "valid_to": "2025-11-03T20:17:00Z"
+  }
+}
+]
