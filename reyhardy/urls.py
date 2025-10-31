@@ -19,3 +19,4 @@ urlpatterns = [
 # Serve media files from Django. In production you should use a proper
 # web server or object storage, but this keeps Render/simple deploys working.
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
