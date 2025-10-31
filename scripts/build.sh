@@ -26,7 +26,19 @@ PY
 )
   if [[ "$NEED_SEED" == "yes" ]]; then
     echo "[build] Seeding from data.json …"
-    python manage.py loaddata data.json || true
+    # Remove default Site to avoid unique domain conflicts during loaddata
+    python - <<'PY'
+import os, django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE','reyhardy.settings')
+django.setup()
+try:
+    from django.contrib.sites.models import Site
+    Site.objects.all().delete()
+    print('[build] Cleared default Site')
+except Exception as e:
+    print('[build] Site cleanup skipped:', e)
+PY
+    python manage.py loaddata data.json --verbosity 2 || true
   else
     echo "[build] Seed skipped (data present)."
   fi
