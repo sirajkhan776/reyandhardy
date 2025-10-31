@@ -73,27 +73,80 @@ def checkout(request):
             except Exception:
                 bn_variant = None
         # Fallback: if variant id missing, try resolve via size/color saved in session
+        # Prefer resolving by explicit size/color selection if present (overrides any stale variant id)
+        sel_variant = None
+        try:
+            sel_size = (buy_now_data.get("size") or "").strip()
+            sel_color = (buy_now_data.get("color") or "").strip()
+            s_norm = sel_size.lower()
+            c_norm = sel_color.lower()
+            if sel_size and sel_color:
+                sel_variant = Variant.objects.filter(product=bn_product, size__iexact=sel_size, color__iexact=sel_color).first()
+                if sel_variant is None:
+                    for v in bn_product.variants.all():
+                        vs = (getattr(v, "size", "") or "").strip().lower()
+                        vc = (getattr(v, "color", "") or "").strip().lower()
+                        if vs == s_norm and vc == c_norm:
+                            sel_variant = v
+                            break
+            elif sel_size and not sel_color:
+                sel_variant = Variant.objects.filter(product=bn_product, size__iexact=sel_size).first()
+            elif sel_color and not sel_size:
+                sel_variant = Variant.objects.filter(product=bn_product, color__iexact=sel_color).first()
+        except Exception:
+            sel_variant = None
+
+        if sel_variant is not None:
+            bn_variant = sel_variant
+
         if bn_variant is None:
             try:
                 sel_size = (buy_now_data.get("size") or "")
                 sel_color = (buy_now_data.get("color") or "")
                 s_norm = sel_size.strip().lower()
                 c_norm = sel_color.strip().lower()
+                # Try exact size+color
                 if s_norm and c_norm:
-                    # First try direct DB filter (fast path)
                     bn_variant = Variant.objects.filter(product=bn_product, size=sel_size, color=sel_color).first()
                     if bn_variant is None:
-                        # Fallback: robust match ignoring case/whitespace
                         for v in bn_product.variants.all():
                             vs = (getattr(v, "size", "") or "").strip().lower()
                             vc = (getattr(v, "color", "") or "").strip().lower()
                             if vs == s_norm and vc == c_norm:
                                 bn_variant = v
                                 break
+                # If still not found and only size known, match by size only
+                if bn_variant is None and s_norm and not c_norm:
+                    bn_variant = Variant.objects.filter(product=bn_product, size=sel_size).first()
+                    if bn_variant is None:
+                        for v in bn_product.variants.all():
+                            vs = (getattr(v, "size", "") or "").strip().lower()
+                            if vs == s_norm:
+                                bn_variant = v
+                                break
+                # If still not found and only color known, match by color only
+                if bn_variant is None and c_norm and not s_norm:
+                    bn_variant = Variant.objects.filter(product=bn_product, color=sel_color).first()
+                    if bn_variant is None:
+                        for v in bn_product.variants.all():
+                            vc = (getattr(v, "color", "") or "").strip().lower()
+                            if vc == c_norm:
+                                bn_variant = v
+                                break
             except Exception:
                 bn_variant = None
         bn_qty = max(1, int(buy_now_data.get("quantity", 1)))
-        subtotal = (bn_product.price() * bn_qty).quantize(Decimal("0.01"))
+        # Variant-aware unit price for Buy Now; prefer persisted 'unit_price' from session if present
+        bn_unit = None
+        try:
+            raw = buy_now_data.get("unit_price")
+            if raw not in (None, "", "None"):
+                bn_unit = Decimal(str(raw))
+        except Exception:
+            bn_unit = None
+        if bn_unit is None:
+            bn_unit = (bn_variant.price() if bn_variant else bn_product.price())
+        subtotal = (bn_unit * bn_qty).quantize(Decimal("0.01"))
         sources = [(bn_product, bn_variant, bn_qty)]
     elif selected_mode:
         sources = []
@@ -103,7 +156,7 @@ def checkout(request):
             ids = list(map(int, selected_data.get("db_ids") or []))
             for it in (cart.items.select_related("product", "variant").filter(id__in=ids) if cart else []):
                 sources.append((it.product, it.variant, it.quantity))
-                subtotal += (it.product.price() * it.quantity)
+                subtotal += (it.unit_price() * it.quantity)
         else:
             from catalog.models import Product, Variant
             for sv in (selected_data.get("sv") or []):
@@ -120,7 +173,8 @@ def checkout(request):
                         var = None
                 qty = max(1, int(sv.get("qty", 1)))
                 sources.append((prod, var, qty))
-                subtotal += (prod.price() * qty)
+                unit = (var.price() if var else prod.price())
+                subtotal += (unit * qty)
         subtotal = subtotal.quantize(Decimal("0.01"))
     else:
         subtotal = cart.subtotal()
@@ -144,7 +198,7 @@ def checkout(request):
     gst_rate = Decimal(str(getattr(settings, "GST_RATE", "0.18")))
     gst_amount = (discounted_subtotal * gst_rate).quantize(Decimal("0.01"))
 
-    # Estimate shipment charge using default address when available; fallback to flat
+    # Estimate shipment charge using session delivery pin or default address
     addresses = Address.objects.filter(user=request.user)
     selected_id = request.GET.get("address_id")
     default_address = None
@@ -199,7 +253,11 @@ def checkout(request):
             else:
                 cart = getattr(request.user, "cart", None)
                 units_total = sum((it.quantity for it in cart.items.all()), 0) if cart else 0
-            drop_pin = default_address.postal_code if default_address else None
+            # Prefer session delivery pin
+            delivery = request.session.get("delivery") or {}
+            drop_pin = (str(delivery.get("postal_code") or "").strip() or None)
+            if not drop_pin:
+                drop_pin = default_address.postal_code if default_address else None
             if drop_pin:
                 total_w, dims = _items_total_weight_dims()
                 ship_est = estimate_shipping_charge(
@@ -222,10 +280,11 @@ def checkout(request):
 
     total = (discounted_subtotal + gst_amount + shipping).quantize(Decimal("0.01"))
 
-    # Build display items with color-aware thumbnail selection
+    # Build display items with color-aware thumbnail selection and variant-aware pricing
     display_items = []
     try:
         for prod, var, qty in sources:
+            unit = (bn_unit if buy_now_mode else (var.price() if var else prod.price()))
             chosen_color = None
             if var and getattr(var, "color", None):
                 try:
@@ -260,6 +319,7 @@ def checkout(request):
                 "product": prod,
                 "variant": var,
                 "qty": qty,
+                "unit": unit,
                 "img_url": img_url,
                 "color": chosen_color,
             })
@@ -296,7 +356,11 @@ def checkout(request):
                 else:
                     cart_for_units = getattr(request.user, "cart", None)
                     units_total = sum((it.quantity for it in cart_for_units.items.all()), 0) if cart_for_units else 1
-                drop_pin = (addr_obj.postal_code if addr_obj else request.POST.get("postal_code")) or ""
+                # Prefer session delivery pin
+                delivery = request.session.get("delivery") or {}
+                drop_pin = (str(delivery.get("postal_code") or "").strip() or None)
+                if not drop_pin:
+                    drop_pin = (addr_obj.postal_code if addr_obj else request.POST.get("postal_code")) or ""
                 est = None
                 if drop_pin:
                     total_w, dims = _items_total_weight_dims()
@@ -352,8 +416,8 @@ def checkout(request):
                 variant_size=(getattr(bn_variant, "size", None) or (buy_now_data.get("size") if buy_now_data else "") or ""),
                 variant_color=(getattr(bn_variant, "color", None) or (buy_now_data.get("color") if buy_now_data else "") or ""),
                 quantity=bn_qty,
-                unit_price=bn_product.price(),
-                line_total=(bn_product.price() * bn_qty).quantize(Decimal("0.01")),
+                unit_price=bn_unit,
+                line_total=(bn_unit * bn_qty).quantize(Decimal("0.01")),
                 unit_cost=unit_cost_val,
                 line_cost=(unit_cost_val * Decimal(bn_qty)).quantize(Decimal("0.01")),
             )
@@ -365,6 +429,7 @@ def checkout(request):
                         unit_cost_val = Decimal(str(var.cost_price))
                     except Exception:
                         unit_cost_val = Decimal("0.00")
+                unit = (var.price() if (var and (getattr(var, "sale_price", None) is not None or getattr(var, "base_price", None) is not None)) else prod.price())
                 OrderItem.objects.create(
                     order=order,
                     product=prod,
@@ -372,8 +437,8 @@ def checkout(request):
                     variant_size=(getattr(var, "size", "") if var else ""),
                     variant_color=(getattr(var, "color", "") if var else ""),
                     quantity=qty,
-                    unit_price=prod.price(),
-                    line_total=(prod.price() * qty).quantize(Decimal("0.01")),
+                    unit_price=unit,
+                    line_total=(unit * qty).quantize(Decimal("0.01")),
                     unit_cost=unit_cost_val,
                     line_cost=(unit_cost_val * Decimal(qty)).quantize(Decimal("0.01")),
                 )

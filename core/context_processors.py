@@ -25,10 +25,12 @@ def store_context(request):
 
     # default/saved addresses for quick mobile header location selector
     default_address = None
+    delivery_session = None
     user_addresses = []
     wishlist_count = 0
     try:
         user = getattr(request, "user", None)
+        delivery_session = request.session.get("delivery") or None
         if user and user.is_authenticated:
             from accounts.models import Address  # local import to avoid early app load
             from catalog.models import WishlistItem
@@ -76,6 +78,7 @@ def store_context(request):
         "CART_COUNT": cart_count,
         "ALL_CATEGORIES": all_categories,
         "DEFAULT_ADDRESS": default_address,
+        "DELIVERY_SESSION": delivery_session,
         "USER_ADDRESSES": user_addresses,
         "WISHLIST_COUNT": wishlist_count,
         "NOTIF_COUNT": unread,

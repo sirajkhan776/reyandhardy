@@ -155,6 +155,23 @@ def product_detail(request, slug):
             stock_map.setdefault(c, {})[s] = int(getattr(v, "stock", 0) or 0)
     except Exception:
         stock_map = {}
+
+    # Build variant price map: color -> size -> {sale, base}
+    price_map = {}
+    try:
+        for v in product.variants.all():
+            c = (v.color or "").strip()
+            s = (v.size or "").strip()
+            if not c or not s:
+                continue
+            sale = getattr(v, "sale_price", None)
+            base = getattr(v, "base_price", None)
+            price_map.setdefault(c, {})[s] = {
+                "sale": (str(sale) if sale is not None else None),
+                "base": (str(base) if base is not None else None),
+            }
+    except Exception:
+        price_map = {}
     # Ratings & Reviews summary
     try:
         stats = product.reviews.aggregate(avg_rating=Avg("rating"), rating_count=Count("id"))
@@ -217,6 +234,7 @@ def product_detail(request, slug):
             "color_size_map_json": json.dumps(color_size_map),
             "sizes_json": json.dumps(list(sizes)),
             "variant_stock_map_json": json.dumps(stock_map),
+            "variant_price_map_json": json.dumps(price_map),
             # review summary
             "avg_rating": avg_rating_disp,
             "rating_count": rating_count,

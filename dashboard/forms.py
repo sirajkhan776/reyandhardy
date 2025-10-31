@@ -204,6 +204,9 @@ class VariantForm(_BootstrapFormMixin, forms.ModelForm):
             "color",
             "sku",
             "stock",
+            # Retail price at variant level (optional)
+            "base_price",
+            "sale_price",
             # Optional per-variant measurements
             "cost_price",
             "weight_kg",

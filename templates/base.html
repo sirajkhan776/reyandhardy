@@ -73,11 +73,14 @@
   {% block scripts %}{% endblock %}
   <!-- Global submit overlay (loader) -->
   <div id="globalSubmitOverlay" class="submit-overlay d-none" aria-hidden="true">
-    <div class="submit-box">
-      <div class="spinner-border me-2" role="status" aria-label="Submitting..."></div>
+    <div class="submit-box" role="status" aria-live="polite" aria-label="Submitting, please wait">
+      <div class="loader-anim me-3" aria-hidden="true">
+        <span class="loader-ring"></span>
+        <span class="loader-dot"></span>
+      </div>
       <div>
         <div class="fw-semibold">Please wait…</div>
-        <div class="small text-muted">Processing your request</div>
+        <div class="small text-muted">Processing your request <span class="dots" aria-hidden="true"><span></span><span></span><span></span></span></div>
       </div>
     </div>
   </div>
@@ -85,6 +88,9 @@
     (function(){
       var overlay = document.getElementById('globalSubmitOverlay');
       function showOverlay(){ if(overlay) overlay.classList.remove('d-none'); }
+      function hideOverlay(){ if(overlay){ overlay.classList.add('d-none'); overlay.setAttribute('aria-hidden','true'); } }
+      function reenableControls(){ try { document.querySelectorAll('button, input[type="submit"]').forEach(function(el){ el.disabled = false; }); } catch(e) {}
+      }
       // Show on POST forms (avoid GET like search). Allow opt-out via data-no-overlay
       document.addEventListener('submit', function(ev){
         try {
@@ -99,6 +105,12 @@
           }
         } catch(e) {}
       }, true);
+      // Ensure overlay is hidden and controls re-enabled when navigating back/forward (bfcache)
+      window.addEventListener('pageshow', function(){ hideOverlay(); reenableControls(); });
+      // Also hide on popstate history navigation
+      window.addEventListener('popstate', function(){ hideOverlay(); reenableControls(); });
+      // Safety: hide on initial DOM ready as well
+      document.addEventListener('DOMContentLoaded', function(){ hideOverlay(); reenableControls(); });
     })();
   </script>
 </body>

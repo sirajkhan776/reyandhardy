@@ -4,14 +4,14 @@
   {% if notifications %}
     <div class="list-group">
       {% for n in notifications %}
-        <div class="list-group-item d-flex justify-content-between align-items-start{% if n.id not in read_ids %} bg-opacity-25 bg-warning{% endif %}">
+        <div class="list-group-item d-flex justify-content-between align-items-start{% if n.id not in read_ids %} bg-opacity-25 bg-warning{% endif %}" data-notif-id="{{ n.id }}" {% if n.id not in read_ids %}data-unread="1"{% endif %}>
           <div class="me-3">
             <div class="fw-semibold">{{ n.title }}</div>
             {% if n.message %}<div class="small text-muted">{{ n.message }}</div>{% endif %}
             <div class="small text-muted">{{ n.created_at|date:"M d, Y H:i" }}</div>
           </div>
           <div class="d-flex align-items-center gap-2">
-            {% if n.link_url %}<a href="{{ n.link_url }}" class="btn btn-sm btn-outline-primary">View</a>{% endif %}
+            {% if n.link_url %}<a href="{{ n.link_url }}" class="btn btn-sm btn-outline-primary" data-notif-view>View</a>{% endif %}
             {% if n.id not in read_ids %}
               <form method="post" action="/accounts/notifications/{{ n.id }}/read/">
                 {% csrf_token %}
@@ -26,4 +26,3 @@
     <div class="text-muted">No notifications yet.</div>
   {% endif %}
 {% endblock %}
-

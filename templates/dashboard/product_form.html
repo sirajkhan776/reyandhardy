@@ -127,6 +127,8 @@
             </div>
             <div class="col-12">
               <div class="row g-2">
+            <div class="col-md-2">{{ f.base_price.label_tag }}{{ f.base_price }}</div>
+            <div class="col-md-2">{{ f.sale_price.label_tag }}{{ f.sale_price }}</div>
             <div class="col-md-2">{{ f.cost_price.label_tag }}{{ f.cost_price }}</div>
             <div class="col-md-2">{{ f.weight_kg.label_tag }}{{ f.weight_kg }}</div>
             <div class="col-md-2">{{ f.length_cm.label_tag }}{{ f.length_cm }}</div>
@@ -149,6 +151,8 @@
           </div>
           <div class="col-12">
             <div class="row g-2">
+              <div class="col-md-2">{{ variants_fs.empty_form.base_price.label_tag }}{{ variants_fs.empty_form.base_price }}</div>
+              <div class="col-md-2">{{ variants_fs.empty_form.sale_price.label_tag }}{{ variants_fs.empty_form.sale_price }}</div>
               <div class="col-md-2">{{ variants_fs.empty_form.cost_price.label_tag }}{{ variants_fs.empty_form.cost_price }}</div>
               <div class="col-md-2">{{ variants_fs.empty_form.weight_kg.label_tag }}{{ variants_fs.empty_form.weight_kg }}</div>
               <div class="col-md-2">{{ variants_fs.empty_form.length_cm.label_tag }}{{ variants_fs.empty_form.length_cm }}</div>

@@ -10,6 +10,7 @@ from django.contrib.sessions.models import Session
 from django.utils import timezone
 from .models import Notification, NotificationRead
 from django.db import models
+from django.http import JsonResponse
 
 
 @login_required
@@ -323,3 +324,46 @@ def notifications_clear(request):
     except Exception:
         messages.error(request, "Could not clear notifications")
     return redirect(request.META.get("HTTP_REFERER", "notifications"))
+
+
+def delivery_set(request):
+    """Persist delivery location in session for both guests and signed-in users.
+    Accepts either a postal_code (pincode) and optional city/state/country, or lat/lng.
+    """
+    if request.method != "POST":
+        return redirect(request.META.get("HTTP_REFERER", "/"))
+    pin = (request.POST.get("postal_code") or "").strip()
+    city = (request.POST.get("city") or "").strip()
+    state = (request.POST.get("state") or "").strip()
+    country = (request.POST.get("country") or "India").strip()
+    lat = (request.POST.get("lat") or "").strip()
+    lng = (request.POST.get("lng") or "").strip()
+    data = {}
+    if pin:
+        data["postal_code"] = pin
+    if city:
+        data["city"] = city
+    if state:
+        data["state"] = state
+    if country:
+        data["country"] = country
+    if lat and lng:
+        data["lat"] = lat
+        data["lng"] = lng
+    # Build a simple label for UI
+    label = None
+    if city and pin:
+        label = f"{city}, {pin}"
+    elif pin:
+        label = pin
+    elif city:
+        label = city
+    elif lat and lng:
+        label = "Using your location"
+    if label:
+        data["label"] = label
+    request.session["delivery"] = data
+    request.session.modified = True
+    if request.headers.get("x-requested-with") == "XMLHttpRequest" or "application/json" in request.headers.get("Accept", ""):
+        return JsonResponse({"ok": True, "delivery": data})
+    return redirect(request.META.get("HTTP_REFERER", "/"))

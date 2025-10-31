@@ -182,6 +182,8 @@ wireImageSearchCameraFirst('imageSearchBtnMobileTop', 'imageSearchFormMobileTop'
           // Update summary
           const s = id => document.getElementById(id);
           if (s('cart-subtotal')) s('cart-subtotal').textContent = json.subtotal;
+          if (s('cart-discount') && typeof json.discount_amount !== 'undefined') s('cart-discount').textContent = json.discount_amount;
+          if (s('cart-discounted-subtotal')) s('cart-discounted-subtotal').textContent = (typeof json.discounted_subtotal !== 'undefined' ? json.discounted_subtotal : json.subtotal);
           if (s('cart-gst')) s('cart-gst').textContent = json.gst_amount;
           if (s('cart-shipping')) s('cart-shipping').textContent = json.shipping;
           if (s('cart-total')) s('cart-total').textContent = json.total;
@@ -334,6 +336,8 @@ wireImageSearchCameraFirst('imageSearchBtnMobileTop', 'imageSearchFormMobileTop'
         document.querySelectorAll(`.cart-row[data-pid="${json.pid}"][data-vid="${json.vid || 0}"]`).forEach(r => r.remove());
         const s = id => document.getElementById(id);
         if (s('cart-subtotal')) s('cart-subtotal').textContent = json.subtotal;
+        if (s('cart-discount') && typeof json.discount_amount !== 'undefined') s('cart-discount').textContent = json.discount_amount;
+        if (s('cart-discounted-subtotal')) s('cart-discounted-subtotal').textContent = (typeof json.discounted_subtotal !== 'undefined' ? json.discounted_subtotal : json.subtotal);
         if (s('cart-gst')) s('cart-gst').textContent = json.gst_amount;
         if (s('cart-shipping')) s('cart-shipping').textContent = json.shipping;
         if (s('cart-total')) s('cart-total').textContent = json.total;
@@ -366,6 +370,79 @@ wireImageSearchCameraFirst('imageSearchBtnMobileTop', 'imageSearchFormMobileTop'
         }
       })
       .catch(() => {});
+  }, false);
+})();
+
+// Notifications: mark as read on click and update bell badge
+(function(){
+  function getCsrfToken(){
+    const name = 'csrftoken=';
+    const parts = document.cookie.split(';');
+    for (let p of parts){ p = p.trim(); if (p.startsWith(name)) return p.substring(name.length); }
+    const inp = document.querySelector('input[name="csrfmiddlewaretoken"]');
+    return inp ? inp.value : '';
+  }
+  function decrementBellBadge(){
+    try {
+      var bell = document.getElementById('notifBellLink');
+      if (!bell) return;
+      var badge = bell.querySelector('.badge');
+      if (!badge) return;
+      var cur = parseInt(badge.textContent || '0', 10);
+      if (isNaN(cur) || cur <= 1) { badge.remove(); }
+      else { badge.textContent = String(cur - 1); }
+    } catch(_){}
+  }
+  function markRead(id){
+    if (!id) return;
+    var url = '/accounts/notifications/' + id + '/read/';
+    var csrf = getCsrfToken();
+    // Prefer sendBeacon for reliability during navigation
+    try {
+      if (navigator.sendBeacon){
+        var data = new FormData();
+        data.append('csrfmiddlewaretoken', csrf);
+        navigator.sendBeacon(url, data);
+        return;
+      }
+    } catch(_){}
+    try {
+      fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin', body: new URLSearchParams({ 'csrfmiddlewaretoken': csrf }), keepalive: true })
+        .catch(function(){});
+    } catch(_){}
+  }
+  document.addEventListener('click', function(e){
+    var a = e.target.closest('#notificationsModal .list-group-item');
+    if (!a) return;
+    var nid = a.getAttribute('data-notif-id');
+    if (nid){
+      // Optimistically update UI
+      var nb = a.querySelector('[data-new-badge]'); if (nb) nb.remove();
+      if (a.hasAttribute('data-unread')) { a.removeAttribute('data-unread'); decrementBellBadge(); }
+      markRead(nid);
+      // Remove from list immediately
+      var list = a.closest('.list-group');
+      a.remove();
+      try {
+        if (list && !list.querySelector('.list-group-item')){
+          var body = list.parentElement;
+          if (body) body.innerHTML = '<div class="text-muted">No notifications yet.</div>';
+        }
+      } catch(_){}
+    }
+  }, false);
+  // Also handle clicks from the full notifications page
+  document.addEventListener('click', function(e){
+    var link = e.target.closest('[data-notif-view]');
+    if (!link) return;
+    var row = e.target.closest('[data-notif-id]');
+    var nid = row && row.getAttribute('data-notif-id');
+    if (nid){
+      if (row.hasAttribute('data-unread')){ row.removeAttribute('data-unread'); decrementBellBadge(); }
+      markRead(nid);
+      // Remove row immediately from the list page (optional UX)
+      try { row.remove(); } catch(_){}
+    }
   }, false);
 })();
 

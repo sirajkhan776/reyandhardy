@@ -514,8 +514,32 @@ html[data-theme='light'] a:hover { color: #0f172a; }
 
 /* Submit overlay (loader for long form posts) */
 .submit-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(2,6,23,.55); backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; }
-.submit-overlay .submit-box { background: var(--rh-bg-elev); color: var(--rh-accent); border: 1px solid var(--rh-border); border-radius: 12px; padding: 14px 16px; box-shadow: 0 10px 28px rgba(0,0,0,.25); display: flex; align-items: center; }
+.submit-overlay .submit-box { background: var(--rh-bg-elev); color: var(--rh-accent); border: 1px solid var(--rh-border); border-radius: 14px; padding: 16px 18px; box-shadow: 0 12px 30px rgba(0,0,0,.28); display: flex; align-items: center; }
 html[data-theme='light'] .submit-overlay { background: rgba(255,255,255,.5); }
+
+/* Premium loader animation: gradient ring + pulsing core + animated dots */
+.loader-anim { position: relative; width: 44px; height: 44px; flex: 0 0 44px; }
+.loader-anim .loader-ring { position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(var(--rh-gold) 0 90deg, transparent 90deg 180deg, #64748b 180deg 225deg, transparent 225deg 360deg);
+  -webkit-mask: radial-gradient(circle, transparent 58%, #000 59%);
+          mask: radial-gradient(circle, transparent 58%, #000 59%);
+  animation: spin 1.1s linear infinite;
+}
+.loader-anim .loader-dot { position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, var(--rh-gold), #f59e0b);
+  box-shadow: 0 0 0 0 rgba(245, 158, 11, .5);
+  animation: pulse-core 1.4s ease-in-out infinite;
+}
+@keyframes pulse-core {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245,158,11,.45); }
+  70% { transform: scale(1.25); box-shadow: 0 0 0 8px rgba(245,158,11,0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+}
+.dots { display: inline-flex; align-items: center; gap: 2px; margin-left: 2px; }
+.dots span { width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: .25; animation: dotblink 1.2s infinite ease-in-out; }
+.dots span:nth-child(2) { animation-delay: .2s; }
+.dots span:nth-child(3) { animation-delay: .4s; }
+@keyframes dotblink { 0%, 60%, 100% { opacity: .25; transform: translateY(0); } 30% { opacity: .9; transform: translateY(-1px); } }
 
 /* Saved for later grid */
 .saved-item { border: 1px solid var(--rh-border); border-radius: 14px; overflow: hidden; background: var(--rh-bg-elev); }

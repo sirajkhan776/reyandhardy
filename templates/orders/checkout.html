@@ -14,6 +14,16 @@
                   <div class="fw-semibold">{{ default_address.full_name }} {% if default_address.is_default %}<span class="badge bg-success">Default</span>{% endif %}</div>
                   <div class="small text-muted">{{ default_address.phone }}</div>
                   <div class="small mt-1">{{ default_address.address_line1 }}{% if default_address.address_line2 %}, {{ default_address.address_line2 }}{% endif %}, {{ default_address.city }}, {{ default_address.state }} - {{ default_address.postal_code }}, {{ default_address.country }}</div>
+                  {% if DELIVERY_SESSION %}
+                    <div class="mt-2">
+                      <span class="badge bg-warning text-dark">Estimating to {{ DELIVERY_SESSION.city|default:"" }}{% if DELIVERY_SESSION.city and DELIVERY_SESSION.postal_code %}, {% endif %}{{ DELIVERY_SESSION.postal_code|default:"" }}</span>
+                      <a href="#deliveryLocationModal" data-bs-toggle="modal" class="btn btn-sm btn-link">Change</a>
+                    </div>
+                  {% else %}
+                    <div class="mt-2">
+                      <a href="#deliveryLocationModal" data-bs-toggle="modal" class="btn btn-sm btn-outline-primary">Set different delivery location</a>
+                    </div>
+                  {% endif %}
                 </div>
                 <input type="hidden" name="address_id" value="{{ default_address.id }}" />
                 <a href="/accounts/addresses/?next=/checkout/" class="btn btn-sm btn-outline-light mt-2">Change delivery address</a>
@@ -83,6 +93,7 @@
                   </div>
                 </div>
                 <div class="text-end">
+                  <div class="small">{{ CURRENCY_SYMBOL }}{{ it.unit|default:it.product.price }}</div>
                   <div class="small text-muted">Qty: {{ it.qty }}</div>
                 </div>
               </div>

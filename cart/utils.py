@@ -17,6 +17,11 @@ class SessionCartItem:
     quantity: int
 
     def unit_price(self) -> Decimal:
+        if self.variant and (getattr(self.variant, "sale_price", None) is not None or getattr(self.variant, "base_price", None) is not None):
+            try:
+                return self.variant.price()
+            except Exception:
+                pass
         return self.product.price()
 
     def line_total(self) -> Decimal:

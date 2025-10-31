@@ -10,18 +10,22 @@
         <i class="bi bi-geo-alt me-2"></i>
         <button class="btn btn-link p-0 text-white text-decoration-none d-inline-flex align-items-center" type="button" data-bs-toggle="modal" data-bs-target="#deliveryLocationModal">
           Deliver to
-          {% if DEFAULT_ADDRESS %}
+          <span id="deliveryLabel">
+          {% if DELIVERY_SESSION %}
+            &nbsp;{% if DELIVERY_SESSION.city or DELIVERY_SESSION.postal_code %}{{ DELIVERY_SESSION.city }}{% if DELIVERY_SESSION.city and DELIVERY_SESSION.postal_code %}, {% endif %}{{ DELIVERY_SESSION.postal_code }}{% else %}Using your location{% endif %}
+          {% elif DEFAULT_ADDRESS %}
             &nbsp;{{ DEFAULT_ADDRESS.city }}, {{ DEFAULT_ADDRESS.postal_code }}
           {% else %}
             &nbsp;Set location
           {% endif %}
+          </span>
           <i class="bi bi-caret-down-fill ms-1"></i>
         </button>
       </div>
 
       {# Right: Icons #}
       <div class="d-inline-flex align-items-center gap-3 ms-auto">
-        <a href="#notificationsModal" data-bs-toggle="modal" class="text-white position-relative" title="Notifications" aria-label="Notifications">
+        <a id="notifBellLink" href="#notificationsModal" data-bs-toggle="modal" class="text-white position-relative" title="Notifications" aria-label="Notifications">
           <i class="bi bi-bell" style="font-size:1.1rem;"></i>
           {% if NOTIF_COUNT and NOTIF_COUNT > 0 %}
             <span class="badge rounded-pill bg-danger position-absolute translate-middle" style="top:0; right:-6px; font-size:.65rem;">{{ NOTIF_COUNT }}</span>
@@ -94,7 +98,10 @@
       <div class="modal-body">
         <div class="mb-3">
           <label class="form-label" for="pinInput">Pincode</label>
-          <input id="pinInput" class="form-control" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="Check pincode" />
+          <div class="input-group">
+            <input id="pinInput" class="form-control" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="Enter pincode" />
+            <button type="button" class="btn btn-primary" id="setPinBtn">Set</button>
+          </div>
         </div>
         <div class="d-grid gap-2 mb-3">
           <button type="button" class="btn btn-outline-primary" id="useCurrentLocationBtn"><i class="bi bi-geo-alt me-1"></i> Use my current location</button>
@@ -128,19 +135,81 @@
   </div>
   <script>
     (function(){
+      function getCsrf(){
+        try {
+          var name = 'csrftoken=';
+          var parts = document.cookie.split(';');
+          for (var i=0;i<parts.length;i++){ var p = parts[i].trim(); if (p.indexOf(name)===0) return p.substring(name.length); }
+        } catch(e){}
+        var inp = document.querySelector('input[name="csrfmiddlewaretoken"]');
+        return inp ? inp.value : '';
+      }
       var useBtn = document.getElementById('useCurrentLocationBtn');
       if(useBtn){
         useBtn.addEventListener('click', function(){
           if(!navigator.geolocation){ alert('Geolocation is not supported on this device.'); return; }
           navigator.geolocation.getCurrentPosition(function(pos){
-            // Store coordinates in localStorage so future requests can use them.
-            try { localStorage.setItem('rh_geo_lat', pos.coords.latitude); localStorage.setItem('rh_geo_lng', pos.coords.longitude); } catch(e){}
-            alert('Location captured. We will tailor availability for your area.');
+            var lat = pos.coords.latitude, lng = pos.coords.longitude;
+            // Persist coordinates
+            try { localStorage.setItem('rh_geo_lat', lat); localStorage.setItem('rh_geo_lng', lng); } catch(e){}
+            // Reverse geocode to get city/postcode (best effort via OSM Nominatim)
+            function finishSet(city, pin, state, country){
+              try {
+                var fd = new FormData();
+                if (city) fd.append('city', city);
+                if (pin) fd.append('postal_code', pin);
+                if (state) fd.append('state', state);
+                if (country) fd.append('country', country);
+                fd.append('lat', String(lat));
+                fd.append('lng', String(lng));
+                fd.append('csrfmiddlewaretoken', getCsrf());
+                fetch('/accounts/delivery/set/', { method:'POST', body: fd, credentials:'same-origin', headers:{ 'X-Requested-With':'XMLHttpRequest' } })
+                  .then(function(r){ return r.json().catch(function(){ return {}; }); })
+                  .then(function(){
+                    try {
+                      var label = ' ' + (city && pin ? (city + ', ' + pin) : (pin || city || 'Using your location'));
+                      document.getElementById('deliveryLabel').textContent = label;
+                      var m = document.getElementById('deliveryLocationModal'); if (m) { try { bootstrap.Modal.getInstance(m)?.hide(); } catch(_){} }
+                      if (location && location.pathname && location.pathname.indexOf('/checkout')===0) setTimeout(function(){ location.reload(); }, 150);
+                    } catch(_){}
+                  })
+                  .catch(function(){});
+              } catch(_){}
+            }
+            try {
+              var url = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + encodeURIComponent(lat) + '&lon=' + encodeURIComponent(lng) + '&addressdetails=1';
+              fetch(url, { method:'GET', headers: { 'Accept': 'application/json' } })
+                .then(function(r){ return r.json(); })
+                .then(function(j){
+                  var a = j && j.address ? j.address : {};
+                  var pin = a.postcode || '';
+                  var city = a.city || a.town || a.village || a.suburb || a.hamlet || a.county || '';
+                  var state = a.state || '';
+                  var country = a.country || '';
+                  finishSet(city, pin, state, country);
+                })
+                .catch(function(){ finishSet('', '', '', ''); });
+            } catch(_) { finishSet('', '', '', ''); }
           }, function(err){ alert('Could not get location: ' + (err && err.message ? err.message : 'Permission denied')); });
         });
       }
       var searchBtn = document.getElementById('searchLocationBtn');
       if(searchBtn){ searchBtn.addEventListener('click', function(){ document.getElementById('pinInput')?.focus(); }); }
+      var setPin = document.getElementById('setPinBtn');
+      if(setPin){ setPin.addEventListener('click', function(){
+        var pin = (document.getElementById('pinInput')||{}).value || '';
+        pin = String(pin||'').trim();
+        if (!pin || pin.length < 4){ alert('Please enter a valid pincode.'); return; }
+        try {
+          var fd = new FormData();
+          fd.append('postal_code', pin);
+          fd.append('csrfmiddlewaretoken', getCsrf());
+          fetch('/accounts/delivery/set/', { method:'POST', body: fd, credentials:'same-origin', headers:{ 'X-Requested-With':'XMLHttpRequest' } })
+            .then(function(r){ return r.json().catch(function(){ return {}; }); })
+            .then(function(){ try { document.getElementById('deliveryLabel').textContent = ' ' + pin; } catch(_){}; var m = document.getElementById('deliveryLocationModal'); try { if (m) bootstrap.Modal.getInstance(m)?.hide(); } catch(_){}; if (location && location.pathname && location.pathname.indexOf('/checkout')===0) setTimeout(function(){ location.reload(); }, 150); })
+            .catch(function(){});
+        } catch(_){}
+      }); }
     })();
   </script>
 </div>
@@ -157,16 +226,16 @@
         {% if NOTIF_LATEST %}
           <div class="list-group">
             {% for n in NOTIF_LATEST %}
-              <a href="{{ n.link_url|default:'#' }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-start">
-                <div class="me-3">
-                  <div class="fw-semibold">{{ n.title }}</div>
-                  {% if n.message %}<div class="small text-muted">{{ n.message }}</div>{% endif %}
-                  <div class="small text-muted">{{ n.created_at|date:"M d, H:i" }}</div>
-                </div>
-                {% if n.id not in NOTIF_READ_IDS %}
-                  <span class="badge bg-warning text-dark">New</span>
-                {% endif %}
-              </a>
+              {% if n.id not in NOTIF_READ_IDS %}
+                <a href="{{ n.link_url|default:'#' }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-start" data-notif-id="{{ n.id }}" data-unread="1">
+                  <div class="me-3">
+                    <div class="fw-semibold">{{ n.title }}</div>
+                    {% if n.message %}<div class="small text-muted">{{ n.message }}</div>{% endif %}
+                    <div class="small text-muted">{{ n.created_at|date:"M d, H:i" }}</div>
+                  </div>
+                  <span class="badge bg-warning text-dark" data-new-badge>New</span>
+                </a>
+              {% endif %}
             {% endfor %}
           </div>
         {% else %}

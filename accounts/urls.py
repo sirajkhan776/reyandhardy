@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     path("profile/", views.profile, name="profile"),
+    path("delivery/set/", views.delivery_set, name="delivery_set"),
     path("notifications/", views.notifications, name="notifications"),
     path("notifications/<int:pk>/read/", views.notification_mark_read, name="notification_mark_read"),
     path("notifications/clear/", views.notifications_clear, name="notifications_clear"),

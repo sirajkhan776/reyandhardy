@@ -103,56 +103,69 @@ def view_cart(request):
 
     gst_rate = Decimal(str(getattr(settings, "GST_RATE", "0.18")))
     gst_amount = (discounted_subtotal * gst_rate).quantize(Decimal("0.01"))
-    # Dynamic shipping estimate when user has a default address; fallback to flat/free
+    # Dynamic shipping estimate using session delivery pin (if set) or default address; fallback to flat/free
     shipping = Decimal("0.00")
     if discounted_subtotal >= Decimal(getattr(settings, "FREE_SHIPPING_THRESHOLD", 399)):
         shipping = Decimal("0.00")
     else:
         ship_estimate = None
-        if request.user.is_authenticated:
-            try:
+        try:
+            delivery = request.session.get("delivery") or {}
+            drop_pin = (str(delivery.get("postal_code") or "").strip() or None)
+            if not drop_pin and request.user.is_authenticated:
                 addresses = Address.objects.filter(user=request.user)
                 default_address = addresses.filter(is_default=True).first() or addresses.first()
                 drop_pin = default_address.postal_code if default_address else None
-                if drop_pin:
-                    # Compute total weight and dims from cart items
-                    total_w = Decimal("0.00")
-                    max_l = int(getattr(settings, "SHIPROCKET_DEFAULT_DIM_LCM", 20))
-                    max_b = int(getattr(settings, "SHIPROCKET_DEFAULT_DIM_BCM", 15))
-                    max_h = int(getattr(settings, "SHIPROCKET_DEFAULT_DIM_HCM", 2))
-                    for it in (request.user.cart.items.select_related("product", "variant") if hasattr(request.user, "cart") else []):
-                        w = None
-                        if it.variant and getattr(it.variant, "weight_kg", None):
-                            w = Decimal(str(it.variant.weight_kg))
-                        elif getattr(it.product, "weight_kg", None):
-                            w = Decimal(str(it.product.weight_kg))
-                        else:
-                            w = Decimal(str(getattr(settings, "SHIPROCKET_DEFAULT_UNIT_WEIGHT_KG", 0.5)))
-                        total_w += (w * Decimal(it.quantity))
-                        lv = (getattr(it.variant, "length_cm", None) if it.variant else None) or getattr(it.product, "length_cm", None)
-                        bv = (getattr(it.variant, "breadth_cm", None) if it.variant else None) or getattr(it.product, "breadth_cm", None)
-                        hv = (getattr(it.variant, "height_cm", None) if it.variant else None) or getattr(it.product, "height_cm", None)
-                        if lv:
-                            try: max_l = max(max_l, int(lv))
-                            except Exception: pass
-                        if bv:
-                            try: max_b = max(max_b, int(bv))
-                            except Exception: pass
-                        if hv:
-                            try: max_h = max(max_h, int(hv))
-                            except Exception: pass
-                    units_total = sum((it["quantity"] for it in cart_items), 0)
-                    est = estimate_shipping_charge(
-                        drop_pin=str(drop_pin),
-                        units_total=units_total or 1,
-                        cod=False,
-                        declared_value=discounted_subtotal,
-                        total_weight_kg=total_w,
-                        dims_cm=(max_l, max_b, max_h),
-                    )
-                    ship_estimate = est
-            except Exception:
-                ship_estimate = None
+            if drop_pin:
+                # Compute total weight and dims from cart items (db for auth, session list for guests)
+                total_w = Decimal("0.00")
+                max_l = int(getattr(settings, "SHIPROCKET_DEFAULT_DIM_LCM", 20))
+                max_b = int(getattr(settings, "SHIPROCKET_DEFAULT_DIM_BCM", 15))
+                max_h = int(getattr(settings, "SHIPROCKET_DEFAULT_DIM_HCM", 2))
+                if request.user.is_authenticated and hasattr(request.user, "cart"):
+                    items_iter = request.user.cart.items.select_related("product", "variant")
+                else:
+                    # Build a light-weight iterable from current view cart_items
+                    class _Wrap: pass
+                    items_iter = []
+                    for c in cart_items:
+                        w = _Wrap()
+                        w.product = c["product"]
+                        w.variant = c["variant"]
+                        w.quantity = c["quantity"]
+                        items_iter.append(w)
+                for it in items_iter:
+                    if it.variant and getattr(it.variant, "weight_kg", None):
+                        w = Decimal(str(it.variant.weight_kg))
+                    elif getattr(it.product, "weight_kg", None):
+                        w = Decimal(str(it.product.weight_kg))
+                    else:
+                        w = Decimal(str(getattr(settings, "SHIPROCKET_DEFAULT_UNIT_WEIGHT_KG", 0.5)))
+                    total_w += (w * Decimal(it.quantity))
+                    lv = (getattr(it.variant, "length_cm", None) if it.variant else None) or getattr(it.product, "length_cm", None)
+                    bv = (getattr(it.variant, "breadth_cm", None) if it.variant else None) or getattr(it.product, "breadth_cm", None)
+                    hv = (getattr(it.variant, "height_cm", None) if it.variant else None) or getattr(it.product, "height_cm", None)
+                    if lv:
+                        try: max_l = max(max_l, int(lv))
+                        except Exception: pass
+                    if bv:
+                        try: max_b = max(max_b, int(bv))
+                        except Exception: pass
+                    if hv:
+                        try: max_h = max(max_h, int(hv))
+                        except Exception: pass
+                units_total = sum((c["quantity"] for c in cart_items), 0)
+                est = estimate_shipping_charge(
+                    drop_pin=str(drop_pin),
+                    units_total=units_total or 1,
+                    cod=False,
+                    declared_value=discounted_subtotal,
+                    total_weight_kg=total_w,
+                    dims_cm=(max_l, max_b, max_h),
+                )
+                ship_estimate = est
+        except Exception:
+            ship_estimate = None
         if ship_estimate is not None:
             shipping = ship_estimate.quantize(Decimal("0.01"))
         else:
@@ -210,15 +223,24 @@ def add_to_cart(request, product_id):
     color = (request.POST.get("color") or "").strip()
     variant = None
     if product.variants.exists():
-        # Be tolerant: if both size and color provided, try exact match first.
-        # Otherwise, fall back to whichever attribute is available, then pick first variant.
+        # Robust resolution: case/whitespace tolerant matching
         qs = product.variants.all()
-        if size and color:
-            variant = qs.filter(size=size, color=color).first()
-        if not variant and size:
-            variant = qs.filter(size=size).first()
-        if not variant and color:
-            variant = qs.filter(color=color).first()
+        s = (size or "").strip()
+        c = (color or "").strip()
+        if s and c:
+            variant = qs.filter(size__iexact=s, color__iexact=c).first()
+            if not variant:
+                # Fallback robust loop
+                for v in qs:
+                    vs = (getattr(v, "size", "") or "").strip().lower()
+                    vc = (getattr(v, "color", "") or "").strip().lower()
+                    if vs == s.lower() and vc == c.lower():
+                        variant = v
+                        break
+        if not variant and s:
+            variant = qs.filter(size__iexact=s).first()
+        if not variant and c:
+            variant = qs.filter(color__iexact=c).first()
         if not variant:
             variant = qs.first()
 
@@ -261,12 +283,19 @@ def add_to_cart(request, product_id):
     # Buy Now flow: skip adding to cart, store as temporary session item
     if request.POST.get("buy_now") == "1":
         # Store selected variant info for reliable checkout summary
+        # Compute unit price with variant-aware logic to persist for checkout
+        try:
+            unit_for_bn = (variant.price() if variant else product.price())
+        except Exception:
+            unit_for_bn = product.price()
+        unit_for_bn = unit_for_bn.quantize(Decimal("0.01"))
         request.session["buy_now"] = {
             "product_id": product.id,
             "variant_id": (variant.id if variant else None),
             "size": size,
             "color": color,
             "quantity": qty,
+            "unit_price": str(unit_for_bn),
         }
         request.session.modified = True
         return redirect("checkout")
@@ -356,7 +385,8 @@ def update_cart_item(request, item_id):
             update_session_item_session(request, pid, vid, qty)
             product = get_object_or_404(Product, id=pid)
             variant = Variant.objects.filter(id=vid).first() if vid else None
-            line_total = product.price() * qty
+            unit = (variant.price() if variant else product.price())
+            line_total = unit * qty
             resp.update({"pid": pid, "vid": vid, "item_total": str(line_total.quantize(Decimal("0.01")))})
     else:
         pid = int(request.POST.get("product_id"))
@@ -378,7 +408,8 @@ def update_cart_item(request, item_id):
         update_session_item_session(request, pid, vid, qty)
         product = get_object_or_404(Product, id=pid)
         variant = Variant.objects.filter(id=vid).first() if vid else None
-        line_total = product.price() * qty
+        unit = (variant.price() if variant else product.price())
+        line_total = unit * qty
         resp.update({"pid": pid, "vid": vid, "item_total": str(line_total.quantize(Decimal("0.01")))})
 
     # Compute cart totals & count
@@ -394,52 +425,77 @@ def update_cart_item(request, item_id):
         subtotal = sum((it.line_total() for it in ses_items), Decimal("0.00"))
         cart_count = sum((it.quantity for it in ses_items), 0)
 
-    gst_amount = (subtotal * gst_rate).quantize(Decimal("0.01"))
-    # Try dynamic estimate for authenticated users with a default address
-    if subtotal >= Decimal(getattr(settings, "FREE_SHIPPING_THRESHOLD", 399)):
+    # Coupon application (mirror logic from view_cart)
+    coupon_code = get_session_coupon(request)
+    discount_amount = Decimal("0.00")
+    if coupon_code:
+        try:
+            c = Coupon.objects.get(code__iexact=coupon_code)
+            if c.is_valid():
+                discount_amount = (subtotal * Decimal(c.discount_percent) / Decimal("100")).quantize(Decimal("0.01"))
+        except Coupon.DoesNotExist:
+            pass
+
+    discounted_subtotal = (subtotal - discount_amount).quantize(Decimal("0.01"))
+    if discounted_subtotal < 0:
+        discounted_subtotal = Decimal("0.00")
+
+    gst_amount = (discounted_subtotal * gst_rate).quantize(Decimal("0.01"))
+    # Try dynamic estimate using session delivery pin or user's default address
+    if discounted_subtotal >= Decimal(getattr(settings, "FREE_SHIPPING_THRESHOLD", 399)):
         shipping = Decimal("0.00")
     else:
         ship_estimate = None
         try:
-            if request.user.is_authenticated:
+            delivery = request.session.get("delivery") or {}
+            drop_pin = (str(delivery.get("postal_code") or "").strip() or None)
+            if not drop_pin and request.user.is_authenticated:
                 addresses = Address.objects.filter(user=request.user)
                 default_address = addresses.filter(is_default=True).first() or addresses.first()
                 drop_pin = default_address.postal_code if default_address else None
-                if drop_pin and hasattr(request.user, "cart"):
-                    total_w = Decimal("0.00")
-                    max_l = int(getattr(settings, "SHIPROCKET_DEFAULT_DIM_LCM", 20))
-                    max_b = int(getattr(settings, "SHIPROCKET_DEFAULT_DIM_BCM", 15))
-                    max_h = int(getattr(settings, "SHIPROCKET_DEFAULT_DIM_HCM", 2))
-                    for it in request.user.cart.items.select_related("product", "variant"):
-                        if it.variant and getattr(it.variant, "weight_kg", None):
-                            w = Decimal(str(it.variant.weight_kg))
-                        elif getattr(it.product, "weight_kg", None):
-                            w = Decimal(str(it.product.weight_kg))
-                        else:
-                            w = Decimal(str(getattr(settings, "SHIPROCKET_DEFAULT_UNIT_WEIGHT_KG", 0.5)))
-                        total_w += (w * Decimal(it.quantity))
-                        lv = (getattr(it.variant, "length_cm", None) if it.variant else None) or getattr(it.product, "length_cm", None)
-                        bv = (getattr(it.variant, "breadth_cm", None) if it.variant else None) or getattr(it.product, "breadth_cm", None)
-                        hv = (getattr(it.variant, "height_cm", None) if it.variant else None) or getattr(it.product, "height_cm", None)
-                        if lv:
-                            try: max_l = max(max_l, int(lv))
-                            except Exception: pass
-                        if bv:
-                            try: max_b = max(max_b, int(bv))
-                            except Exception: pass
-                        if hv:
-                            try: max_h = max(max_h, int(hv))
-                            except Exception: pass
-                    units_total = sum((it.quantity for it in request.user.cart.items.all()), 0)
-                    est = estimate_shipping_charge(
-                        drop_pin=str(drop_pin),
-                        units_total=units_total or 1,
-                        cod=False,
-                        declared_value=subtotal,
-                        total_weight_kg=total_w,
-                        dims_cm=(max_l, max_b, max_h),
-                    )
-                    ship_estimate = est
+            if drop_pin:
+                total_w = Decimal("0.00")
+                max_l = int(getattr(settings, "SHIPROCKET_DEFAULT_DIM_LCM", 20))
+                max_b = int(getattr(settings, "SHIPROCKET_DEFAULT_DIM_BCM", 15))
+                max_h = int(getattr(settings, "SHIPROCKET_DEFAULT_DIM_HCM", 2))
+                if request.user.is_authenticated and hasattr(request.user, "cart"):
+                    items_iter = request.user.cart.items.select_related("product", "variant")
+                else:
+                    items_iter = get_session_items(request)
+                units_total = 0
+                for it in items_iter:
+                    qty = getattr(it, 'quantity', 0) or 0
+                    units_total += int(qty)
+                    var = getattr(it, 'variant', None)
+                    prod = getattr(it, 'product', None)
+                    if var and getattr(var, "weight_kg", None):
+                        w = Decimal(str(var.weight_kg))
+                    elif prod and getattr(prod, "weight_kg", None):
+                        w = Decimal(str(prod.weight_kg))
+                    else:
+                        w = Decimal(str(getattr(settings, "SHIPROCKET_DEFAULT_UNIT_WEIGHT_KG", 0.5)))
+                    total_w += (w * Decimal(qty))
+                    lv = (getattr(var, "length_cm", None) if var else None) or (getattr(prod, "length_cm", None) if prod else None)
+                    bv = (getattr(var, "breadth_cm", None) if var else None) or (getattr(prod, "breadth_cm", None) if prod else None)
+                    hv = (getattr(var, "height_cm", None) if var else None) or (getattr(prod, "height_cm", None) if prod else None)
+                    if lv:
+                        try: max_l = max(max_l, int(lv))
+                        except Exception: pass
+                    if bv:
+                        try: max_b = max(max_b, int(bv))
+                        except Exception: pass
+                    if hv:
+                        try: max_h = max(max_h, int(hv))
+                        except Exception: pass
+                est = estimate_shipping_charge(
+                    drop_pin=str(drop_pin),
+                    units_total=units_total or 1,
+                    cod=False,
+                    declared_value=discounted_subtotal,
+                    total_weight_kg=total_w,
+                    dims_cm=(max_l, max_b, max_h),
+                )
+                ship_estimate = est
         except Exception:
             ship_estimate = None
 
@@ -447,10 +503,12 @@ def update_cart_item(request, item_id):
             shipping = Decimal(ship_estimate).quantize(Decimal("0.01"))
         else:
             shipping = flat
-    total = (subtotal + gst_amount + shipping).quantize(Decimal("0.01"))
+    total = (discounted_subtotal + gst_amount + shipping).quantize(Decimal("0.01"))
 
     resp.update({
         "subtotal": str(subtotal),
+        "discount_amount": str(discount_amount),
+        "discounted_subtotal": str(discounted_subtotal),
         "gst_amount": str(gst_amount),
         "shipping": str(shipping),
         "total": str(total),
@@ -487,13 +545,27 @@ def update_cart_variant(request, item_id):
             return redirect("view_cart")
         # Merge if exists
         existing = CartItem.objects.filter(cart=item.cart, product=product, variant=new_variant).first()
+        # Determine target quantity with clamp/reset-to-1 rule if new stock is lower than current qty
+        try:
+            new_stock = int(getattr(new_variant, "stock", 0) or 0)
+        except Exception:
+            new_stock = 0
+        qty_current = int(getattr(item, "quantity", 1) or 1)
+        # Clamp to new stock instead of resetting to 1
+        qty_to_apply = max(1, min(qty_current, new_stock))
         if existing:
-            existing.quantity += item.quantity
+            # Merge and clamp to available stock
+            if new_stock > 0:
+                existing.quantity = min(int(existing.quantity) + qty_to_apply, new_stock)
+            else:
+                existing.quantity = int(existing.quantity) + qty_to_apply
             existing.save()
+            # Remove original row
             item.delete()
         else:
             item.variant = new_variant
-            item.save()
+            item.quantity = qty_to_apply
+            item.save(update_fields=["variant", "quantity"])
         messages.success(request, "Size updated")
         return redirect("view_cart")
     # Session path
@@ -511,15 +583,21 @@ def update_cart_variant(request, item_id):
     except Variant.DoesNotExist:
         messages.error(request, "Selected size not available")
         return redirect("view_cart")
-    # Determine current qty in session
+    # Determine current qty in session and clamp/reset when switching to a lower-stock variant
     ses_items = get_session_items(request)
     qty = 1
     for it in ses_items:
         if it.product.id == pid and ((it.variant and it.variant.id) == cur_vid or (it.variant is None and cur_vid is None)):
             qty = it.quantity
             break
+    try:
+        new_stock = int(getattr(new_variant, "stock", 0) or 0)
+    except Exception:
+        new_stock = 0
+    # Clamp to new stock instead of resetting to 1
+    qty_to_apply = max(1, min(qty, new_stock))
     remove_session_item_session(request, pid, cur_vid)
-    add_session_item(request, pid, new_variant.id if new_variant else None, qty)
+    add_session_item(request, pid, new_variant.id if new_variant else None, qty_to_apply)
     messages.success(request, "Size updated")
     return redirect("view_cart")
 
@@ -552,9 +630,80 @@ def remove_cart_item(request, item_id):
         ses_items = get_session_items(request)
         subtotal = sum((it.line_total() for it in ses_items), Decimal("0.00"))
         cart_count = sum((it.quantity for it in ses_items), 0)
-    gst_amount = (subtotal * gst_rate).quantize(Decimal("0.01"))
-    shipping = Decimal("0.00") if subtotal >= Decimal(getattr(settings, "FREE_SHIPPING_THRESHOLD", 399)) else flat
-    total = (subtotal + gst_amount + shipping).quantize(Decimal("0.01"))
+    # Coupon + discounted subtotal
+    coupon_code = get_session_coupon(request)
+    discount_amount = Decimal("0.00")
+    if coupon_code:
+        try:
+            c = Coupon.objects.get(code__iexact=coupon_code)
+            if c.is_valid():
+                discount_amount = (subtotal * Decimal(c.discount_percent) / Decimal("100")).quantize(Decimal("0.01"))
+        except Coupon.DoesNotExist:
+            pass
+    discounted_subtotal = (subtotal - discount_amount).quantize(Decimal("0.01"))
+    if discounted_subtotal < 0:
+        discounted_subtotal = Decimal("0.00")
+    gst_amount = (discounted_subtotal * gst_rate).quantize(Decimal("0.01"))
+    # Dynamic estimate using session delivery pin or default address
+    if discounted_subtotal >= Decimal(getattr(settings, "FREE_SHIPPING_THRESHOLD", 399)):
+        shipping = Decimal("0.00")
+    else:
+        ship_estimate = None
+        try:
+            delivery = request.session.get("delivery") or {}
+            drop_pin = (str(delivery.get("postal_code") or "").strip() or None)
+            if not drop_pin and request.user.is_authenticated and hasattr(request.user, "cart"):
+                addresses = Address.objects.filter(user=request.user)
+                default_address = addresses.filter(is_default=True).first() or addresses.first()
+                drop_pin = default_address.postal_code if default_address else None
+            if drop_pin:
+                total_w = Decimal("0.00")
+                max_l = int(getattr(settings, "SHIPROCKET_DEFAULT_DIM_LCM", 20))
+                max_b = int(getattr(settings, "SHIPROCKET_DEFAULT_DIM_BCM", 15))
+                max_h = int(getattr(settings, "SHIPROCKET_DEFAULT_DIM_HCM", 2))
+                items_iter = None
+                if request.user.is_authenticated and hasattr(request.user, "cart"):
+                    items_iter = request.user.cart.items.select_related("product", "variant")
+                else:
+                    items_iter = get_session_items(request)
+                units_total = 0
+                for it in items_iter:
+                    qty = getattr(it, 'quantity', 0) or 0
+                    units_total += int(qty)
+                    var = getattr(it, 'variant', None)
+                    prod = getattr(it, 'product', None)
+                    if var and getattr(var, "weight_kg", None):
+                        w = Decimal(str(var.weight_kg))
+                    elif prod and getattr(prod, "weight_kg", None):
+                        w = Decimal(str(prod.weight_kg))
+                    else:
+                        w = Decimal(str(getattr(settings, "SHIPROCKET_DEFAULT_UNIT_WEIGHT_KG", 0.5)))
+                    total_w += (w * Decimal(qty))
+                    lv = (getattr(var, "length_cm", None) if var else None) or (getattr(prod, "length_cm", None) if prod else None)
+                    bv = (getattr(var, "breadth_cm", None) if var else None) or (getattr(prod, "breadth_cm", None) if prod else None)
+                    hv = (getattr(var, "height_cm", None) if var else None) or (getattr(prod, "height_cm", None) if prod else None)
+                    if lv:
+                        try: max_l = max(max_l, int(lv))
+                        except Exception: pass
+                    if bv:
+                        try: max_b = max(max_b, int(bv))
+                        except Exception: pass
+                    if hv:
+                        try: max_h = max(max_h, int(hv))
+                        except Exception: pass
+                est = estimate_shipping_charge(
+                    drop_pin=str(drop_pin),
+                    units_total=units_total or 1,
+                    cod=False,
+                    declared_value=discounted_subtotal,
+                    total_weight_kg=total_w,
+                    dims_cm=(max_l, max_b, max_h),
+                )
+                ship_estimate = est
+        except Exception:
+            ship_estimate = None
+        shipping = ship_estimate.quantize(Decimal("0.01")) if ship_estimate is not None else flat
+    total = (discounted_subtotal + gst_amount + shipping).quantize(Decimal("0.01"))
 
     if is_ajax:
         return JsonResponse({
@@ -562,6 +711,8 @@ def remove_cart_item(request, item_id):
             "pid": pid,
             "vid": vid,
             "subtotal": str(subtotal),
+            "discount_amount": str(discount_amount),
+            "discounted_subtotal": str(discounted_subtotal),
             "gst_amount": str(gst_amount),
             "shipping": str(shipping),
             "total": str(total),

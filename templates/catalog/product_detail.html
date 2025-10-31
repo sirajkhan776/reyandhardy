@@ -82,12 +82,8 @@
       <h2>{{ product.name }}</h2>
       <p>{{ product.description }}</p>
       <div class="mb-2">
-        {% if product.sale_price %}
-          <span class="price">{{ CURRENCY_SYMBOL }}{{ product.sale_price }}</span>
-          <span class="price-old">{{ CURRENCY_SYMBOL }}{{ product.base_price }}</span>
-        {% else %}
-          <span class="price">{{ CURRENCY_SYMBOL }}{{ product.base_price }}</span>
-        {% endif %}
+        <span class="price">{{ CURRENCY_SYMBOL }}<span id="pdPriceVal">{{ product.sale_price|default:product.base_price }}</span></span>
+        <span id="pdPriceOldWrap" class="price-old{% if not product.sale_price %} d-none{% endif %}">{{ CURRENCY_SYMBOL }}<span id="pdPriceOldVal">{{ product.base_price }}</span></span>
         <small class="text-muted">incl. GST at checkout</small>
       </div>
 
@@ -280,6 +276,10 @@
       var COLOR_SIZE_MAP = (function(){ try { return JSON.parse('{{ color_size_map_json|escapejs }}'); } catch(e){ return {}; } })();
       var ALL_SIZES = (function(){ try { return JSON.parse('{{ sizes_json|escapejs }}'); } catch(e){ return []; } })();
       var VARIANT_STOCK = (function(){ try { return JSON.parse('{{ variant_stock_map_json|escapejs }}'); } catch(e){ return {}; } })();
+      var VARIANT_PRICE = (function(){ try { return JSON.parse('{{ variant_price_map_json|escapejs }}'); } catch(e){ return {}; } })();
+      var PD_BASE = '{{ product.base_price }}';
+      var PD_SALE = {% if product.sale_price %}'{{ product.sale_price }}'{% else %}null{% endif %};
+      var CUR = '{{ CURRENCY_SYMBOL }}';
       var mediaTimer = null;
       function cacheOriginal(containerId){
         var cont = document.getElementById(containerId);
@@ -391,6 +391,58 @@
               desk.classList.add('text-muted');
             }
           }
+        } catch(e){}
+      }
+      function priceFor(color, size){
+        var pv = (VARIANT_PRICE[color] && VARIANT_PRICE[color][size]) ? VARIANT_PRICE[color][size] : {};
+        var vSale = (pv && pv.sale != null) ? pv.sale : null;
+        var vBase = (pv && pv.base != null) ? pv.base : null;
+        if (vSale != null){
+          return { display: vSale, old: (vBase != null ? vBase : null) };
+        }
+        if (vBase != null){
+          return { display: vBase, old: null };
+        }
+        // Fallback to product-level
+        if (PD_SALE != null){
+          return { display: PD_SALE, old: PD_BASE };
+        }
+        return { display: PD_BASE, old: null };
+      }
+      function updateVariantPrice(){
+        try {
+          var sel = currentSelection();
+          var p = priceFor(sel.color, sel.size);
+          var pv = document.getElementById('pdPriceVal');
+          var ow = document.getElementById('pdPriceOldWrap');
+          var ov = document.getElementById('pdPriceOldVal');
+          if (pv) pv.textContent = p.display || PD_BASE;
+          if (p.old){ if (ov) ov.textContent = p.old; if (ow) ow.classList.remove('d-none'); }
+          else { if (ow) ow.classList.add('d-none'); }
+        } catch(e){}
+      }
+      function refreshSizePricesForColor(){
+        try {
+          var color = (document.querySelector('input[name="colorMobile"]:checked') || {}).value || (document.getElementById('colorSelect') || {}).value || '';
+          // Desktop select options
+          var sel = document.getElementById('sizeSelect');
+          if (sel){
+            Array.prototype.forEach.call(sel.options, function(opt){
+              var size = opt.value;
+              var p = priceFor(color, size);
+              var label = size + ' — ' + CUR + (p.display || PD_BASE);
+              opt.textContent = label;
+            });
+          }
+          // Mobile pills
+          document.querySelectorAll('#sizePills .size-option').forEach(function(wrap){
+            var lab = wrap.querySelector('.size-label');
+            var priceEl = wrap.querySelector('.size-price');
+            if (!lab || !priceEl) return;
+            var size = lab.textContent.trim();
+            var p = priceFor(color, size);
+            priceEl.textContent = CUR + (p.display || PD_BASE);
+          });
         } catch(e){}
       }
       function updateSizeListStocks(){
@@ -512,14 +564,16 @@
           filterByColor();
         });
       })();
-      document.querySelectorAll('input[name="colorMobile"]').forEach(function(r){ r.addEventListener('change', function(){ filterByColor(); updateSizeListStocks(); }); });
-      var cs = document.getElementById('colorSelect'); if (cs) cs.addEventListener('change', function(){ filterByColor(); updateSizeListStocks(); });
-      document.querySelectorAll('input[name="sizeMobile"]').forEach(function(r){ r.addEventListener('change', function(){ updateVariantStock(); updateSizeListStocks(); }); });
-      var ss = document.getElementById('sizeSelect'); if (ss) ss.addEventListener('change', function(){ updateVariantStock(); });
+      document.querySelectorAll('input[name="colorMobile"]').forEach(function(r){ r.addEventListener('change', function(){ filterByColor(); updateSizeListStocks(); refreshSizePricesForColor(); updateVariantPrice(); }); });
+      var cs = document.getElementById('colorSelect'); if (cs) cs.addEventListener('change', function(){ filterByColor(); updateSizeListStocks(); refreshSizePricesForColor(); updateVariantPrice(); });
+      document.querySelectorAll('input[name="sizeMobile"]').forEach(function(r){ r.addEventListener('change', function(){ updateVariantStock(); updateSizeListStocks(); updateVariantPrice(); }); });
+      var ss = document.getElementById('sizeSelect'); if (ss) ss.addEventListener('change', function(){ updateVariantStock(); updateVariantPrice(); });
       filterByColor();
       updateSizesByColor();
       updateVariantStock();
       updateSizeListStocks();
+      refreshSizePricesForColor();
+      updateVariantPrice();
     });
   })();
  </script>

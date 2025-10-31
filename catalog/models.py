@@ -100,6 +100,9 @@ class Variant(models.Model):
     color = models.CharField(max_length=30)
     sku = models.CharField(max_length=50, unique=True)
     stock = models.PositiveIntegerField(default=0)
+    # Retail pricing at variant level (optional; falls back to product when blank)
+    base_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    sale_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     # Cost of goods per unit (for profit analytics). Optional; defaults to 0.
     cost_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     # Optional per-variant shipping attributes
@@ -113,6 +116,14 @@ class Variant(models.Model):
 
     def __str__(self):
         return f"{self.product.name} - {self.size} / {self.color}"
+
+    def price(self) -> Decimal:
+        """Variant retail price with fallback to product price when unset."""
+        if self.sale_price is not None:
+            return self.sale_price
+        if self.base_price is not None:
+            return self.base_price
+        return self.product.price()
 
 
 class WishlistItem(models.Model):
