@@ -5,6 +5,7 @@ from django.dispatch import receiver
 
 from .models import Order
 from django.core.mail import EmailMultiAlternatives
+from threading import Thread
 from django.template.loader import render_to_string
 from django.contrib.sites.models import Site
 from .shiprocket import create_shiprocket_shipment
@@ -70,6 +71,12 @@ def notify_new_order_created(sender, instance: Order, created: bool, **kwargs):
         from_email = getattr(settings, "DEFAULT_FROM_EMAIL", None) or None
         msg = EmailMultiAlternatives(subject, text_body, from_email, recipients)
         msg.attach_alternative(html_body, "text/html")
-        msg.send(fail_silently=True)
+        # Send asynchronously to avoid blocking request thread on SMTP connect
+        def _send(m):
+            try:
+                m.send(fail_silently=True)
+            except Exception:
+                logger.exception("Email send failed for order %s", instance.order_number)
+        Thread(target=_send, args=(msg,), daemon=True).start()
     except Exception:
         logger.exception("Failed to send new-order alert for %s", instance.order_number)
