@@ -5,7 +5,11 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$HERE/.." && pwd)"
 cd "$ROOT"
 
-echo "[build] Installing/migrating DB and seeding if empty…"
+echo "[build] Installing dependencies…"
+python -m pip install --upgrade pip wheel setuptools
+python -m pip install -r requirements.txt
+
+echo "[build] Migrating DB and seeding if empty…"
 python manage.py migrate --noinput
 
 if [[ -f "data.json" ]]; then
@@ -34,4 +38,3 @@ echo "[build] Collecting static…"
 python manage.py collectstatic --noinput || true
 
 echo "[build] Done."
-
